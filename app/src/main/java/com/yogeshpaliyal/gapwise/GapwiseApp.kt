@@ -13,13 +13,14 @@ class GapwiseApp : Application(), Configuration.Provider {
         get() = Configuration.Builder().build()
 
     val database: GapwiseDatabase by lazy { GapwiseDatabase.create(this) }
-    val repository: GapwiseRepository by lazy { GapwiseRepository(this, database.dao()) }
+    val repository: GapwiseRepository by lazy { GapwiseRepository(this, database) }
     val prefs: Prefs by lazy { Prefs(this) }
 
     override fun onCreate() {
         super.onCreate()
         Nudges.createChannel(this)
         Nudges.schedule(this)
+        com.yogeshpaliyal.gapwise.backup.DriveBackupWorker.schedule(this)
     }
 }
 
@@ -39,6 +40,15 @@ class Prefs(context: Context) {
     var nudgesOn: Boolean
         get() = sp.getBoolean("nudges", true)
         set(v) = sp.edit().putBoolean("nudges", v).apply()
+
+    var driveAutoBackup: Boolean
+        get() = sp.getBoolean("drive_auto", false)
+        set(v) = sp.edit().putBoolean("drive_auto", v).apply()
+
+    /** When this phone last backed up to Drive (ms), 0 if never. */
+    var lastDriveBackupAt: Long
+        get() = sp.getLong("drive_last", 0L)
+        set(v) = sp.edit().putLong("drive_last", v).apply()
 
     var welcomeSeen: Boolean
         get() = sp.getBoolean("welcome_seen", false)

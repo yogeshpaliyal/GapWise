@@ -107,17 +107,19 @@ fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
                 })
             }
             HorizontalDivider()
+            DriveSection()
+            HorizontalDivider()
             ShapeLegend()
             HorizontalDivider()
             Item("Suggested events", "Browse over 40 starter ideas") { onOpenTour() }
-            Item("Export backup", "Save all events and history as a JSON file") {
+            Item("Export to a file", "Save all events and history as a JSON file") {
                 exporter.launch("gapwise-${LocalDate.now()}.json")
             }
-            Item("Import backup", "Add events from a Gapwise JSON file. Nothing is overwritten.") {
+            Item("Import from a file", "Add events from a Gapwise JSON file. Nothing is overwritten.") {
                 importer.launch(arrayOf("application/json", "text/plain", "*/*"))
             }
             HorizontalDivider()
-            Item("Privacy", "No account, no ads, no tracking. Your data stays on this phone.") {}
+            Item("Privacy", "No account, no ads, no tracking. Your data stays on this phone unless you back it up to your own Google Drive.") {}
             Item("Version", BuildConfigInfo.versionName(context)) {}
         }
     }

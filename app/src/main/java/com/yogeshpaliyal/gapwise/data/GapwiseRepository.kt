@@ -4,6 +4,7 @@ import android.content.Context
 import com.yogeshpaliyal.gapwise.domain.DAY_MS
 import com.yogeshpaliyal.gapwise.shortcuts.ShortcutPublisher
 import com.yogeshpaliyal.gapwise.widget.GapwiseWidget
+import androidx.room.withTransaction
 import kotlinx.coroutines.flow.Flow
 
 /** What a tap did, so it can be undone. */
@@ -16,8 +17,10 @@ sealed interface LogResult {
 
 class GapwiseRepository(
     private val context: Context,
-    private val dao: GapwiseDao,
+    private val db: GapwiseDatabase,
 ) {
+    private val dao: GapwiseDao = db.dao()
+
     fun observeAll(): Flow<List<EventWithLogs>> = dao.observeAll()
     fun observe(id: Long): Flow<EventWithLogs?> = dao.observe(id)
     suspend fun getAll(): List<EventWithLogs> = dao.getAll()
@@ -112,6 +115,31 @@ class GapwiseRepository(
     }
 
     suspend fun exportJson(): String = BackupCodec.encode(dao.getAll())
+
+    /**
+     * Restore: replaces everything on this phone with the backup, in one
+     * transaction, so a bad file never leaves you half-restored.
+     * Returns how many events were restored.
+     */
+    suspend fun restoreJson(text: String): Int {
+        val file = BackupCodec.decode(text) // fails before anything is deleted
+        db.withTransaction {
+            dao.deleteAllLogs()
+            dao.deleteAllEvents()
+            file.events.forEachIndexed { i, b ->
+                val id = dao.insertEvent(
+                    EventEntity(
+                        name = b.name, emoji = b.emoji, color = b.color, category = b.category,
+                        isMultiDay = b.isMultiDay, pinned = b.pinned, hidden = b.hidden, paused = b.paused,
+                        nudgesEnabled = b.nudgesEnabled, sortOrder = i,
+                    ),
+                )
+                dao.insertLogs(b.logs.map { LogEntity(eventId = id, startAt = it.startAt, endAt = it.endAt, note = it.note) })
+            }
+        }
+        changed()
+        return file.events.size
+    }
 
     /** Imports are additive: existing events are kept. Returns how many events were added. */
     suspend fun importJson(text: String): Int {

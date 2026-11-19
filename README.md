@@ -22,6 +22,21 @@ Gapwise tracks how long it's been since you last did the things that don't run o
 
 The app uses Material 3 Expressive. Each event's icon sits in a shape that shows where it is in its cycle: a circle when it's fresh, a scallop as it builds, a sun when it's around now, and a soft burst when it's past your usual. Logging morphs the shape back. Numbers are set in Bitter and the interface text in DM Sans. Both fonts are under the SIL Open Font License; see `licenses/`.
 
+## Google Drive backup
+
+Settings has **Back up now**, **Restore** (replaces everything on the phone) and an optional **Back up every day** (Wi-Fi only). Backups go to the hidden Drive *app data* folder (`drive.appdata` scope), so they don't clutter the user's Drive and only Gapwise can read them.
+
+Google needs to know the app before it can grant Drive access. One-time setup in [Google Cloud Console](https://console.cloud.google.com/):
+
+1. Create (or pick) a project and **enable the Google Drive API**.
+2. **OAuth consent screen**: set it up as *External*, add the `.../auth/drive.appdata` scope, and while in *Testing* add your Google account as a test user.
+3. **Credentials → Create credentials → OAuth client ID → Android**:
+   - Package name: `com.yogeshpaliyal.gapwise`
+   - SHA-1: `3E:6A:14:8B:1D:1D:79:61:16:12:E6:55:8B:35:E4:1A:68:BE:A5:CE` (the committed `app/debug.keystore`, which also signs the latest-master APK)
+   - Add another Android client with your release key's SHA-1 (or Play App Signing's) when you ship on Play.
+
+No client ID goes into the code: Google matches the package name and signing certificate. Until this is done, Drive actions show a message pointing here.
+
 ## Build
 
 ```

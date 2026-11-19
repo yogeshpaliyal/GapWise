@@ -60,6 +60,12 @@ interface GapwiseDao {
     @Query("DELETE FROM logs WHERE id = :id")
     suspend fun deleteLog(id: Long)
 
+    @Query("DELETE FROM logs")
+    suspend fun deleteAllLogs()
+
+    @Query("DELETE FROM events")
+    suspend fun deleteAllEvents()
+
     @Query("SELECT * FROM logs WHERE id = :id")
     suspend fun getLog(id: Long): LogEntity?
 }
