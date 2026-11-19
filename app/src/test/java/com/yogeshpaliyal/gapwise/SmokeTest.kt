@@ -53,7 +53,12 @@ class SmokeTest {
             compose.onAllNodes(hasSetTextAction())[1].performTextInput("Haircut")
             compose.onNodeWithText("Add event").performScrollTo().performClick()
 
-            compose.waitUntil(10_000) { compose.onAllNodesWithText("Haircut").fetchSemanticsNodes().isNotEmpty() }
+            // Back on home once the editor is gone and the new card is there.
+            compose.waitUntil(10_000) {
+                compose.onAllNodesWithText("New event").fetchSemanticsNodes().isEmpty() &&
+                    compose.onAllNodesWithText("Haircut").fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.waitForIdle()
             compose.onAllNodesWithText("Haircut")[0].performTouchInput { longClick() }
 
             compose.waitUntil(10_000) { compose.onAllNodesWithText("History").fetchSemanticsNodes().isNotEmpty() }
@@ -64,7 +69,7 @@ class SmokeTest {
     fun welcomeTourAddsEvents() {
         ApplicationProvider.getApplicationContext<GapwiseApp>().prefs.welcomeSeen = false
         ActivityScenario.launch(MainActivity::class.java).use {
-            compose.onNodeWithText("Haircut").performClick()
+            compose.onNodeWithText("Water plants").performClick()
             compose.onNodeWithText("Add 1 event").performClick()
             compose.waitUntil(10_000) { compose.onAllNodesWithText("Gapwise").fetchSemanticsNodes().isNotEmpty() }
         }
