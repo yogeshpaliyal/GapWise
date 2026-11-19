@@ -92,10 +92,13 @@ class TilesWidgetConfigActivity : ComponentActivity() {
                 val selected = remember { mutableStateListOf<Long>() }
                 var loaded by remember { mutableStateOf(false) }
                 LaunchedEffect(Unit) {
-                    val glanceId = GlanceAppWidgetManager(this@TilesWidgetConfigActivity).getGlanceIdBy(appWidgetId)
-                    val prefs = getAppWidgetState(this@TilesWidgetConfigActivity, PreferencesGlanceStateDefinition, glanceId)
-                    selected.addAll(prefs[TileIdsKey].orEmpty().split(',').mapNotNull { it.trim().toLongOrNull() })
-                    loaded = true
+                    val ok = runCatching {
+                        val glanceId = GlanceAppWidgetManager(this@TilesWidgetConfigActivity).getGlanceIdBy(appWidgetId)
+                        val prefs = getAppWidgetState(this@TilesWidgetConfigActivity, PreferencesGlanceStateDefinition, glanceId)
+                        selected.addAll(prefs[TileIdsKey].orEmpty().split(',').mapNotNull { it.trim().toLongOrNull() })
+                    }.isSuccess
+                    // Not a real widget (e.g. opened by mistake): nothing to configure.
+                    if (!ok) finish() else loaded = true
                 }
                 ConfigScreen(
                     loaded = loaded,

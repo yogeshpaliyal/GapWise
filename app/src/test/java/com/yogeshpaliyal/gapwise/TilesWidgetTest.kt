@@ -18,6 +18,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
+import com.yogeshpaliyal.gapwise.widget.GapwiseTilesWidgetReceiver
 
 @RunWith(RobolectricTestRunner::class)
 class TilesWidgetTest {
@@ -41,9 +43,11 @@ class TilesWidgetTest {
             app.repository.createEvent(EventEntity(name = "Haircut", emoji = "💇", color = 0xFF3B82F6, category = "Self-care"))
             app.repository.createEvent(EventEntity(name = "Call Mom", emoji = "📞", color = 0xFFEC4899, category = "People"))
         }
+        val widgetId = shadowOf(AppWidgetManager.getInstance(app))
+            .createWidget(GapwiseTilesWidgetReceiver::class.java, R.layout.glance_default_loading_layout)
         val intent = Intent(app, TilesWidgetConfigActivity::class.java)
             .setAction(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
-            .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, 42)
+            .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
         ActivityScenario.launch<TilesWidgetConfigActivity>(intent).use {
             compose.waitUntil(10_000) { compose.onAllNodesWithText("Haircut").fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithText("Haircut").performClick()
