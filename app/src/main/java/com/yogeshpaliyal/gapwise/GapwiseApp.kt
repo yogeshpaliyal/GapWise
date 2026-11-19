@@ -2,11 +2,16 @@ package com.yogeshpaliyal.gapwise
 
 import android.app.Application
 import android.content.Context
+import androidx.work.Configuration
 import com.yogeshpaliyal.gapwise.data.GapwiseDatabase
 import com.yogeshpaliyal.gapwise.data.GapwiseRepository
 import com.yogeshpaliyal.gapwise.notify.Nudges
 
-class GapwiseApp : Application() {
+class GapwiseApp : Application(), Configuration.Provider {
+    /** WorkManager initialises on demand from this, rather than at startup. */
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder().build()
+
     val database: GapwiseDatabase by lazy { GapwiseDatabase.create(this) }
     val repository: GapwiseRepository by lazy { GapwiseRepository(this, database.dao()) }
     val prefs: Prefs by lazy { Prefs(this) }
