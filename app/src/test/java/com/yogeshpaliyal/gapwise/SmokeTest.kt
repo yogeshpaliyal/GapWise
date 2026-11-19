@@ -2,7 +2,9 @@ package com.yogeshpaliyal.gapwise
 
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasScrollToNodeAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
@@ -67,8 +69,10 @@ class SmokeTest {
             // Details + history timeline for an event with two logs.
             compose.onAllNodesWithText("Water plants")[0].performTouchInput { longClick() }
 
-            waitOrDump("details open") { compose.onAllNodesWithText("History").fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithText("Moved the fern").performScrollTo().assertExists()
+            waitOrDump("details open") { compose.onAllNodesWithText("Log a past day").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNode(hasScrollToNodeAction()).performScrollToNode(hasText("Moved the fern"))
+            compose.onNodeWithText("Moved the fern").assertExists()
+            compose.onNode(hasScrollToNodeAction()).performScrollToNode(hasText("6 days later", substring = true))
         }
     }
 
