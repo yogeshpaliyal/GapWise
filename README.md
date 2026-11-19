@@ -28,7 +28,7 @@ The app uses Material 3 Expressive. Each event's icon sits in a shape that shows
 
 Debug and CI builds are signed with the committed `app/debug.keystore` (standard debug passwords), so a new APK installs over the previous one.
 
-Requires JDK 17 and the Android SDK (compileSdk 36, minSdk 26). The stack is Kotlin, Jetpack Compose with Material 3, Room, WorkManager and Glance.
+Requires JDK 17 and the Android SDK (compileSdk 37, minSdk 26). The stack is Kotlin, Jetpack Compose with Material 3, Room, WorkManager and Glance.
 
 ## Latest build
 
