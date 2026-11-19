@@ -43,11 +43,13 @@ class SmokeTest {
     fun addEventFromPlus_thenOpenDetails() {
         // A logged event next to a never-logged one used to crash the home sort.
         val app = ApplicationProvider.getApplicationContext<GapwiseApp>()
+        val day = 24 * 60 * 60 * 1000L
         runBlocking {
-            app.repository.createEvent(
+            val id = app.repository.createEvent(
                 EventEntity(name = "Water plants", emoji = "🪴", color = 0xFF4E7D57, category = "Home"),
-                firstLogAt = System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000L,
+                firstLogAt = System.currentTimeMillis() - 9 * day,
             )
+            app.repository.addLog(id, System.currentTimeMillis() - 3 * day, null, "Moved the fern")
         }
         ActivityScenario.launch(MainActivity::class.java).use {
             compose.onNodeWithContentDescription("New event").performClick()
@@ -60,11 +62,13 @@ class SmokeTest {
 
             // Back on home once the editor is gone and the new card is there.
             waitOrDump("editor closes") { compose.onAllNodesWithText("New event").fetchSemanticsNodes().isEmpty() }
-            waitOrDump("new card on home") { compose.onAllNodesWithText("Haircut").fetchSemanticsNodes().isNotEmpty() }
-            compose.waitForIdle()
-            compose.onAllNodesWithText("Haircut")[0].performTouchInput { longClick() }
+            waitOrDump("event saved") { runBlocking { app.repository.getAll().any { it.event.name == "Haircut" } } }
+
+            // Details + history timeline for an event with two logs.
+            compose.onAllNodesWithText("Water plants")[0].performTouchInput { longClick() }
 
             waitOrDump("details open") { compose.onAllNodesWithText("History").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithText("Moved the fern").performScrollTo().assertExists()
         }
     }
 
