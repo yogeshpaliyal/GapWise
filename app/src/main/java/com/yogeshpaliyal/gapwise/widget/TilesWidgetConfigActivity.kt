@@ -92,13 +92,13 @@ class TilesWidgetConfigActivity : ComponentActivity() {
                 val selected = remember { mutableStateListOf<Long>() }
                 var loaded by remember { mutableStateOf(false) }
                 LaunchedEffect(Unit) {
-                    val ok = runCatching {
+                    // Pre-select what this widget already shows, if anything.
+                    runCatching {
                         val glanceId = GlanceAppWidgetManager(this@TilesWidgetConfigActivity).getGlanceIdBy(appWidgetId)
                         val prefs = getAppWidgetState(this@TilesWidgetConfigActivity, PreferencesGlanceStateDefinition, glanceId)
                         selected.addAll(prefs[TileIdsKey].orEmpty().split(',').mapNotNull { it.trim().toLongOrNull() })
-                    }.isSuccess
-                    // Not a real widget (e.g. opened by mistake): nothing to configure.
-                    if (!ok) finish() else loaded = true
+                    }
+                    loaded = true
                 }
                 ConfigScreen(
                     loaded = loaded,
@@ -114,12 +114,14 @@ class TilesWidgetConfigActivity : ComponentActivity() {
 
     private fun save(ids: List<Long>) {
         lifecycleScope.launch {
-            val glanceId = GlanceAppWidgetManager(this@TilesWidgetConfigActivity).getGlanceIdBy(appWidgetId)
-            updateAppWidgetState(this@TilesWidgetConfigActivity, glanceId) { prefs ->
-                prefs[TileIdsKey] = ids.joinToString(",")
-            }
-            GapwiseTilesWidget().update(this@TilesWidgetConfigActivity, glanceId)
-            setResult(RESULT_OK, resultIntent())
+            val saved = runCatching {
+                val glanceId = GlanceAppWidgetManager(this@TilesWidgetConfigActivity).getGlanceIdBy(appWidgetId)
+                updateAppWidgetState(this@TilesWidgetConfigActivity, glanceId) { prefs ->
+                    prefs[TileIdsKey] = ids.joinToString(",")
+                }
+                GapwiseTilesWidget().update(this@TilesWidgetConfigActivity, glanceId)
+            }.isSuccess
+            if (saved) setResult(RESULT_OK, resultIntent())
             finish()
         }
     }
