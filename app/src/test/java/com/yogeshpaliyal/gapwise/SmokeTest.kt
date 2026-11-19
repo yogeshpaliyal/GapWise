@@ -1,6 +1,10 @@
 package com.yogeshpaliyal.gapwise
 
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithText
@@ -50,18 +54,26 @@ class SmokeTest {
             compose.waitForIdle()
             compose.onNodeWithText("New event").assertExists()
 
-            compose.onAllNodes(hasSetTextAction())[1].performTextInput("Haircut")
-            compose.onNodeWithText("Add event").performScrollTo().performClick()
+            compose.onNode(hasSetTextAction() and hasText("What do you want to track?")).performTextInput("Haircut")
+            compose.waitForIdle()
+            compose.onNodeWithText("Add event").performScrollTo().assertIsEnabled().performClick()
 
             // Back on home once the editor is gone and the new card is there.
-            compose.waitUntil(10_000) {
-                compose.onAllNodesWithText("New event").fetchSemanticsNodes().isEmpty() &&
-                    compose.onAllNodesWithText("Haircut").fetchSemanticsNodes().isNotEmpty()
-            }
+            waitOrDump("editor closes") { compose.onAllNodesWithText("New event").fetchSemanticsNodes().isEmpty() }
+            waitOrDump("new card on home") { compose.onAllNodesWithText("Haircut").fetchSemanticsNodes().isNotEmpty() }
             compose.waitForIdle()
             compose.onAllNodesWithText("Haircut")[0].performTouchInput { longClick() }
 
-            compose.waitUntil(10_000) { compose.onAllNodesWithText("History").fetchSemanticsNodes().isNotEmpty() }
+            waitOrDump("details open") { compose.onAllNodesWithText("History").fetchSemanticsNodes().isNotEmpty() }
+        }
+    }
+
+    /** Waits, and on timeout fails with the current screen's semantics tree. */
+    private fun waitOrDump(what: String, condition: () -> Boolean) {
+        try {
+            compose.waitUntil(10_000, condition)
+        } catch (e: Throwable) {
+            throw AssertionError("Timed out waiting for: $what\n" + compose.onRoot().printToString(maxDepth = 30), e)
         }
     }
 
