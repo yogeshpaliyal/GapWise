@@ -59,10 +59,18 @@ import com.yogeshpaliyal.gapwise.data.LogResult
 import com.yogeshpaliyal.gapwise.domain.DAY_MS
 import com.yogeshpaliyal.gapwise.domain.TimeText
 import com.yogeshpaliyal.gapwise.ui.common.LogEditorDialog
-import com.yogeshpaliyal.gapwise.ui.home.EmojiBadge
 import com.yogeshpaliyal.gapwise.ui.home.EventUi
-import com.yogeshpaliyal.gapwise.ui.home.SectionLabel
 import com.yogeshpaliyal.gapwise.ui.home.eventColor
+import com.yogeshpaliyal.gapwise.ui.home.RhythmBar
+import com.yogeshpaliyal.gapwise.ui.home.statusAccent
+import com.yogeshpaliyal.gapwise.ui.home.tint
+import com.yogeshpaliyal.gapwise.ui.common.StatusBadge
+import com.yogeshpaliyal.gapwise.ui.common.status
+import com.yogeshpaliyal.gapwise.ui.theme.CountStyle
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.text.style.TextAlign
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -143,11 +151,11 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
             item { RhythmCard(item) }
             if (item.rhythm.gaps.isNotEmpty()) {
                 item {
-                    InfoCard("Gaps between logs") {
+                    InfoCard("Time between logs") {
                         GapChart(item.rhythm.gaps, item.rhythm.usualDays, color)
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            "Dashed line is your usual. Faded bars are one-off long gaps that don't count.",
+                            "The dashed line is your usual gap. Faded bars are one-off long gaps, and they don't count.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -155,7 +163,7 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
                 }
             }
             item { InfoCard("Calendar") { LogCalendar(item.item.logs, color) } }
-            item { SectionLabel("History · ${logs.size}", Modifier.padding(top = 4.dp)) }
+            item { Text("History", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 8.dp)) }
             if (logs.isEmpty()) {
                 item { Text("No logs yet.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
@@ -203,40 +211,58 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun Header(ui: EventUi, color: Color, onLog: () -> Unit, onPast: () -> Unit) {
     val now = System.currentTimeMillis()
     val ongoing = ui.rhythm.ongoingSince
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        EmojiBadge(ui.event.emoji, color, size = 72)
-        Spacer(Modifier.height(12.dp))
+    val status = ui.status(now)
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+        StatusBadge(ui.event.emoji, status, container = tint(statusAccent(status, color), 0.38f), size = 132.dp)
+        Spacer(Modifier.height(10.dp))
+        Text(status.label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.height(6.dp))
         if (ongoing != null) {
-            Text("Day ${TimeText.daysBetween(ongoing, now) + 1}", fontSize = 40.sp, fontWeight = FontWeight.SemiBold)
-            Text("ongoing since ${TimeText.date(ongoing)}", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("Day ${TimeText.daysBetween(ongoing, now) + 1}", style = CountStyle.copy(fontSize = 80.sp, lineHeight = 80.sp))
+            Text("Started ${TimeText.date(ongoing)}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         } else {
             val (n, u) = TimeText.elapsed(ui.rhythm.lastAt, now)
             Row(verticalAlignment = Alignment.Bottom) {
-                Text(n, fontSize = 44.sp, fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.width(8.dp))
-                Text(u, modifier = Modifier.padding(bottom = 10.dp))
+                Text(n, style = CountStyle.copy(fontSize = 80.sp, lineHeight = 80.sp))
+                Spacer(Modifier.width(10.dp))
+                Text(u, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 12.dp))
             }
             ui.rhythm.lastAt?.let {
-                Text("Last time: ${TimeText.dateTime(it)}", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Last time ${TimeText.dateTime(it)}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         if (ui.event.paused) {
             Spacer(Modifier.height(6.dp))
-            Text("Paused — no nudges until you resume. A long gap from this pause is ignored as a one-off.", style = MaterialTheme.typography.labelMedium)
+            Text(
+                "No nudges until you resume. The gap from this pause won't count against your rhythm.",
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+            )
         }
-        Spacer(Modifier.height(16.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Spacer(Modifier.height(20.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             val label = when {
                 !ui.event.isMultiDay -> "Log now"
                 ongoing != null -> "End now"
                 else -> "Start now"
             }
-            Button(onClick = onLog) { Text(label) }
-            OutlinedButton(onClick = onPast) { Text("Log a past day") }
+            Button(
+                onClick = onLog,
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.heightIn(min = 56.dp),
+                contentPadding = PaddingValues(horizontal = 28.dp),
+            ) { Text(label, style = MaterialTheme.typography.titleMedium) }
+            OutlinedButton(
+                onClick = onPast,
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.heightIn(min = 56.dp),
+                contentPadding = PaddingValues(horizontal = 24.dp),
+            ) { Text("Log a past day", style = MaterialTheme.typography.titleMedium) }
         }
     }
 }
@@ -244,22 +270,32 @@ private fun Header(ui: EventUi, color: Color, onLog: () -> Unit, onPast: () -> U
 @Composable
 private fun RhythmCard(ui: EventUi) {
     val r = ui.rhythm
+    val now = System.currentTimeMillis()
     InfoCard("Rhythm") {
         if (r.usualDays == null) {
             val left = (3 - r.logCount).coerceAtLeast(1)
-            Text("Log this $left more time${if (left > 1) "s" else ""} and Gapwise will learn how often you usually do it.")
+            Text(
+                "Log this $left more time${if (left > 1) "s" else ""} and Gapwise will learn how often you usually do it.",
+                style = MaterialTheme.typography.bodyLarge,
+            )
         } else {
-            Text(TimeText.usualText(r.usualDays), style = MaterialTheme.typography.titleMedium)
+            Text(TimeText.usualText(r.usualDays), style = MaterialTheme.typography.headlineSmall)
             r.nextExpectedAt?.let {
-                Text("Next expected around ${TimeText.date(it)} · ${TimeText.dueText(it)}")
+                Text(
+                    "Expected around ${TimeText.date(it)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
+            Spacer(Modifier.height(8.dp))
+            RhythmBar(ui, ui.status(now), now, eventColor(ui.event.color))
         }
-        r.usualLengthDays?.let { Text("Usually lasts ${it.roundToInt()} days") }
-        Spacer(Modifier.height(8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-            Stat("Logs", "${r.logCount}")
-            Stat("Shortest", r.gaps.filterNot { it.outlier }.minOfOrNull { it.days }?.let { "${it.roundToInt()}d" } ?: "—")
-            Stat("Longest", r.gaps.maxOfOrNull { it.days }?.let { "${it.roundToInt()}d" } ?: "—")
+        r.usualLengthDays?.let { Text("Usually lasts ${it.roundToInt()} days", style = MaterialTheme.typography.bodyMedium) }
+        Spacer(Modifier.height(12.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(28.dp)) {
+            Stat("Times logged", "${r.logCount}")
+            Stat("Shortest gap", r.gaps.filterNot { it.outlier }.minOfOrNull { it.days }?.let { "${it.roundToInt()}d" } ?: "—")
+            Stat("Longest gap", r.gaps.maxOfOrNull { it.days }?.let { "${it.roundToInt()}d" } ?: "—")
         }
     }
 }
@@ -267,19 +303,19 @@ private fun RhythmCard(ui: EventUi) {
 @Composable
 private fun Stat(label: String, value: String) {
     Column {
-        Text(value, style = MaterialTheme.typography.titleMedium)
-        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(value, style = CountStyle.copy(fontSize = 26.sp, lineHeight = 28.sp))
+        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
 @Composable
 private fun InfoCard(title: String, content: @Composable () -> Unit) {
     Card(
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
-        Column(Modifier.padding(16.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            SectionLabel(title)
+        Column(Modifier.padding(20.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(title, style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(4.dp))
             content()
         }
@@ -291,8 +327,8 @@ private fun LogRow(log: LogEntity, multiDay: Boolean, onClick: () -> Unit) {
     Column(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 10.dp)) {
         val title = if (multiDay) {
             val end = log.endAt
-            if (end == null) "${TimeText.date(log.startAt)} → ongoing"
-            else "${TimeText.shortDate(log.startAt)} → ${TimeText.shortDate(end)} · ${TimeText.daysBetween(log.startAt, end) + 1} days"
+            if (end == null) "Since ${TimeText.date(log.startAt)}, still going"
+            else "${TimeText.shortDate(log.startAt)} to ${TimeText.shortDate(end)}, ${TimeText.daysBetween(log.startAt, end) + 1} days"
         } else {
             TimeText.dateTime(log.startAt)
         }

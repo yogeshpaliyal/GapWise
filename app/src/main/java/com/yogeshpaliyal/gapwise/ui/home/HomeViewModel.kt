@@ -20,11 +20,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-enum class SortMode(val key: String, val label: String) {
-    DUE("due", "Due soon"),
-    RECENT("recent", "Recently done"),
-    NAME("name", "Name"),
-    CUSTOM("custom", "My order");
+enum class SortMode(val key: String, val label: String, val shortLabel: String) {
+    DUE("due", "Due soon", "Due"),
+    RECENT("recent", "Recently done", "Recent"),
+    NAME("name", "Name", "A–Z"),
+    CUSTOM("custom", "My order", "Mine");
 
     companion object {
         fun of(key: String) = entries.firstOrNull { it.key == key } ?: DUE

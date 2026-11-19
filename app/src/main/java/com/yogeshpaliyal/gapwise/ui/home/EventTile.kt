@@ -1,9 +1,7 @@
 package com.yogeshpaliyal.gapwise.ui.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,15 +10,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PushPin
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.PauseCircle
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -29,69 +26,88 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yogeshpaliyal.gapwise.domain.TimeText
+import com.yogeshpaliyal.gapwise.ui.common.GapStatus
+import com.yogeshpaliyal.gapwise.ui.common.StatusBadge
+import com.yogeshpaliyal.gapwise.ui.common.status
+import com.yogeshpaliyal.gapwise.ui.theme.CountStyle
+import com.yogeshpaliyal.gapwise.ui.theme.LocalStatusColors
 
 fun eventColor(argb: Long) = Color(argb.toInt())
 
-private fun EventUi.statusLine(now: Long): String = when {
+/** A soft wash of the event's colour over the surface, so tiles stay readable. */
+@Composable
+fun tint(color: Color, amount: Float = 0.16f): Color =
+    color.copy(alpha = amount).compositeOver(MaterialTheme.colorScheme.surfaceContainerLowest)
+
+fun EventUi.statusLine(now: Long): String = when {
     event.paused -> "Paused"
-    ongoing -> "Ongoing · day ${TimeText.daysBetween(rhythm.ongoingSince!!, now) + 1}"
+    ongoing -> "Day ${TimeText.daysBetween(rhythm.ongoingSince!!, now) + 1} so far"
     rhythm.hasRhythm -> TimeText.dueText(rhythm.nextExpectedAt, now) ?: ""
     rhythm.logCount == 0 -> "Tap to log the first time"
-    else -> "Learning your rhythm…"
+    else -> "Log a couple more to learn your rhythm"
 }
 
-private fun EventUi.elapsed(now: Long): Pair<String, String> =
-    if (ongoing) TimeText.elapsed(rhythm.ongoingSince, now).let { it.first to "since start" }
+fun EventUi.elapsed(now: Long): Pair<String, String> =
+    if (ongoing) TimeText.elapsed(rhythm.ongoingSince, now).let { it.first to "since it started" }
     else TimeText.elapsed(rhythm.lastAt, now)
+
+@Composable
+fun statusAccent(status: GapStatus, eventColor: Color): Color {
+    val s = LocalStatusColors.current
+    return when (status) {
+        GapStatus.DUE -> s.due
+        GapStatus.PAST -> s.past
+        GapStatus.FRESH -> s.fresh
+        GapStatus.PAUSED, GapStatus.NEW -> MaterialTheme.colorScheme.outline
+        else -> eventColor
+    }
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EventTile(ui: EventUi, now: Long, onLog: () -> Unit, onOpen: () -> Unit, modifier: Modifier = Modifier) {
     val haptics = LocalHapticFeedback.current
     val color = eventColor(ui.event.color)
+    val status = ui.status(now)
     val (num, unit) = ui.elapsed(now)
     Surface(
-        shape = RoundedCornerShape(20.dp),
-        color = color.copy(alpha = 0.14f),
+        shape = MaterialTheme.shapes.large,
+        color = tint(color),
         modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
+            .clip(MaterialTheme.shapes.large)
             .combinedClickable(
+                onClickLabel = "Log ${ui.event.name}",
+                onLongClickLabel = "Open details",
                 onClick = {
-                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    haptics.performHapticFeedback(HapticFeedbackType.Confirm)
                     onLog()
                 },
                 onLongClick = onOpen,
             ),
     ) {
-        Column(Modifier.padding(14.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                EmojiBadge(ui.event.emoji, color)
+        Column(Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.Top) {
+                StatusBadge(ui.event.emoji, status, container = tint(color, 0.30f), size = 52.dp)
                 Spacer(Modifier.weight(1f))
-                if (ui.event.pinned) Icon(Icons.Filled.PushPin, "Pinned", Modifier.size(16.dp), tint = color)
-                if (ui.event.paused) Icon(Icons.Outlined.PauseCircle, "Paused", Modifier.size(16.dp))
-                IconButton(onClick = onOpen, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Outlined.Info, "Details", Modifier.size(18.dp))
+                if (ui.event.pinned) {
+                    Icon(Icons.Filled.PushPin, "Pinned", Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-            Spacer(Modifier.height(10.dp))
-            Text(
-                ui.event.name,
-                style = MaterialTheme.typography.titleSmall,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            Spacer(Modifier.height(14.dp))
+            Text(ui.event.name, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Row(verticalAlignment = Alignment.Bottom) {
-                Text(num, fontSize = 30.sp, fontWeight = FontWeight.SemiBold)
+                Text(num, style = CountStyle)
                 Spacer(Modifier.width(6.dp))
-                Text(unit, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(bottom = 6.dp))
+                Text(unit, style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(bottom = 6.dp))
             }
+            Spacer(Modifier.height(2.dp))
             Text(
                 ui.statusLine(now),
                 style = MaterialTheme.typography.labelMedium,
@@ -99,8 +115,8 @@ fun EventTile(ui: EventUi, now: Long, onLog: () -> Unit, onOpen: () -> Unit, mod
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Spacer(Modifier.height(8.dp))
-            RhythmBar(ui, now, color)
+            Spacer(Modifier.height(10.dp))
+            RhythmBar(ui, status, now, color)
         }
     }
 }
@@ -109,23 +125,26 @@ fun EventTile(ui: EventUi, now: Long, onLog: () -> Unit, onOpen: () -> Unit, mod
 @Composable
 fun EventRow(ui: EventUi, now: Long, onLog: () -> Unit, onOpen: () -> Unit, modifier: Modifier = Modifier) {
     val color = eventColor(ui.event.color)
+    val status = ui.status(now)
     val haptics = LocalHapticFeedback.current
     Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = color.copy(alpha = 0.10f),
+        shape = MaterialTheme.shapes.medium,
+        color = tint(color, 0.12f),
         modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
+            .clip(MaterialTheme.shapes.medium)
             .combinedClickable(
+                onClickLabel = "Log ${ui.event.name}",
+                onLongClickLabel = "Open details",
                 onClick = {
-                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    haptics.performHapticFeedback(HapticFeedbackType.Confirm)
                     onLog()
                 },
                 onLongClick = onOpen,
             ),
     ) {
-        Row(Modifier.padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-            EmojiBadge(ui.event.emoji, color)
-            Spacer(Modifier.width(12.dp))
+        Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            StatusBadge(ui.event.emoji, status, container = tint(color, 0.28f), size = 44.dp)
+            Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
                 Text(ui.event.name, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(
@@ -133,54 +152,105 @@ fun EventRow(ui: EventUi, now: Long, onLog: () -> Unit, onOpen: () -> Unit, modi
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
-                Spacer(Modifier.height(6.dp))
-                RhythmBar(ui, now, color)
+                Spacer(Modifier.height(8.dp))
+                RhythmBar(ui, status, now, color)
             }
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(14.dp))
             val (num, unit) = ui.elapsed(now)
             Column(horizontalAlignment = Alignment.End) {
-                Text(num, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
-                Text(unit, style = MaterialTheme.typography.labelSmall)
+                Text(num, style = CountStyle.copy(fontSize = 28.sp, lineHeight = 28.sp))
+                Text(unit, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            IconButton(onClick = onOpen) { Icon(Icons.Outlined.Info, "Details") }
         }
     }
 }
 
+/**
+ * Progress toward your usual gap. It turns wavy only when something is around
+ * now or past usual, so the wave itself means "this one".
+ */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun RhythmBar(ui: EventUi, now: Long, color: Color) {
+fun RhythmBar(ui: EventUi, status: GapStatus, now: Long, color: Color, modifier: Modifier = Modifier) {
     if (!ui.rhythm.hasRhythm || ui.ongoing || ui.event.paused) {
-        Spacer(Modifier.height(4.dp))
+        Spacer(modifier.height(4.dp))
         return
     }
-    val p = ui.rhythm.progress(now)
-    LinearProgressIndicator(
-        progress = { p.coerceAtMost(1f) },
-        modifier = Modifier.fillMaxWidth().height(4.dp).clip(CircleShape),
-        color = color,
-        trackColor = color.copy(alpha = 0.18f),
-        drawStopIndicator = {},
-    )
+    val p = ui.rhythm.progress(now).coerceAtMost(1f)
+    val accent = statusAccent(status, color)
+    if (status == GapStatus.DUE || status == GapStatus.PAST) {
+        LinearWavyProgressIndicator(
+            progress = { p },
+            modifier = modifier.fillMaxWidth(),
+            color = accent,
+            trackColor = accent.copy(alpha = 0.22f),
+        )
+    } else {
+        LinearProgressIndicator(
+            progress = { p },
+            modifier = modifier.fillMaxWidth(),
+            color = accent,
+            trackColor = accent.copy(alpha = 0.18f),
+        )
+    }
 }
 
+/** The one big card at the top of home: whatever is most due right now. */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun EmojiBadge(emoji: String, color: Color, size: Int = 40) {
-    Box(
-        Modifier.size(size.dp).clip(CircleShape).background(color.copy(alpha = 0.22f)),
-        contentAlignment = Alignment.Center,
+fun UpNextCard(ui: EventUi, now: Long, onLog: () -> Unit, onOpen: () -> Unit, modifier: Modifier = Modifier) {
+    val color = eventColor(ui.event.color)
+    val status = ui.status(now)
+    val s = LocalStatusColors.current
+    val (num, unit) = ui.elapsed(now)
+    Surface(
+        onClick = onOpen,
+        shape = MaterialTheme.shapes.extraLarge,
+        color = tint(color, 0.22f),
+        modifier = modifier.fillMaxWidth(),
     ) {
-        Text(emoji.ifBlank { "•" }, fontSize = (size * 0.5).sp)
+        Column(Modifier.padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                StatusBadge(ui.event.emoji, status, container = tint(s.due, 0.55f), size = 76.dp)
+                Spacer(Modifier.width(16.dp))
+                Column(Modifier.weight(1f)) {
+                    Text("Up next", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(ui.event.name, style = MaterialTheme.typography.headlineSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(num, style = CountStyle.copy(fontSize = 64.sp, lineHeight = 64.sp))
+                Spacer(Modifier.width(10.dp))
+                Column(Modifier.padding(bottom = 8.dp)) {
+                    Text(unit, style = MaterialTheme.typography.titleMedium)
+                    Text(ui.statusLine(now), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            Spacer(Modifier.height(14.dp))
+            RhythmBar(ui, status, now, color)
+            Spacer(Modifier.height(16.dp))
+            FilledTonalButton(onClick = onLog, shapes = ButtonDefaults.shapes()) {
+                Text(
+                    when {
+                        !ui.event.isMultiDay -> "Log it now"
+                        ui.ongoing -> "End it now"
+                        else -> "Start it now"
+                    },
+                )
+            }
+        }
     }
 }
 
 @Composable
 fun SectionLabel(text: String, modifier: Modifier = Modifier) {
     Text(
-        text.uppercase(),
-        style = MaterialTheme.typography.labelSmall,
+        text,
+        style = MaterialTheme.typography.titleSmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        letterSpacing = 1.sp,
         modifier = modifier,
     )
 }

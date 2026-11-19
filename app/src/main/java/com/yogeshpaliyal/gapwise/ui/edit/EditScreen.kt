@@ -20,7 +20,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -118,7 +121,7 @@ private val quickEmojis = listOf(
     "🪥", "🧺", "🏃", "📚", "💳", "🏡", "🐶", "🎂", "🧘", "☕", "🎮", "✈️",
 )
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
     var pickDate by remember { mutableStateOf(false) }
@@ -130,7 +133,7 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
                 title = { Text(if (vm.isNew) "New event" else "Edit event") },
                 navigationIcon = { IconButton(onClick = onDone) { Icon(Icons.Filled.Close, "Cancel") } },
                 actions = {
-                    TextButton(onClick = { vm.save(onDone) }, enabled = vm.name.isNotBlank()) { Text("Save") }
+                    TextButton(onClick = { vm.save(onDone) }, enabled = vm.name.isNotBlank()) { Text(if (vm.isNew) "Add" else "Save") }
                 },
             )
         },
@@ -185,9 +188,9 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
             }
 
             Label("Category")
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 vm.categories.forEach { c ->
-                    FilterChip(selected = vm.category == c, onClick = { vm.category = c }, label = { Text(c) })
+                    ToggleButton(checked = vm.category == c, onCheckedChange = { vm.category = c }) { Text(c) }
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -229,8 +232,9 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
             Button(
                 onClick = { vm.save(onDone) },
                 enabled = vm.name.isNotBlank(),
-                modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
-            ) { Text("Save") }
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(bottom = 24.dp),
+            ) { Text(if (vm.isNew) "Add event" else "Save changes", style = MaterialTheme.typography.titleMedium) }
         }
     }
 
@@ -240,7 +244,7 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
 }
 
 @Composable
-private fun Label(text: String) = Text(text, style = MaterialTheme.typography.titleSmall)
+private fun Label(text: String) = Text(text, style = MaterialTheme.typography.titleLarge)
 
 @Composable
 private fun ToggleRow(title: String, body: String, checked: Boolean, onChange: (Boolean) -> Unit) {

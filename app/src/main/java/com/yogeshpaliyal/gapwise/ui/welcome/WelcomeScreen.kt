@@ -20,7 +20,12 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.foundation.layout.heightIn
+import com.yogeshpaliyal.gapwise.ui.common.GapStatus
+import com.yogeshpaliyal.gapwise.ui.common.StatusBadge
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -61,6 +66,7 @@ class WelcomeViewModel(application: Application) : AndroidViewModel(application)
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun WelcomeScreen(onDone: () -> Unit, vm: WelcomeViewModel = viewModel()) {
     var filter by remember { mutableStateOf<String?>(null) }
@@ -70,10 +76,10 @@ fun WelcomeScreen(onDone: () -> Unit, vm: WelcomeViewModel = viewModel()) {
     Surface(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
         Column(Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
-            Text("Remember the last time.\nKnow the next.", style = MaterialTheme.typography.headlineSmall)
+            Text("Remember the last time.\nKnow the next.", style = MaterialTheme.typography.displaySmall)
             Spacer(Modifier.height(8.dp))
             Text(
-                "Pick a few things you do now and then. Gapwise learns how often you usually do them. No streaks, no guilt.",
+                "Pick a few things you do now and then. Gapwise learns how often you usually do them, with no streaks and no guilt.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -82,9 +88,9 @@ fun WelcomeScreen(onDone: () -> Unit, vm: WelcomeViewModel = viewModel()) {
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            item { FilterChip(selected = filter == null, onClick = { filter = null }, label = { Text("All") }) }
+            item { ToggleButton(checked = filter == null, onCheckedChange = { filter = null }) { Text("All") } }
             items(categories) { c ->
-                FilterChip(selected = filter == c, onClick = { filter = c }, label = { Text(c) })
+                ToggleButton(checked = filter == c, onCheckedChange = { filter = c }) { Text(c) }
             }
         }
         LazyVerticalGrid(
@@ -98,12 +104,17 @@ fun WelcomeScreen(onDone: () -> Unit, vm: WelcomeViewModel = viewModel()) {
                 val on = s in vm.selected
                 Surface(
                     onClick = { vm.toggle(s) },
-                    shape = RoundedCornerShape(16.dp),
+                    shape = MaterialTheme.shapes.medium,
                     color = if (on) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer,
                 ) {
-                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text(s.emoji, fontSize = 22.sp)
-                        Spacer(Modifier.padding(4.dp))
+                    Row(Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        StatusBadge(
+                            s.emoji,
+                            if (on) GapStatus.FRESH else GapStatus.NEW,
+                            container = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            size = 40.dp,
+                        )
+                        Spacer(Modifier.padding(5.dp))
                         Text(s.name, maxLines = 2, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
@@ -122,8 +133,20 @@ fun WelcomeScreen(onDone: () -> Unit, vm: WelcomeViewModel = viewModel()) {
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             TextButton(onClick = { vm.finish(onDone) }, enabled = !vm.saving) { Text("Skip") }
-            Button(onClick = { vm.finish(onDone) }, enabled = vm.selected.isNotEmpty() && !vm.saving) {
-                Text(if (vm.selected.isEmpty()) "Pick some" else "Add ${vm.selected.size}")
+            Button(
+                onClick = { vm.finish(onDone) },
+                enabled = vm.selected.isNotEmpty() && !vm.saving,
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.heightIn(min = 56.dp),
+            ) {
+                Text(
+                    when (vm.selected.size) {
+                        0 -> "Pick a few"
+                        1 -> "Add 1 event"
+                        else -> "Add ${vm.selected.size} events"
+                    },
+                    style = MaterialTheme.typography.titleMedium,
+                )
             }
         }
     }

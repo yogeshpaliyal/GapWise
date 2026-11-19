@@ -66,5 +66,5 @@ object TimeText {
     fun date(ms: Long): String = dateFmt.format(localDate(ms))
     fun shortDate(ms: Long): String = shortDateFmt.format(localDate(ms))
     fun time(ms: Long): String = timeFmt.format(Instant.ofEpochMilli(ms).atZone(zone))
-    fun dateTime(ms: Long): String = "${date(ms)} · ${time(ms)}"
+    fun dateTime(ms: Long): String = "${date(ms)}, ${time(ms)}"
 }

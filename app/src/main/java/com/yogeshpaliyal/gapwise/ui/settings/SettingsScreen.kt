@@ -28,6 +28,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import com.yogeshpaliyal.gapwise.ui.common.GapStatus
+import com.yogeshpaliyal.gapwise.ui.common.StatusBadge
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -102,7 +107,9 @@ fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
                 })
             }
             HorizontalDivider()
-            Item("Suggested events", "Browse 40+ starter ideas") { onOpenTour() }
+            ShapeLegend()
+            HorizontalDivider()
+            Item("Suggested events", "Browse over 40 starter ideas") { onOpenTour() }
             Item("Export backup", "Save all events and history as a JSON file") {
                 exporter.launch("gapwise-${LocalDate.now()}.json")
             }
@@ -112,6 +119,26 @@ fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
             HorizontalDivider()
             Item("Privacy", "No account, no ads, no tracking. Your data stays on this phone.") {}
             Item("Version", BuildConfigInfo.versionName(context)) {}
+        }
+    }
+}
+
+@Composable
+private fun ShapeLegend() {
+    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+        Text("Reading the shapes", style = MaterialTheme.typography.titleMedium)
+        Text(
+            "Each event's icon changes shape as time passes.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.height(12.dp))
+        listOf(GapStatus.FRESH, GapStatus.BUILDING, GapStatus.DUE, GapStatus.PAST, GapStatus.LEARNING, GapStatus.PAUSED).forEach { st ->
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
+                StatusBadge("", st, container = MaterialTheme.colorScheme.primaryContainer, size = 32.dp)
+                Spacer(Modifier.width(12.dp))
+                Text(st.label, style = MaterialTheme.typography.bodyLarge)
+            }
         }
     }
 }
