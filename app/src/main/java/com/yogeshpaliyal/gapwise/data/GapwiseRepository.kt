@@ -135,6 +135,7 @@ class GapwiseRepository(
     /** Keep the widget and launcher shortcuts in step with the data. */
     private suspend fun changed() {
         runCatching { GapwiseWidget.refresh(context) }
+        runCatching { com.yogeshpaliyal.gapwise.widget.GapwiseTilesWidget.refresh(context) }
         runCatching { ShortcutPublisher.publish(context, dao.getAll()) }
     }
 }

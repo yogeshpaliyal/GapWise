@@ -42,7 +42,7 @@ import com.yogeshpaliyal.gapwise.domain.TimeText
 
 private data class WidgetRow(val id: Long, val emoji: String, val name: String, val elapsed: String, val due: String?)
 
-private val EventIdKey = ActionParameters.Key<Long>("eventId")
+internal val EventIdKey = ActionParameters.Key<Long>("eventId")
 
 /** "Due soon" list. Tapping a row logs it; tapping the title opens the app. */
 class GapwiseWidget : GlanceAppWidget() {

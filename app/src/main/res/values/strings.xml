@@ -2,6 +2,8 @@
     <string name="app_name">Gapwise</string>
     <string name="widget_name">Gapwise · Due soon</string>
     <string name="widget_description">See what\'s due and log with one tap</string>
+    <string name="tiles_widget_name">Gapwise · Event tiles</string>
+    <string name="tiles_widget_description">Pick 1 to 12 events and log any of them with one tap</string>
     <string name="shortcut_add_short">New event</string>
     <string name="shortcut_add_long">Add a new event</string>
     <string name="channel_nudges">Gentle nudges</string>
