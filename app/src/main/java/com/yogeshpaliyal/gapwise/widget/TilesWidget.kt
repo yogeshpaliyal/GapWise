@@ -113,19 +113,29 @@ class GapwiseTilesWidget : GlanceAppWidget() {
                 }
                 return@Scaffold
             }
-            // Respect the widget's real width: never squeeze tiles under ~72dp.
-            val cols = min(desiredColumns(n), max(1, (size.width.value / 72f).toInt()))
-            val rows = ceil(n / cols.toDouble()).toInt()
-            val tileH: Dp = ((size.height.value - 12f) / rows).dp
+            // Fit the grid to the widget's real size: tiles stay at least ~64dp wide
+            // and ~48dp tall. If they can't all fit, show as many as do.
+            val w = size.width.value - 12f
+            val h = size.height.value - 12f
+            val maxCols = max(1, (w / 64f).toInt())
+            val maxRows = max(1, (h / 48f).toInt())
+            var cols = min(desiredColumns(n), maxCols)
+            var rows = ceil(n / cols.toDouble()).toInt()
+            if (rows > maxRows) {
+                cols = min(maxCols, ceil(n / maxRows.toDouble()).toInt())
+                rows = min(maxRows, ceil(n / cols.toDouble()).toInt())
+            }
+            val shown = min(n, rows * cols)
+            val tileH: Dp = (h / rows).dp
             Column(GlanceModifier.fillMaxSize()) {
                 for (r in 0 until rows) {
                     Row(GlanceModifier.fillMaxWidth().defaultWeight()) {
                         for (c in 0 until cols) {
                             val i = r * cols + c
-                            if (i < n) {
-                                TileView(tiles[i], tileH, GlanceModifier.defaultWeight().fillMaxHeight().padding(3.dp))
-                            } else {
-                                Spacer(GlanceModifier.defaultWeight())
+                            // Gaps: Glance paints a background under its own padding,
+                            // so the spacing lives on an outer box.
+                            Box(GlanceModifier.defaultWeight().fillMaxHeight().padding(4.dp)) {
+                                if (i < shown) TileView(tiles[i], tileH)
                             }
                         }
                     }
@@ -135,18 +145,20 @@ class GapwiseTilesWidget : GlanceAppWidget() {
     }
 
     @Composable
-    private fun TileView(tile: WidgetEvent, tileH: Dp, modifier: GlanceModifier) {
-        val roomy = tileH.value >= 96f
-        val badge = (tileH.value * 0.42f).coerceIn(30f, 64f).dp
+    private fun TileView(tile: WidgetEvent, tileH: Dp) {
+        val roomy = tileH.value >= 110f
+        val tight = tileH.value < 64f
+        val badge = (tileH.value * 0.40f).coerceIn(30f, 64f).dp
         Box(
-            modifier
+            GlanceModifier
+                .fillMaxSize()
                 .cornerRadius(android.R.dimen.system_app_widget_inner_radius)
                 .background(ColorProvider(day = tile.dayTint, night = tile.nightTint))
                 .clickable(actionRunCallback<LogFromWidget>(actionParametersOf(EventIdKey to tile.id))),
             contentAlignment = Alignment.Center,
         ) {
             Column(
-                GlanceModifier.fillMaxSize().padding(6.dp),
+                GlanceModifier.fillMaxSize().padding(horizontal = 6.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -160,14 +172,17 @@ class GapwiseTilesWidget : GlanceAppWidget() {
                 } else {
                     Text(
                         "${tile.emoji} ${tile.count}",
-                        style = TextStyle(color = GlanceTheme.colors.onSurface, fontWeight = FontWeight.Bold, fontSize = 15.sp),
+                        maxLines = 1,
+                        style = TextStyle(color = GlanceTheme.colors.onSurface, fontWeight = FontWeight.Bold, fontSize = if (tight) 13.sp else 16.sp),
                     )
                 }
-                Text(
-                    tile.name,
-                    maxLines = 1,
-                    style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 11.sp, textAlign = TextAlign.Center),
-                )
+                if (!tight) {
+                    Text(
+                        tile.name,
+                        maxLines = 1,
+                        style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 11.sp, textAlign = TextAlign.Center),
+                    )
+                }
             }
         }
     }

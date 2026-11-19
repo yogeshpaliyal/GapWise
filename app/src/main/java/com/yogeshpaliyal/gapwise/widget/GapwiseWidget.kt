@@ -10,6 +10,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
+import androidx.glance.LocalSize
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
@@ -20,7 +21,7 @@ import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.components.Scaffold
-import androidx.glance.appwidget.components.SquareIconButton
+import androidx.glance.appwidget.components.CircleIconButton
 import androidx.glance.appwidget.components.TitleBar
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyColumn
@@ -77,23 +78,33 @@ class GapwiseWidget : GlanceAppWidget() {
     @Composable
     private fun Content(rows: List<WidgetEvent>) {
         val context = LocalContext.current
+        val size = LocalSize.current
+        // Small widgets drop the title bar so the list itself gets the room.
+        val showTitle = size.height.value >= 150f && size.width.value >= 150f
         Scaffold(
-            titleBar = {
-                TitleBar(
-                    startIcon = ImageProvider(R.drawable.ic_stat_gapwise),
-                    title = "Due soon",
-                    iconColor = GlanceTheme.colors.primary,
-                    textColor = GlanceTheme.colors.onSurface,
-                    actions = {
-                        SquareIconButton(
-                            imageProvider = ImageProvider(R.drawable.ic_add_24),
-                            contentDescription = "New event",
-                            onClick = actionStartActivity(addEventIntent(context)),
-                        )
-                    },
-                )
+            titleBar = if (showTitle) {
+                @Composable {
+                    TitleBar(
+                        startIcon = ImageProvider(R.drawable.ic_stat_gapwise),
+                        title = "Due soon",
+                        iconColor = GlanceTheme.colors.primary,
+                        textColor = GlanceTheme.colors.onSurface,
+                        actions = {
+                            CircleIconButton(
+                                imageProvider = ImageProvider(R.drawable.ic_add_24),
+                                contentDescription = "New event",
+                                onClick = actionStartActivity(addEventIntent(context)),
+                                backgroundColor = GlanceTheme.colors.primary,
+                                contentColor = GlanceTheme.colors.onPrimary,
+                            )
+                        },
+                    )
+                }
+            } else {
+                null
             },
-            horizontalPadding = 10.dp,
+            horizontalPadding = 8.dp,
+            modifier = GlanceModifier.padding(top = if (showTitle) 0.dp else 8.dp, bottom = 8.dp),
         ) {
             if (rows.isEmpty()) {
                 Box(
@@ -101,16 +112,16 @@ class GapwiseWidget : GlanceAppWidget() {
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        "Nothing tracked yet. Tap + to add your first event.",
+                        "Nothing tracked yet. Tap to add your first event.",
                         style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, textAlign = TextAlign.Center),
                     )
                 }
             } else {
                 LazyColumn(GlanceModifier.fillMaxSize()) {
                     items(rows, itemId = { it.id }) { row ->
-                        Column {
+                        // Outer box carries the gap; the row paints its own background.
+                        Box(GlanceModifier.fillMaxWidth().padding(vertical = 3.dp)) {
                             EventRowItem(row)
-                            Spacer(GlanceModifier.height(6.dp))
                         }
                     }
                 }
