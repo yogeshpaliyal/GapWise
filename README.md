@@ -49,6 +49,15 @@ Debug and CI builds are signed with the committed `app/debug.keystore` (standard
 
 Requires JDK 17 and the Android SDK (compileSdk 37, minSdk 26). The stack is Kotlin, Jetpack Compose with Material 3, Room, WorkManager and Glance.
 
+## Flavors and updates
+
+| Flavor | Where it ships | Update check |
+|---|---|---|
+| `github` | APK on GitHub | Release builds: newest GitHub Release (`vX.Y.Z`). Debug builds: the rolling `latest-master` pre-release. Updating opens the APK download. |
+| `play` | Google Play | Play In-App Updates (flexible: downloads in the background, then "Restart now"). Rating uses Play In-App Review. |
+
+Push a tag like `v1.2.0` to publish a GitHub Release with the GitHub APK and the Play `.aab`. Play needs the bundle signed with your upload key (see `.github/workflows/release.yml`), and Drive backup needs another Android OAuth client with Play's app-signing SHA-1.
+
 ## Latest build
 
-Every push to `master` builds an APK and publishes it to the [`latest-master`](../../releases/tag/latest-master) release.
+Every push to `master` builds a GitHub-flavor debug APK and publishes it to the [`latest-master`](../../releases/tag/latest-master) release.

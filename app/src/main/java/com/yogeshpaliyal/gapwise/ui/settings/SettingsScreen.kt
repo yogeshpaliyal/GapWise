@@ -120,7 +120,8 @@ fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
             }
             HorizontalDivider()
             Item("Privacy", "No account, no ads, no tracking. Your data stays on this phone unless you back it up to your own Google Drive.") {}
-            Item("Version", BuildConfigInfo.versionName(context)) {}
+            HorizontalDivider()
+            com.yogeshpaliyal.gapwise.update.UpdateSettings(BuildConfigInfo.versionName(context))
         }
     }
 }

@@ -1,7 +1,8 @@
 name: Latest master APK
 
-# Builds the app on every push to master and publishes the APK to a
-# rolling "latest-master" pre-release (replaced on each build).
+# Builds the GitHub-flavor DEBUG app on every push to master and publishes it
+# to a rolling "latest-master" pre-release (replaced on each build), with a
+# version.json that debug builds read to offer updates.
 
 on:
   push:
@@ -50,7 +51,7 @@ jobs:
       - name: Smoke-test the main flows
         run: |
           chmod +x gradlew
-          ./gradlew :app:testDebugUnitTest --stacktrace
+          ./gradlew :app:testGithubDebugUnitTest --stacktrace
 
       - name: Build APK
         env:
@@ -61,16 +62,18 @@ jobs:
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: |
           chmod +x gradlew
-          ./gradlew :app:assembleRelease --stacktrace
-          cp app/build/outputs/apk/release/app-release.apk gapwise-latest-master.apk
+          ./gradlew :app:assembleGithubDebug --stacktrace
+          cp app/build/outputs/apk/github/debug/app-github-debug.apk gapwise-latest-master.apk
+          printf '{"versionCode": %s, "versionName": "%s", "commit": "%s"}\n' \
+            "$VERSION_CODE" "$VERSION_NAME" "$GITHUB_SHA" > version.json
 
       - name: Publish latest-master release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete latest-master --yes --cleanup-tag || true
-          gh release create latest-master gapwise-latest-master.apk \
+          gh release create latest-master gapwise-latest-master.apk version.json \
             --target "$GITHUB_SHA" \
             --prerelease \
             --title "Latest master" \
-            --notes "Automatic build of \`master\` at ${GITHUB_SHA::7} (run #${{ github.run_number }}). This release is replaced on every push."
+            --notes "Automatic build of \`master\` at ${GITHUB_SHA::7} (run #${{ github.run_number }}). Debug build of the GitHub flavor; it checks this pre-release for updates. Replaced on every push."

@@ -39,7 +39,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Debug builds track the rolling latest-master pre-release.
+            buildConfigField("String", "UPDATE_CHANNEL", "\"latest-master\"")
+        }
         release {
+            // Release builds track the newest proper GitHub Release (vX.Y.Z).
+            buildConfigField("String", "UPDATE_CHANNEL", "\"release\"")
             // Kept off until R8 rules are verified on a device.
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -53,6 +59,22 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+
+    // Where the app is distributed decides how it updates itself.
+    //  - github: sideloaded APK from the latest-master release; checks GitHub for newer builds.
+    //  - play:   Google Play; uses Play In-App Updates and In-App Review. No self-update code.
+    flavorDimensions += "store"
+    productFlavors {
+        create("github") {
+            dimension = "store"
+            isDefault = true
+            buildConfigField("String", "GITHUB_REPO", "\"yogeshpaliyal/Gapwise\"")
+        }
+        create("play") {
+            dimension = "store"
+        }
     }
     testOptions {
         unitTests.isIncludeAndroidResources = true
@@ -94,6 +116,9 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.play.services.auth)
     implementation(libs.kotlinx.serialization.json)
+
+    "playImplementation"(libs.play.app.update)
+    "playImplementation"(libs.play.review)
 
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)

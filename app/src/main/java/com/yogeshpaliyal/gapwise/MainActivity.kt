@@ -18,8 +18,15 @@ import com.yogeshpaliyal.gapwise.ui.home.HomeScreen
 import com.yogeshpaliyal.gapwise.ui.settings.SettingsScreen
 import com.yogeshpaliyal.gapwise.ui.theme.GapwiseTheme
 import com.yogeshpaliyal.gapwise.ui.welcome.WelcomeScreen
+import com.yogeshpaliyal.gapwise.update.AppUpdater
+import com.yogeshpaliyal.gapwise.update.LocalUpdater
+import com.yogeshpaliyal.gapwise.update.Updaters
+import androidx.compose.runtime.CompositionLocalProvider
 
 class MainActivity : ComponentActivity() {
+
+    /** Store-specific updates: GitHub releases or Google Play, depending on the flavor. */
+    private lateinit var updater: AppUpdater
 
     /** Set when opened from a nudge, widget or shortcut that targets a screen. */
     private val pendingRoute = mutableStateOf<String?>(null)
@@ -28,10 +35,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         handleIntent(intent)
+        updater = Updaters.create(this).also { it.attach(this) }
 
         val start = if (app.prefs.welcomeSeen) Routes.HOME else Routes.WELCOME
 
         setContent {
+            CompositionLocalProvider(LocalUpdater provides updater) {
             GapwiseTheme {
                 val nav = rememberNavController()
                 LaunchedEffect(pendingRoute.value) {
@@ -79,6 +88,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
+            }
             }
         }
     }

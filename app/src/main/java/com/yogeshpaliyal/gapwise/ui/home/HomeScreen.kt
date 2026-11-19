@@ -169,6 +169,9 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
+                    item(key = "update", span = { GridItemSpan(maxLineSpan) }) {
+                        com.yogeshpaliyal.gapwise.update.UpdateBanner()
+                    }
                     if (upNext != null) {
                         item(key = "upnext", span = { GridItemSpan(maxLineSpan) }) {
                             UpNextCard(
