@@ -23,7 +23,7 @@ object Categories {
 
 object Palette {
     val colors: List<Long> = listOf(
-        0xFF2F6B5E, 0xFF3B82F6, 0xFF8B5CF6, 0xFFEC4899,
+        0xFF8E3B8E, 0xFF3B82F6, 0xFF8B5CF6, 0xFFEC4899,
         0xFFEF4444, 0xFFF97316, 0xFFEAB308, 0xFF22C55E,
         0xFF14B8A6, 0xFF0EA5E9, 0xFF64748B, 0xFFA16207,
     )

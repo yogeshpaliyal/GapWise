@@ -38,8 +38,8 @@ val GapwiseWidgetColors = ColorProviders(light = Light, dark = Dark)
 @Composable
 fun GapwiseGlanceTheme(content: @Composable () -> Unit) = GlanceTheme(colors = GapwiseWidgetColors, content = content)
 
-private val Marigold = Color(0xFFE9A93A)
-private val Plum = Color(0xFF7A4467)
+private val Rose = Color(0xFFE0569A)
+private val Violet = Color(0xFF7B4FC4)
 
 /** Everything a widget needs to draw one event, computed off the UI. */
 data class WidgetEvent(
@@ -88,8 +88,8 @@ fun EventWithLogs.toWidgetEvent(now: Long): WidgetEvent {
     val status = ui.status(now)
     val c = Color(event.color.toInt())
     val accent = when (status) {
-        GapStatus.DUE -> Marigold
-        GapStatus.PAST -> Plum
+        GapStatus.DUE -> Rose
+        GapStatus.PAST -> Violet
         else -> c
     }
     return WidgetEvent(
@@ -104,7 +104,7 @@ fun EventWithLogs.toWidgetEvent(now: Long): WidgetEvent {
         },
         status = status,
         dayTint = blend(c, Color.White, 0.20f),
-        nightTint = blend(c, Color(0xFF1A2122), 0.32f),
+        nightTint = blend(c, Color(0xFF241E22), 0.32f),
         badge = badgeBitmap(status, accent.copy(alpha = 0.6f)),
     )
 }

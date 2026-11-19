@@ -25,79 +25,83 @@ import androidx.compose.ui.unit.sp
 import com.yogeshpaliyal.gapwise.R
 
 /*
- * Gapwise palette: cool and calm, with one warm accent reserved for "around now".
- *   Ink     #10404A  primary — deep teal ink
- *   Mist    #EEF3F1  background — cool, never cream
- *   Moss    #4E7D57  "fresh" — you did it recently
- *   Marigold#E9A93A  "around now" — the only warm colour in the app
- *   Plum    #7A4467  "past usual" — gentle, deliberately not red
+ * Gapwise palette: plum and blush, taken from the app icon.
+ *   Plum    #6B2A72  primary
+ *   Blush   #FFB4D2  the icon's sun; tints containers
+ *   Petal   #FBF6FA  background — near-white with a hint of pink
+ *   Sky     #3E7CB1  "fresh" — you did it recently
+ *   Rose    #E0569A  "around now" — the one loud colour, same family as the sun
+ *   Violet  #7B4FC4  "past usual" — gentle, deliberately not red
  */
 object GapColors {
-    val Ink = Color(0xFF10404A)
-    val Mist = Color(0xFFEEF3F1)
-    val Moss = Color(0xFF4E7D57)
-    val Marigold = Color(0xFFE9A93A)
-    val Plum = Color(0xFF7A4467)
+    val Plum = Color(0xFF6B2A72)
+    val Blush = Color(0xFFFFB4D2)
+    val Petal = Color(0xFFFBF6FA)
+    val Sky = Color(0xFF3E7CB1)
+    val Rose = Color(0xFFE0569A)
+    val Violet = Color(0xFF7B4FC4)
 }
 
 internal val Light = lightColorScheme(
-    primary = GapColors.Ink,
+    primary = GapColors.Plum,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFC6E7EC),
-    onPrimaryContainer = Color(0xFF00262D),
-    secondary = GapColors.Moss,
+    primaryContainer = Color(0xFFFFD6EC),
+    onPrimaryContainer = Color(0xFF3E1546),
+    secondary = Color(0xFF7A5868),
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFD3EBD3),
-    onSecondaryContainer = Color(0xFF0E2A14),
-    tertiary = Color(0xFF7A5A00),
-    tertiaryContainer = Color(0xFFFFDFA3),
-    onTertiaryContainer = Color(0xFF261A00),
-    background = GapColors.Mist,
-    onBackground = Color(0xFF151D1E),
-    surface = GapColors.Mist,
-    onSurface = Color(0xFF151D1E),
-    onSurfaceVariant = Color(0xFF3F4A4C),
+    secondaryContainer = Color(0xFFF7DCEA),
+    onSecondaryContainer = Color(0xFF2E1523),
+    tertiary = Color(0xFF3E7CB1),
+    onTertiary = Color.White,
+    tertiaryContainer = Color(0xFFD3E4FF),
+    onTertiaryContainer = Color(0xFF001C38),
+    background = GapColors.Petal,
+    onBackground = Color(0xFF1F1A1E),
+    surface = GapColors.Petal,
+    onSurface = Color(0xFF1F1A1E),
+    onSurfaceVariant = Color(0xFF4F4350),
     surfaceContainerLowest = Color(0xFFFFFFFF),
-    surfaceContainerLow = Color(0xFFF6FAF8),
-    surfaceContainer = Color(0xFFE6EDEB),
-    surfaceContainerHigh = Color(0xFFDDE6E4),
-    surfaceContainerHighest = Color(0xFFD3DDDB),
-    outline = Color(0xFF6F7A7C),
-    outlineVariant = Color(0xFFBEC9CB),
+    surfaceContainerLow = Color(0xFFF8F0F6),
+    surfaceContainer = Color(0xFFF2E8F0),
+    surfaceContainerHigh = Color(0xFFECE2EA),
+    surfaceContainerHighest = Color(0xFFE6DBE4),
+    outline = Color(0xFF807381),
+    outlineVariant = Color(0xFFD3C2D1),
 )
 
 internal val Dark = darkColorScheme(
-    primary = Color(0xFF8ED0DB),
-    onPrimary = Color(0xFF00363E),
-    primaryContainer = Color(0xFF1C4E58),
-    onPrimaryContainer = Color(0xFFC6E7EC),
-    secondary = Color(0xFFA3D1A6),
-    onSecondary = Color(0xFF0E3818),
-    secondaryContainer = Color(0xFF2F5135),
-    onSecondaryContainer = Color(0xFFD3EBD3),
-    tertiary = Color(0xFFF3C56B),
-    tertiaryContainer = Color(0xFF5C4300),
-    onTertiaryContainer = Color(0xFFFFDFA3),
-    background = Color(0xFF0E1415),
-    onBackground = Color(0xFFDDE4E4),
-    surface = Color(0xFF0E1415),
-    onSurface = Color(0xFFDDE4E4),
-    onSurfaceVariant = Color(0xFFBEC9CB),
-    surfaceContainerLowest = Color(0xFF091011),
-    surfaceContainerLow = Color(0xFF161D1E),
-    surfaceContainer = Color(0xFF1A2122),
-    surfaceContainerHigh = Color(0xFF242B2C),
-    surfaceContainerHighest = Color(0xFF2F3637),
-    outline = Color(0xFF889496),
-    outlineVariant = Color(0xFF3F4A4C),
+    primary = Color(0xFFF2B0EC),
+    onPrimary = Color(0xFF4A1650),
+    primaryContainer = Color(0xFF632C69),
+    onPrimaryContainer = Color(0xFFFFD6EC),
+    secondary = Color(0xFFE4BDD0),
+    onSecondary = Color(0xFF442938),
+    secondaryContainer = Color(0xFF5C3F4F),
+    onSecondaryContainer = Color(0xFFF7DCEA),
+    tertiary = Color(0xFFA2C9FF),
+    onTertiary = Color(0xFF00315C),
+    tertiaryContainer = Color(0xFF1E4876),
+    onTertiaryContainer = Color(0xFFD3E4FF),
+    background = Color(0xFF171216),
+    onBackground = Color(0xFFEBDFE7),
+    surface = Color(0xFF171216),
+    onSurface = Color(0xFFEBDFE7),
+    onSurfaceVariant = Color(0xFFD3C2D1),
+    surfaceContainerLowest = Color(0xFF110D10),
+    surfaceContainerLow = Color(0xFF1F1A1E),
+    surfaceContainer = Color(0xFF241E22),
+    surfaceContainerHigh = Color(0xFF2E282C),
+    surfaceContainerHighest = Color(0xFF393337),
+    outline = Color(0xFF9C8D9B),
+    outlineVariant = Color(0xFF4F4350),
 )
 
 /** Status colours that sit outside the Material roles. */
 @Immutable
 data class StatusColors(val fresh: Color, val due: Color, val past: Color, val onDue: Color)
 
-private val LightStatus = StatusColors(fresh = GapColors.Moss, due = GapColors.Marigold, past = GapColors.Plum, onDue = Color(0xFF2A1C00))
-private val DarkStatus = StatusColors(fresh = Color(0xFF8FC597), due = Color(0xFFF3C56B), past = Color(0xFFE3A9CF), onDue = Color(0xFF2A1C00))
+private val LightStatus = StatusColors(fresh = GapColors.Sky, due = GapColors.Rose, past = GapColors.Violet, onDue = Color.White)
+private val DarkStatus = StatusColors(fresh = Color(0xFF8FC0EC), due = Color(0xFFFF8CC0), past = Color(0xFFC3A6FF), onDue = Color(0xFF3E0021))
 
 val LocalStatusColors = staticCompositionLocalOf { LightStatus }
 
