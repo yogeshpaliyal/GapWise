@@ -58,7 +58,7 @@ import com.yogeshpaliyal.gapwise.data.LogEntity
 import com.yogeshpaliyal.gapwise.data.LogResult
 import com.yogeshpaliyal.gapwise.domain.DAY_MS
 import com.yogeshpaliyal.gapwise.domain.TimeText
-import com.yogeshpaliyal.gapwise.ui.common.LogEditorDialog
+import com.yogeshpaliyal.gapwise.ui.common.LogEditorSheet
 import com.yogeshpaliyal.gapwise.ui.home.EventUi
 import com.yogeshpaliyal.gapwise.ui.home.eventColor
 import com.yogeshpaliyal.gapwise.ui.home.RhythmBar
@@ -165,7 +165,18 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
             }
             item { Spacer(Modifier.height(16.dp)) }
             item { InfoCard("Calendar") { LogCalendar(item.item.logs, color) } }
-            item { Text("History", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.padding(top = 24.dp, bottom = 8.dp)) }
+            item {
+                Column(Modifier.padding(top = 24.dp, bottom = 8.dp)) {
+                    Text("History", style = MaterialTheme.typography.headlineSmall)
+                    if (logs.isNotEmpty()) {
+                        Text(
+                            "Tap any entry to change its date, time or note.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
             if (logs.isEmpty()) {
                 item { Text("Nothing logged yet. Tap Log now, or add a past day.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
@@ -182,7 +193,7 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
 
     val event = ui?.event
     if (addingPast && event != null) {
-        LogEditorDialog(
+        LogEditorSheet(
             title = "Log a past time",
             multiDay = event.isMultiDay,
             initialStart = System.currentTimeMillis() - DAY_MS,
@@ -193,7 +204,7 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
         )
     }
     editing?.let { log ->
-        LogEditorDialog(
+        LogEditorSheet(
             title = "Edit log",
             multiDay = event?.isMultiDay == true,
             initialStart = log.startAt,

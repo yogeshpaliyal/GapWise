@@ -72,6 +72,11 @@ class SmokeTest {
             waitOrDump("details open") { compose.onAllNodesWithText("Log a past day").fetchSemanticsNodes().isNotEmpty() }
             compose.onNode(hasScrollToNodeAction()).performScrollToNode(hasText("Moved the fern"))
             compose.onNodeWithText("Moved the fern").assertExists()
+
+            // Tapping an entry opens the edit sheet.
+            compose.onNodeWithText("Moved the fern").performClick()
+            waitOrDump("edit sheet") { compose.onAllNodesWithText("Edit log").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithText("Save").assertExists()
             compose.onNode(hasScrollToNodeAction()).performScrollToNode(hasText("6 days later", substring = true))
         }
     }

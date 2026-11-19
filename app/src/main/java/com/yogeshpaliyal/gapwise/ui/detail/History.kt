@@ -18,6 +18,10 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialShapes
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -106,9 +110,7 @@ private fun LogNode(
     Row(
         Modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .clip(MaterialTheme.shapes.medium)
-            .clickable(onClickLabel = "Edit this log", onClick = onClick),
+            .height(IntrinsicSize.Min),
     ) {
         // Date block: the day number is the anchor you scan for.
         Column(Modifier.width(DATE_COL).padding(vertical = 10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -132,30 +134,41 @@ private fun LogNode(
             Surface(shape = nodeShape, color = color, modifier = Modifier.width(if (isFirst) 20.dp else 12.dp).height(if (isFirst) 20.dp else 12.dp)) {}
         }
         Spacer(Modifier.width(8.dp))
-        Column(
-            Modifier.weight(1f).padding(vertical = 12.dp).padding(end = 8.dp),
-            verticalArrangement = Arrangement.Center,
+        // Each entry is its own tappable card with a pencil, so it reads as editable.
+        Surface(
+            onClick = onClick,
+            shape = MaterialTheme.shapes.large,
+            color = if (isFirst) color.copy(alpha = 0.14f) else MaterialTheme.colorScheme.surfaceContainerLow,
+            modifier = Modifier.weight(1f).padding(vertical = 4.dp),
         ) {
-            val weekday = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
-            Text("$weekday, ${TimeText.time(log.startAt)}", style = MaterialTheme.typography.titleMedium)
-            if (multiDay) {
-                val end = log.endAt
-                val span = if (end == null) {
-                    "Still going"
-                } else {
-                    val d = TimeText.daysBetween(log.startAt, end) + 1
-                    "Lasted $d day${if (d == 1L) "" else "s"}, until ${end.let { TimeText.shortDate(it) }}"
+            Row(Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+                    val weekday = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
+                    Text("$weekday, ${TimeText.time(log.startAt)}", style = MaterialTheme.typography.titleMedium)
+                    if (multiDay) {
+                        val end = log.endAt
+                        val span = if (end == null) {
+                            "Still going"
+                        } else {
+                            val d = TimeText.daysBetween(log.startAt, end) + 1
+                            "Lasted $d day${if (d == 1L) "" else "s"}, until ${TimeText.shortDate(end)}"
+                        }
+                        Text(span, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    val note = log.note
+                    if (note != null) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(note, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    } else {
+                        Text("Add a note", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                    }
                 }
-                Text(span, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            log.note?.let { note ->
-                Spacer(Modifier.height(6.dp))
-                Surface(
-                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    shape = MaterialTheme.shapes.small,
-                ) {
-                    Text(note, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
-                }
+                Icon(
+                    Icons.Outlined.Edit,
+                    contentDescription = "Edit",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 12.dp).size(20.dp),
+                )
             }
         }
     }
