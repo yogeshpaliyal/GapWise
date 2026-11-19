@@ -18,8 +18,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows.shadowOf
-import com.yogeshpaliyal.gapwise.widget.GapwiseTilesWidgetReceiver
 
 @RunWith(RobolectricTestRunner::class)
 class TilesWidgetTest {
@@ -43,8 +41,8 @@ class TilesWidgetTest {
             app.repository.createEvent(EventEntity(name = "Haircut", emoji = "💇", color = 0xFF3B82F6, category = "Self-care"))
             app.repository.createEvent(EventEntity(name = "Call Mom", emoji = "📞", color = 0xFFEC4899, category = "People"))
         }
-        val widgetId = shadowOf(AppWidgetManager.getInstance(app))
-            .createWidget(GapwiseTilesWidgetReceiver::class.java, androidx.glance.appwidget.R.layout.glance_default_loading_layout)
+        // A real launcher passes a bound widget id; the picker works without one too.
+        val widgetId = 42
         val intent = Intent(app, TilesWidgetConfigActivity::class.java)
             .setAction(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
             .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
