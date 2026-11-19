@@ -37,7 +37,7 @@ Google needs to know the app before it can grant Drive access. One-time setup in
 
 No client ID goes into the code: Google matches the package name and signing certificate.
 
-This is already configured in the Google Cloud project `gapwise-515217` (consent screen in Testing, `drive.appdata` scope, Android client for the debug key). Until this is done, Drive actions show a message pointing here.
+This is already configured in the Google Cloud project `gapwise-515217`: consent screen in Testing, `drive.appdata` scope, and Android clients for the debug key and the release upload key (SHA-1 `87:BA:2F:A9:26:DE:9F:D0:33:2A:93:74:B4:5C:1A:9A:69:31:69:78`). Play App Signing's SHA-1 still needs its own client once the app is on Play. Until this is done, Drive actions show a message pointing here.
 
 ## Build
 
