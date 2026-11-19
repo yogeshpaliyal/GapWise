@@ -1,3 +1,5 @@
+<img src="docs/logo.png" width="96" alt="Gapwise logo">
+
 # Gapwise
 
 **Remember the last time. Know the next.**

@@ -95,9 +95,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 compareBy<EventUi> { it.event.paused }
                     .thenBy { if (it.ongoing) 0 else 1 }
                     .thenBy { it.rhythm.nextExpectedAt ?: Long.MAX_VALUE }
-                    .thenByDescending { it.rhythm.lastAt ?: 0 },
+                    .thenByDescending { it.rhythm.lastAt ?: 0L },
             )
-            SortMode.RECENT -> list.sortedByDescending { it.rhythm.lastAt ?: 0 }
+            SortMode.RECENT -> list.sortedByDescending { it.rhythm.lastAt ?: 0L }
             SortMode.NAME -> list.sortedBy { it.event.name.lowercase() }
             SortMode.CUSTOM -> list.sortedBy { it.event.sortOrder }
         }

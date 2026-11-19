@@ -96,7 +96,7 @@ object Nudges {
             r.usualDays?.let { append(" · ${TimeText.usualText(it).lowercase()}") }
         }
         val n = NotificationCompat.Builder(context, CHANNEL)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_stat_gapwise)
             .setContentTitle("${e.emoji} ${e.name} — usually around now")
             .setContentText(body)
             .setContentIntent(open)

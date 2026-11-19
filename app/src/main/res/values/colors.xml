@@ -2,4 +2,6 @@
     <color name="bg">#FFFBF8F3</color>
     <color name="brand">#FF2F6B5E</color>
     <color name="brand_light">#FFE3F0EC</color>
+    <color name="logo_ink">#FF10404A</color>
+    <color name="logo_sun">#FFE9A93A</color>
 </resources>

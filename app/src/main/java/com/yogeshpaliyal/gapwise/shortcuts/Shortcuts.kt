@@ -34,7 +34,7 @@ object ShortcutPublisher {
             ShortcutInfoCompat.Builder(context, "log_${e.id}")
                 .setShortLabel("${e.emoji} ${e.name}".take(25))
                 .setLongLabel("Log ${e.name}")
-                .setIcon(IconCompat.createWithResource(context, R.drawable.ic_launcher_foreground))
+                .setIcon(IconCompat.createWithResource(context, R.mipmap.ic_launcher))
                 .setRank(i)
                 .setIntent(
                     Intent(context, LogShortcutActivity::class.java)

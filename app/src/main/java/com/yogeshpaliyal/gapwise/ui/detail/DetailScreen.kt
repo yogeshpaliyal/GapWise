@@ -145,11 +145,12 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
         LazyColumn(
             Modifier.padding(padding).fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item { Header(item, color, onLog = { vm.logNow() }, onPast = { addingPast = true }) }
+            item { Spacer(Modifier.height(16.dp)) }
             item { RhythmCard(item) }
             if (item.rhythm.gaps.isNotEmpty()) {
+                item { Spacer(Modifier.height(16.dp)) }
                 item {
                     InfoCard("Time between logs") {
                         GapChart(item.rhythm.gaps, item.rhythm.usualDays, color)
@@ -162,15 +163,20 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
                     }
                 }
             }
+            item { Spacer(Modifier.height(16.dp)) }
             item { InfoCard("Calendar") { LogCalendar(item.item.logs, color) } }
-            item { Text("History", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 8.dp)) }
+            item { Text("History", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.padding(top = 24.dp, bottom = 8.dp)) }
             if (logs.isEmpty()) {
-                item { Text("No logs yet.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                item { Text("Nothing logged yet. Tap Log now, or add a past day.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
-            items(logs, key = { it.id }) { log ->
-                LogRow(log, item.event.isMultiDay, onClick = { editing = log })
-                HorizontalDivider()
-            }
+            historyTimeline(
+                logs = item.item.logs,
+                gaps = item.rhythm.gaps,
+                multiDay = item.event.isMultiDay,
+                color = color,
+                usualDays = item.rhythm.usualDays,
+                onClick = { editing = it },
+            )
         }
     }
 
@@ -319,21 +325,6 @@ private fun InfoCard(title: String, content: @Composable () -> Unit) {
             Spacer(Modifier.height(4.dp))
             content()
         }
-    }
-}
-
-@Composable
-private fun LogRow(log: LogEntity, multiDay: Boolean, onClick: () -> Unit) {
-    Column(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 10.dp)) {
-        val title = if (multiDay) {
-            val end = log.endAt
-            if (end == null) "Since ${TimeText.date(log.startAt)}, still going"
-            else "${TimeText.shortDate(log.startAt)} to ${TimeText.shortDate(end)}, ${TimeText.daysBetween(log.startAt, end) + 1} days"
-        } else {
-            TimeText.dateTime(log.startAt)
-        }
-        Text(title, style = MaterialTheme.typography.bodyLarge)
-        log.note?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
     }
 }
 
