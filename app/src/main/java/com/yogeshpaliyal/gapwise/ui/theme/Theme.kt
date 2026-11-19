@@ -40,7 +40,7 @@ object GapColors {
     val Plum = Color(0xFF7A4467)
 }
 
-private val Light = lightColorScheme(
+internal val Light = lightColorScheme(
     primary = GapColors.Ink,
     onPrimary = Color.White,
     primaryContainer = Color(0xFFC6E7EC),
@@ -66,7 +66,7 @@ private val Light = lightColorScheme(
     outlineVariant = Color(0xFFBEC9CB),
 )
 
-private val Dark = darkColorScheme(
+internal val Dark = darkColorScheme(
     primary = Color(0xFF8ED0DB),
     onPrimary = Color(0xFF00363E),
     primaryContainer = Color(0xFF1C4E58),

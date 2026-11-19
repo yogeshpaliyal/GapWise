@@ -44,7 +44,7 @@ class TilesWidgetTest {
             app.repository.createEvent(EventEntity(name = "Call Mom", emoji = "📞", color = 0xFFEC4899, category = "People"))
         }
         val widgetId = shadowOf(AppWidgetManager.getInstance(app))
-            .createWidget(GapwiseTilesWidgetReceiver::class.java, R.layout.glance_default_loading_layout)
+            .createWidget(GapwiseTilesWidgetReceiver::class.java, androidx.glance.appwidget.R.layout.glance_default_loading_layout)
         val intent = Intent(app, TilesWidgetConfigActivity::class.java)
             .setAction(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
             .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
