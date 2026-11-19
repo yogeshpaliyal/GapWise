@@ -48,10 +48,10 @@ jobs:
           echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
           echo "SIGNING_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
 
-      - name: Smoke-test the main flows
+      - name: Smoke-test the main flows, and make sure the Play flavor compiles
         run: |
           chmod +x gradlew
-          ./gradlew :app:testGithubDebugUnitTest --stacktrace
+          ./gradlew :app:testGithubDebugUnitTest :app:compilePlayReleaseKotlin --stacktrace
 
       - name: Build APK
         env:
