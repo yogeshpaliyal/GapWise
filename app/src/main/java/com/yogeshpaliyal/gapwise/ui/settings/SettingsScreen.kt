@@ -1,0 +1,125 @@
+package com.yogeshpaliyal.gapwise.ui.settings
+
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import com.yogeshpaliyal.gapwise.BuildConfigInfo
+import com.yogeshpaliyal.gapwise.app
+import com.yogeshpaliyal.gapwise.notify.Nudges
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.LocalDate
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
+    val context = LocalContext.current
+    val repo = context.app.repository
+    val prefs = context.app.prefs
+    val scope = rememberCoroutineScope()
+    var nudges by remember { mutableStateOf(prefs.nudgesOn) }
+
+    val exporter = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        uri ?: return@rememberLauncherForActivityResult
+        scope.launch {
+            val ok = runCatching {
+                val json = repo.exportJson()
+                withContext(Dispatchers.IO) {
+                    context.contentResolver.openOutputStream(uri)?.use { it.write(json.toByteArray()) }
+                }
+            }.isSuccess
+            Toast.makeText(context, if (ok) "Exported" else "Export failed", Toast.LENGTH_SHORT).show()
+        }
+    }
+    val importer = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri ?: return@rememberLauncherForActivityResult
+        scope.launch {
+            val result = runCatching {
+                val text = withContext(Dispatchers.IO) {
+                    context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+                } ?: error("empty")
+                repo.importJson(text)
+            }
+            val msg = result.fold({ "Imported $it events" }, { "That file doesn't look like a Gapwise backup" })
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Settings") },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+            )
+        },
+    ) { padding ->
+        Column(Modifier.padding(padding).verticalScroll(rememberScrollState())) {
+            Row(
+                Modifier.fillMaxWidth().clickable {
+                    nudges = !nudges; prefs.nudgesOn = nudges; Nudges.schedule(context)
+                }.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text("Gentle nudges", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "A quiet notification when something is usually due. You can turn them off per event too.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Switch(checked = nudges, onCheckedChange = {
+                    nudges = it; prefs.nudgesOn = it; Nudges.schedule(context)
+                })
+            }
+            HorizontalDivider()
+            Item("Suggested events", "Browse 40+ starter ideas") { onOpenTour() }
+            Item("Export backup", "Save all events and history as a JSON file") {
+                exporter.launch("gapwise-${LocalDate.now()}.json")
+            }
+            Item("Import backup", "Add events from a Gapwise JSON file. Nothing is overwritten.") {
+                importer.launch(arrayOf("application/json", "text/plain", "*/*"))
+            }
+            HorizontalDivider()
+            Item("Privacy", "No account, no ads, no tracking. Your data stays on this phone.") {}
+            Item("Version", BuildConfigInfo.versionName(context)) {}
+        }
+    }
+}
+
+@Composable
+private fun Item(title: String, body: String, onClick: () -> Unit) {
+    Column(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(16.dp)) {
+        Text(title, style = MaterialTheme.typography.titleMedium)
+        Text(body, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}

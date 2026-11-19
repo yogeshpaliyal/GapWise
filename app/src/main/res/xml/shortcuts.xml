@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:shortcutId="add_event"
+        android:shortcutLongLabel="@string/shortcut_add_long"
+        android:shortcutShortLabel="@string/shortcut_add_short">
+        <intent
+            android:action="com.yogeshpaliyal.gapwise.ADD_EVENT"
+            android:targetClass="com.yogeshpaliyal.gapwise.MainActivity"
+            android:targetPackage="com.yogeshpaliyal.gapwise" />
+    </shortcut>
+</shortcuts>
