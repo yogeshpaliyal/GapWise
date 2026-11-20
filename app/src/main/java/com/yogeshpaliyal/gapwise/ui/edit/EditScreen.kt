@@ -44,6 +44,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.AndroidViewModel
@@ -81,6 +85,15 @@ class EditViewModel(application: Application, handle: SavedStateHandle) : Androi
         private set
 
     private var original: EventEntity? = null
+
+    /** Adds a typed category to the chips (reusing one that differs only in case) and selects it. */
+    fun useCategory(typed: String) {
+        val name = typed.trim().replace(Regex("\\s+"), " ")
+        if (name.isEmpty()) return
+        val existing = categories.firstOrNull { it.equals(name, ignoreCase = true) }
+        if (existing == null) categories = categories + name
+        category = existing ?: name
+    }
 
     init {
         viewModelScope.launch {
@@ -206,10 +219,12 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
                     onValueChange = { newCategory = it },
                     label = { Text("Or a new category") },
                     singleLine = true,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { vm.useCategory(newCategory); newCategory = "" }),
                     modifier = Modifier.weight(1f),
                 )
                 OutlinedButton(
-                    onClick = { vm.category = newCategory.trim(); newCategory = "" },
+                    onClick = { vm.useCategory(newCategory); newCategory = "" },
                     enabled = newCategory.isNotBlank(),
                 ) { Text("Use") }
             }

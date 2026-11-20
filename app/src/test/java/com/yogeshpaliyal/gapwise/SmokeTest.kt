@@ -1,6 +1,8 @@
 package com.yogeshpaliyal.gapwise
 
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.hasSetTextAction as setText
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasScrollToNodeAction
 import androidx.compose.ui.test.hasText
@@ -100,6 +102,17 @@ class SmokeTest {
             compose.waitUntil(10_000, condition)
         } catch (e: Throwable) {
             throw AssertionError("Timed out waiting for: $what\n" + compose.onRoot().printToString(maxDepth = 30), e)
+        }
+    }
+
+    @Test
+    fun newCategoryIsAddedAndSelected() {
+        ActivityScenario.launch(MainActivity::class.java).use {
+            compose.onNodeWithContentDescription("New event").performClick()
+            compose.waitForIdle()
+            compose.onNode(hasText("Or a new category") and setText()).performScrollTo().performTextInput("Garden")
+            compose.onNodeWithText("Use").performClick()
+            compose.onNodeWithText("Garden").performScrollTo().assertIsOn()
         }
     }
 
