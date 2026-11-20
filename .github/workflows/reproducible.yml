@@ -2,7 +2,7 @@ name: Reproducible F-Droid build
 
 # Builds the fdroid flavor twice, on two different machines, and checks the APKs are identical:
 #  - the GitHub runner (Ubuntu, Temurin JDK), the same setup the Release workflow uses
-#  - a Debian bookworm container with Debian's own OpenJDK 17, close to F-Droid's build server,
+#  - a Debian trixie container with Debian's OpenJDK 21, like F-Droid's build server,
 #    from a different folder
 # If this passes, F-Droid and IzzyOnDroid can rebuild a release from its tag and ship the APK
 # signed with our key.
@@ -40,13 +40,13 @@ jobs:
 
   debian:
     runs-on: ubuntu-latest
-    container: debian:bookworm
+    container: debian:trixie
     steps:
       - name: Install build tools
         run: |
           apt-get update -qq
-          apt-get install -y -qq --no-install-recommends openjdk-17-jdk-headless git unzip wget ca-certificates >/dev/null
-          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> "$GITHUB_ENV"
+          apt-get install -y -qq --no-install-recommends openjdk-21-jdk-headless git unzip wget ca-certificates >/dev/null
+          echo "JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64" >> "$GITHUB_ENV"
       - uses: actions/checkout@v5
         with:
           # A different folder from the runner job, like F-Droid's build server.
