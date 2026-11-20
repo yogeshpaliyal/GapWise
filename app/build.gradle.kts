@@ -87,6 +87,15 @@ android {
     }
     testOptions {
         unitTests.isIncludeAndroidResources = true
+        // Print the full stack trace and the app's log when a test fails in CI.
+        unitTests.all {
+            it.testLogging {
+                events("failed")
+                exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+                showStandardStreams = true
+            }
+            it.systemProperty("robolectric.logging", "stdout")
+        }
     }
 }
 
