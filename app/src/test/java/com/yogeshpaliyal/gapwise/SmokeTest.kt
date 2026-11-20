@@ -73,11 +73,7 @@ class SmokeTest {
 
             // Two taps on the same card within a minute: the second one asks first.
             compose.onAllNodesWithText("Water plants")[0].performClick()
-            waitOrDump("first tap logged") {
-                // Let the app's coroutines resume on the main looper before checking the database.
-                shadowOf(Looper.getMainLooper()).idle()
-                runBlocking { app.repository.getAll().first { it.event.name == "Water plants" }.recentActionAgo() != null }
-            }
+            waitOrDump("first tap logged") { compose.onAllNodesWithText("Logged Water plants").fetchSemanticsNodes().isNotEmpty() }
             compose.onAllNodesWithText("Water plants")[0].performClick()
             waitOrDump("repeat confirmation") { compose.onAllNodesWithText("Log Water plants again?").fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithText("Cancel").performClick()
