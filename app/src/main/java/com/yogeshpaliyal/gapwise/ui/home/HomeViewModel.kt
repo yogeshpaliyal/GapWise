@@ -143,7 +143,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun cancelRepeat() {
         confirm.value = null
     }
-    }
 
     fun undo(result: LogResult) = viewModelScope.launch { repo.undo(result) }
 }
