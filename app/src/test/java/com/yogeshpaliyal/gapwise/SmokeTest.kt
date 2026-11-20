@@ -129,7 +129,12 @@ class SmokeTest {
             compose.onNodeWithText("Yesterday").performClick()
             compose.onNodeWithText("Add").performClick()
             compose.onNodeWithText("Add 1 event").performClick()
-            compose.waitUntil(10_000) { compose.onAllNodesWithText("GapWise").fetchSemanticsNodes().isNotEmpty() }
+            try {
+                compose.waitUntil(10_000) { compose.onAllNodesWithText("GapWise").fetchSemanticsNodes().isNotEmpty() }
+            } catch (e: Throwable) {
+                println(compose.onRoot(useUnmergedTree = true).printToString())
+                throw e
+            }
         }
     }
 }
