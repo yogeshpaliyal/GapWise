@@ -87,6 +87,10 @@ class TilesWidgetConfigActivity : ComponentActivity() {
             return
         }
 
+        // The same picker serves both widgets; the list widget just lays them out as rows.
+        val isList = AppWidgetManager.getInstance(this).getAppWidgetInfo(appWidgetId)
+            ?.provider?.className == GapwiseWidgetReceiver::class.java.name
+
         setContent {
             GapwiseTheme {
                 val selected = remember { mutableStateListOf<Long>() }
@@ -101,10 +105,11 @@ class TilesWidgetConfigActivity : ComponentActivity() {
                     loaded = true
                 }
                 ConfigScreen(
+                    isList = isList,
                     loaded = loaded,
                     selected = selected,
                     onCancel = { finish() },
-                    onSave = { save(selected.toList()) },
+                    onSave = { save(selected.toList(), isList) },
                 )
             }
         }
@@ -112,14 +117,15 @@ class TilesWidgetConfigActivity : ComponentActivity() {
 
     private fun resultIntent() = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
 
-    private fun save(ids: List<Long>) {
+    private fun save(ids: List<Long>, isList: Boolean) {
         lifecycleScope.launch {
             val saved = runCatching {
                 val glanceId = GlanceAppWidgetManager(this@TilesWidgetConfigActivity).getGlanceIdBy(appWidgetId)
                 updateAppWidgetState(this@TilesWidgetConfigActivity, glanceId) { prefs ->
                     prefs[TileIdsKey] = ids.joinToString(",")
                 }
-                GapwiseTilesWidget().update(this@TilesWidgetConfigActivity, glanceId)
+                val widget = if (isList) GapwiseWidget() else GapwiseTilesWidget()
+                widget.update(this@TilesWidgetConfigActivity, glanceId)
             }.isSuccess
             if (saved) setResult(RESULT_OK, resultIntent())
             finish()
@@ -130,6 +136,7 @@ class TilesWidgetConfigActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ConfigScreen(
+    isList: Boolean,
     loaded: Boolean,
     selected: MutableList<Long>,
     onCancel: () -> Unit,
@@ -144,8 +151,13 @@ private fun ConfigScreen(
         modifier = Modifier.nestedScroll(scroll.nestedScrollConnection),
         topBar = {
             LargeFlexibleTopAppBar(
-                title = { Text("Choose events") },
-                subtitle = { Text("Tap in the order you want them. Up to $MAX_TILES.") },
+                title = { Text(if (isList) "Choose events for the list" else "Choose events for the tiles") },
+                subtitle = {
+                    Text(
+                        if (isList) "Tap in the order you want them, up to $MAX_TILES. Pick none to show what's due soonest."
+                        else "Tap in the order you want them, up to $MAX_TILES. Pick none to show the most due.",
+                    )
+                },
                 navigationIcon = { IconButton(onClick = onCancel) { Icon(Icons.Filled.Close, "Cancel") } },
                 scrollBehavior = scroll,
             )
@@ -161,7 +173,7 @@ private fun ConfigScreen(
                             if (selected.isEmpty()) "Nothing picked" else "${selected.size} picked",
                             style = MaterialTheme.typography.titleMedium,
                         )
-                        Text(gridLabel(selected.size), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(gridLabel(selected.size, isList), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     if (selected.isNotEmpty()) {
                         TextButton(onClick = { selected.clear() }) { Text("Clear") }

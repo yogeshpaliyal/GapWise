@@ -69,7 +69,8 @@ fun desiredColumns(n: Int): Int = when (n) {
     else -> 4
 }
 
-fun gridLabel(n: Int): String {
+fun gridLabel(n: Int, list: Boolean = false): String {
+    if (list) return if (n == 0) "Shows what's due soonest" else "$n in a list, in this order"
     if (n == 0) return "Shows the 4 most due events"
     val cols = desiredColumns(n)
     val rows = ceil(n / cols.toDouble()).toInt()

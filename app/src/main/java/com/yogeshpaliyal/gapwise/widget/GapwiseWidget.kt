@@ -9,6 +9,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.glance.GlanceId
+import androidx.glance.currentState
+import androidx.glance.state.GlanceStateDefinition
+import androidx.glance.state.PreferencesGlanceStateDefinition
+import androidx.datastore.preferences.core.Preferences
 import com.yogeshpaliyal.gapwise.ui.common.ConfirmLogActivity
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -66,6 +70,9 @@ internal fun addEventIntent(context: Context): Intent =
 class GapwiseWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
+    /** Holds the events picked for this widget (same key as the tiles widget). */
+    override val stateDefinition: GlanceStateDefinition<*> = PreferencesGlanceStateDefinition
+
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val repo = context.app.repository
         val initial = repo.getAll()
@@ -73,13 +80,21 @@ class GapwiseWidget : GlanceAppWidget() {
             // Read the database live: logging from the widget (or the app) updates it right away.
             val items by remember { repo.observeAll() }.collectAsState(initial)
             val now by remember { widgetTicker }.collectAsState(System.currentTimeMillis())
-            val rows = remember(items, now) { buildRows(items, now) }
-            GapwiseGlanceTheme { Content(rows) }
+            val chosen = currentState<Preferences>()[TileIdsKey].orEmpty()
+                .split(',').mapNotNull { it.trim().toLongOrNull() }
+            val rows = remember(items, chosen, now) { buildRows(items, chosen, now) }
+            GapwiseGlanceTheme { Content(rows, picked = chosen.isNotEmpty()) }
         }
     }
 
-    private fun buildRows(items: List<EventWithLogs>, now: Long): List<WidgetEvent> =
-        items
+    private fun buildRows(items: List<EventWithLogs>, chosen: List<Long>, now: Long): List<WidgetEvent> {
+        // Picked events, in the order picked.
+        if (chosen.isNotEmpty()) {
+            val byId = items.associateBy { it.event.id }
+            return chosen.mapNotNull { byId[it] }.take(MAX_TILES).map { it.toWidgetEvent(now) }
+        }
+        // Nothing picked: what's due soonest.
+        return items
             .filter { !it.event.hidden && !it.event.paused }
             .sortedWith(
                 compareByDescending<EventWithLogs> { it.event.pinned }
@@ -87,9 +102,10 @@ class GapwiseWidget : GlanceAppWidget() {
             )
             .take(12)
             .map { it.toWidgetEvent(now) }
+    }
 
     @Composable
-    private fun Content(rows: List<WidgetEvent>) {
+    private fun Content(rows: List<WidgetEvent>, picked: Boolean) {
         val context = LocalContext.current
         val size = LocalSize.current
         // Small widgets drop the title bar so the list itself gets the room.
@@ -99,7 +115,7 @@ class GapwiseWidget : GlanceAppWidget() {
                 @Composable {
                     TitleBar(
                         startIcon = ImageProvider(R.drawable.ic_stat_gapwise),
-                        title = "Due soon",
+                        title = if (picked) "Gapwise" else "Due soon",
                         iconColor = GlanceTheme.colors.primary,
                         textColor = GlanceTheme.colors.onSurface,
                         actions = {
