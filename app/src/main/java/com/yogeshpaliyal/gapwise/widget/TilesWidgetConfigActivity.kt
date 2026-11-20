@@ -24,6 +24,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material3.MaterialShapes
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.toShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -170,7 +174,7 @@ private fun ConfigScreen(
                 ) {
                     Column(Modifier.weight(1f)) {
                         Text(
-                            if (selected.isEmpty()) "Nothing picked" else "${selected.size} picked",
+                            if (selected.isEmpty()) "Automatic" else "${selected.size} picked",
                             style = MaterialTheme.typography.titleMedium,
                         )
                         Text(gridLabel(selected.size, isList), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -205,6 +209,46 @@ private fun ConfigScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            // The "pick nothing" choice, spelled out, so an empty selection is clearly on purpose.
+            item(key = "automatic") {
+                val auto = selected.isEmpty()
+                Surface(
+                    onClick = { selected.clear() },
+                    shape = MaterialTheme.shapes.large,
+                    color = if (auto) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
+                ) {
+                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Surface(
+                            shape = MaterialShapes.Sunny.toShape(),
+                            color = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(44.dp),
+                        ) {
+                            Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.AutoAwesome, null) }
+                        }
+                        Spacer(Modifier.width(14.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text("Automatic: due soon", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                if (isList) "Select none to show what's due soonest from all your events. The list keeps itself up to date."
+                                else "Select none to show the 4 most due from all your events. The tiles keep themselves up to date.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        RadioButton(selected = auto, onClick = { selected.clear() })
+                    }
+                }
+            }
+            item(key = "or") {
+                Text(
+                    "Or pick your own",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 12.dp, start = 4.dp),
+                )
+            }
             items(list.filter { !it.event.hidden }, key = { it.event.id }) { item ->
                 val ui = EventUi(item, RhythmCalculator.compute(item))
                 val color = eventColor(item.event.color)
