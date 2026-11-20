@@ -15,7 +15,7 @@ Each GitHub release has `gapwise-vX.Y.Z-fdroid.apk`.
 
 ## Getting listed on F-Droid
 
-1. Release a version that includes the fdroid flavor (v0.3.0 or later), using the Release workflow.
+1. Release a version that includes the fdroid flavor (v0.3.1 or later), using the Release workflow.
 2. Fork https://gitlab.com/fdroid/fdroiddata and copy `com.yogeshpaliyal.gapwise.yml` from this
    folder to `metadata/com.yogeshpaliyal.gapwise.yml`. Set the `Builds` entry and
    `CurrentVersion`/`CurrentVersionCode` to the release you made. `commit` must be the full hash.
@@ -35,7 +35,7 @@ The store listing (title, descriptions, icon, screenshots, and "What's new" from
 Open a request at https://github.com/IzzyOnDroid/repo/issues using the "app inclusion" template.
 Point it at this repo and say the APK to use is the one matching `gapwise-v.*-fdroid\.apk` in
 GitHub releases. IzzyOnDroid also runs reproducible-build checks; the same recipe as above
-(fdroid flavor, JDK 17, `assembleFdroidRelease`) reproduces it.
+(fdroid flavor, `assembleFdroidRelease`, with JDK 17 or 21) reproduces it.
 
 ## Signing certificate
 

@@ -17,17 +17,14 @@ AutoName: GapWise
 
 RepoType: git
 Repo: https://github.com/yogeshpaliyal/GapWise.git
-Binaries: https://github.com/yogeshpaliyal/GapWise/releases/download/v%v/gapwise-v%v-fdroid.apk
+Binaries:
+  https://github.com/yogeshpaliyal/GapWise/releases/download/v%v/gapwise-v%v-fdroid.apk
 
 Builds:
-  - versionName: 0.3.0
-    versionCode: 5
-    commit: d93c19c001f9953f3d0fa593cf95ec21e5119a86
+  - versionName: 0.3.1
+    versionCode: 6
+    commit: 1f5befc0e34ffdfdef89808c168465295d5f3462
     subdir: app
-    sudo:
-      - apt-get update
-      - apt-get install -y openjdk-17-jdk-headless
-      - update-java-alternatives -a
     gradle:
       - fdroid
 
@@ -35,5 +32,5 @@ AllowedAPKSigningKeys: 9016a68e60e5dd033aea17ddd0e9a86cbd80645fe017c832a64c35b36
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+\.[0-9]+$
-CurrentVersion: 0.3.0
-CurrentVersionCode: 5
+CurrentVersion: 0.3.1
+CurrentVersionCode: 6
