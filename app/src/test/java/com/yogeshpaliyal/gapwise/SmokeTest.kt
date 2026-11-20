@@ -109,7 +109,7 @@ class SmokeTest {
         ActivityScenario.launch(MainActivity::class.java).use {
             compose.onNodeWithText("Water plants").performClick()
             compose.onNodeWithText("Add 1 event").performClick()
-            compose.waitUntil(10_000) { compose.onAllNodesWithText("Gapwise").fetchSemanticsNodes().isNotEmpty() }
+            compose.waitUntil(10_000) { compose.onAllNodesWithText("GapWise").fetchSemanticsNodes().isNotEmpty() }
         }
     }
 }

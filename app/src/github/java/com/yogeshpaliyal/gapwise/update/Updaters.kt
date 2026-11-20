@@ -48,7 +48,7 @@ private class GithubUpdater(private val app: Context) : AppUpdater {
     override val sourceLabel: String =
         if (tracksMaster) "Checks the latest-master build on GitHub" else "Checks GitHub releases"
 
-    override val rateLabel = "Star Gapwise on GitHub"
+    override val rateLabel = "Star GapWise on GitHub"
 
     override fun attach(activity: ComponentActivity) {
         this.activity = activity

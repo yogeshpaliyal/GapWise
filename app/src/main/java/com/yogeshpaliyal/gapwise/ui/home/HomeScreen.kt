@@ -115,7 +115,7 @@ fun HomeScreen(
         modifier = Modifier.nestedScroll(scroll.nestedScrollConnection),
         topBar = {
             LargeFlexibleTopAppBar(
-                title = { Text("Gapwise") },
+                title = { Text("GapWise") },
                 subtitle = { Text(summary(statuses, state.totalCount)) },
                 scrollBehavior = scroll,
             )

@@ -115,7 +115,7 @@ class GapwiseWidget : GlanceAppWidget() {
                 @Composable {
                     TitleBar(
                         startIcon = ImageProvider(R.drawable.ic_stat_gapwise),
-                        title = if (picked) "Gapwise" else "Due soon",
+                        title = if (picked) "GapWise" else "Due soon",
                         iconColor = GlanceTheme.colors.primary,
                         textColor = GlanceTheme.colors.onSurface,
                         actions = {

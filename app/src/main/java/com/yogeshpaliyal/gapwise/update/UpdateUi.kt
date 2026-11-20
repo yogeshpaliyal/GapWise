@@ -81,7 +81,7 @@ fun UpdateBanner(modifier: Modifier = Modifier) {
                         )
                         Text(
                             when (s) {
-                                is UpdateState.ReadyToInstall -> "Restart Gapwise to finish. Your data stays as it is."
+                                is UpdateState.ReadyToInstall -> "Restart GapWise to finish. Your data stays as it is."
                                 is UpdateState.Downloading -> "Keep using the app. We'll let you know when it's ready."
                                 else -> "Get the latest fixes and features."
                             },
@@ -163,6 +163,6 @@ fun UpdateSettings(versionName: String) {
             .padding(16.dp),
     ) {
         Text(updater.rateLabel, style = MaterialTheme.typography.titleMedium)
-        Text("It helps other people find Gapwise.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("It helps other people find GapWise.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

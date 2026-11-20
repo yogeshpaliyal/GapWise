@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Announce a new Gapwise release.
+"""Announce a new GapWise release.
 
 Always: a GitHub Discussions post in Announcements, and a ready-to-paste XDA post
 (BBCode) in the workflow summary. Optional, each only when its secrets are set:
@@ -49,7 +49,7 @@ def short(limit, bullets=4):
     """A short post: headline, a few changes, Play link. Trimmed to fit `limit`."""
     items = CHANGES[:bullets]
     while True:
-        lines = [f"Gapwise {TAG} is out 🎉", ""]
+        lines = [f"GapWise {TAG} is out 🎉", ""]
         lines += [f"• {c}" for c in items]
         if len(CHANGES) > len(items):
             lines.append("• …and more")
@@ -83,7 +83,7 @@ def discussions():
     body = f"{NOTES}\n\n---\nFull release: {RELEASE}\n\nTell us what you think below 👇"
     res = gql(
         "mutation($r:ID!,$c:ID!,$t:String!,$b:String!){createDiscussion(input:{repositoryId:$r,categoryId:$c,title:$t,body:$b}){discussion{url}}}",
-        {"r": repo["id"], "c": cat, "t": f"Gapwise {TAG} is out", "b": body},
+        {"r": repo["id"], "c": cat, "t": f"GapWise {TAG} is out", "b": body},
     )
     if res.get("errors"):
         raise RuntimeError(res["errors"])
@@ -92,7 +92,7 @@ def discussions():
 
 def telegram():
     token, chat = os.environ["TELEGRAM_BOT_TOKEN"], os.environ["TELEGRAM_CHAT_ID"]
-    lines = [f"<b>Gapwise {html.escape(TAG)} is out 🎉</b>", ""]
+    lines = [f"<b>GapWise {html.escape(TAG)} is out 🎉</b>", ""]
     lines += [f"• {html.escape(c)}" for c in CHANGES[:8]]
     lines += ["", f'<a href="{PLAY}">Google Play</a> · <a href="{RELEASE}">Release notes &amp; APK</a>']
     res = post(
@@ -139,7 +139,7 @@ def mastodon():
 
 def xda():
     """XDA has no posting API, so write the post for a quick copy-paste."""
-    bb = [f"[SIZE=5][B]Gapwise {TAG}[/B][/SIZE]", "", "[B]What's new[/B]", "[LIST]"]
+    bb = [f"[SIZE=5][B]GapWise {TAG}[/B][/SIZE]", "", "[B]What's new[/B]", "[LIST]"]
     bb += [f"[*]{c}" for c in CHANGES]
     bb += ["[/LIST]", "", "[B]Download[/B]", "[LIST]",
            f"[*][URL={PLAY}]Google Play[/URL]",

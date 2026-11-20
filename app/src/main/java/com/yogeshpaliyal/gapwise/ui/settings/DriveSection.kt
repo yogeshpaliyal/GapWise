@@ -104,14 +104,14 @@ fun DriveSection() {
             }
             DriveAction.RESTORE -> guarded("Looking for your backup…") {
                 val remote = DriveBackup.latest(token)
-                if (remote == null) message = "There's no Gapwise backup in this Google account yet."
+                if (remote == null) message = "There's no GapWise backup in this Google account yet."
                 else restoreOffer = token to remote
             }
             DriveAction.AUTO_ON -> {
                 prefs.driveAutoBackup = true
                 auto = true
                 DriveBackupWorker.schedule(context)
-                message = "Gapwise will back up once a day on Wi-Fi."
+                message = "GapWise will back up once a day on Wi-Fi."
             }
         }
     }
@@ -169,7 +169,7 @@ fun DriveSection() {
                 }
             }
             Text(
-                "Saved to a private app folder in your Google Drive that only Gapwise can see. Each backup replaces the last one.",
+                "Saved to a private app folder in your Google Drive that only GapWise can see. Each backup replaces the last one.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

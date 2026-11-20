@@ -1,6 +1,6 @@
-"""Gapwise Play screenshots, in the same light 'callout' style as Halo's: eyebrow + big headline
+"""GapWise Play screenshots, in the same light 'callout' style as Halo's: eyebrow + big headline
 with a highlighter swoosh, phone bleeding off the bottom, zoomed callout cards with soft shadows,
-handwritten notes. Colours and type are Gapwise's (plum, blush, Bitter, DM Sans).
+handwritten notes. Colours and type are GapWise's (plum, blush, Bitter, DM Sans).
 
 usage: python3 docs/play_screenshots.py docs/screenshots fastlane/metadata/android/en-US/images/phoneScreenshots
 then render each SVG: for f in out/*.svg; do rsvg-convert "$f" -o "${f%.svg}.png"; done
@@ -101,7 +101,7 @@ def arrow(d, color=HANDC):
     return f'<path d="{d}" fill="none" stroke="{color}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>'
 
 def mark(cx, cy, r):
-    """The Gapwise logo: blush sun holding a ring with a gap, and a dot for the next time."""
+    """The GapWise logo: blush sun holding a ring with a gap, and a dot for the next time."""
     import math
     pts = []
     for i in range(180):
@@ -178,7 +178,7 @@ save(4, s)
 t, _ = headline(["Your data", "stays yours"], 110, 190, eyebrow="PRIVATE", mark=(1, "yours"))
 s = t
 rows = [("No account, no ads", "Nothing to sign up for, nothing tracked", -3),
-        ("Backs up to your Drive", "A private folder only Gapwise can see", 2),
+        ("Backs up to your Drive", "A private folder only GapWise can see", 2),
         ("Open source", "Read every line on GitHub", -2)]
 y = 640
 for title, body, rot in rows:

@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.yogeshpaliyal.gapwise.R
 
 /*
- * Gapwise palette: plum and blush, taken from the app icon.
+ * GapWise palette: plum and blush, taken from the app icon.
  *   Plum    #6B2A72  primary
  *   Blush   #FFB4D2  the icon's sun; tints containers
  *   Petal   #FBF6FA  background — near-white with a hint of pink

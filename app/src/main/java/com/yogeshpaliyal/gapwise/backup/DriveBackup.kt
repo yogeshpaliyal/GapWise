@@ -24,7 +24,7 @@ import kotlin.coroutines.resumeWithException
 
 /**
  * Backs up to the user's Google Drive "app data" folder: a hidden folder only
- * Gapwise can read, which doesn't clutter their Drive. One file, replaced on
+ * GapWise can read, which doesn't clutter their Drive. One file, replaced on
  * every backup.
  *
  * Uses Google Identity Services for consent and the Drive REST API directly,

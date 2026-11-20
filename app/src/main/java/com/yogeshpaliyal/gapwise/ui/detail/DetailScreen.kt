@@ -298,7 +298,7 @@ private fun RhythmCard(ui: EventUi) {
         if (r.usualDays == null) {
             val left = (3 - r.logCount).coerceAtLeast(1)
             Text(
-                "Log this $left more time${if (left > 1) "s" else ""} and Gapwise will learn how often you usually do it.",
+                "Log this $left more time${if (left > 1) "s" else ""} and GapWise will learn how often you usually do it.",
                 style = MaterialTheme.typography.bodyLarge,
             )
         } else {
@@ -350,7 +350,7 @@ private fun shareIntent(ui: EventUi): Intent {
     val text = buildString {
         append("${ui.event.emoji} ${ui.event.name}: ${TimeText.elapsedInline(r.lastAt)}")
         r.usualDays?.let { append(" · ${TimeText.usualText(it).lowercase()}") }
-        append("\n— tracked with Gapwise")
+        append("\n— tracked with GapWise")
     }
     return Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text)
 }

@@ -74,7 +74,7 @@ fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
                 } ?: error("empty")
                 repo.importJson(text)
             }
-            val msg = result.fold({ "Imported $it events" }, { "That file doesn't look like a Gapwise backup" })
+            val msg = result.fold({ "Imported $it events" }, { "That file doesn't look like a GapWise backup" })
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
         }
     }
@@ -115,7 +115,7 @@ fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
             Item("Export to a file", "Save all events and history as a JSON file") {
                 exporter.launch("gapwise-${LocalDate.now()}.json")
             }
-            Item("Import from a file", "Add events from a Gapwise JSON file. Nothing is overwritten.") {
+            Item("Import from a file", "Add events from a GapWise JSON file. Nothing is overwritten.") {
                 importer.launch(arrayOf("application/json", "text/plain", "*/*"))
             }
             HorizontalDivider()

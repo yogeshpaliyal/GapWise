@@ -200,7 +200,7 @@ private fun ConfigScreen(
         }
         if (list.isEmpty()) {
             Box(Modifier.padding(padding).fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
-                Text("You haven't added any events yet. Add some in Gapwise, then come back.", style = MaterialTheme.typography.bodyLarge)
+                Text("You haven't added any events yet. Add some in GapWise, then come back.", style = MaterialTheme.typography.bodyLarge)
             }
             return@Scaffold
         }

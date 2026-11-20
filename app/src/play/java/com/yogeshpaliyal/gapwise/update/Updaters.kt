@@ -39,7 +39,7 @@ private class PlayUpdater(private val app: Context) : AppUpdater {
     private var launcher: ActivityResultLauncher<IntentSenderRequest>? = null
 
     override val sourceLabel = "Updates come from Google Play"
-    override val rateLabel = "Rate Gapwise on Google Play"
+    override val rateLabel = "Rate GapWise on Google Play"
 
     private val listener = InstallStateUpdatedListener { s ->
         _state.value = when (s.installStatus()) {

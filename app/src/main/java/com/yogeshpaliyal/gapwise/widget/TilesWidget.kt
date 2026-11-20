@@ -120,7 +120,7 @@ class GapwiseTilesWidget : GlanceAppWidget() {
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        "Add events in Gapwise",
+                        "Add events in GapWise",
                         style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, textAlign = TextAlign.Center),
                     )
                 }

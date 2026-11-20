@@ -1,4 +1,4 @@
-"""Gapwise Play feature graphic and store icon, in the same style as Halo's: dark backdrop with a
+"""GapWise Play feature graphic and store icon, in the same style as Halo's: dark backdrop with a
 soft glow, big name and tagline on the left, a phone bleeding off the bottom on the right.
 Screenshots come from docs/play_screenshots.py.
 
@@ -59,7 +59,7 @@ def feature_graphic():
     svg = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">', DEFS,
            f'<rect width="{W}" height="{H}" fill="#1C0E1F"/><rect width="{W}" height="{H}" fill="url(#glow)"/>',
            logo(104, 132, 40),
-           '<text x="62" y="282" font-family="Bitter" font-weight="700" font-size="112" letter-spacing="-3" fill="url(#title)">Gapwise</text>',
+           '<text x="62" y="282" font-family="Bitter" font-weight="700" font-size="112" letter-spacing="-3" fill="url(#title)">GapWise</text>',
            '<text font-family="DM Sans" font-size="32" fill="#E8C9DC"><tspan x="66" y="340">Remember the last time.</tspan><tspan x="66" y="382">Know the next.</tspan></text>',
            # phone bleeding off the bottom edge
            phone(660, 64, 290, embed("home.jpg"), "fg"),

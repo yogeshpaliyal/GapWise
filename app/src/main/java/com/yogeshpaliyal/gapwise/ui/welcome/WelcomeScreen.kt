@@ -79,7 +79,7 @@ fun WelcomeScreen(onDone: () -> Unit, vm: WelcomeViewModel = viewModel()) {
             Text("Remember the last time.\nKnow the next.", style = MaterialTheme.typography.displaySmall)
             Spacer(Modifier.height(8.dp))
             Text(
-                "Pick a few things you do now and then. Gapwise learns how often you usually do them, with no streaks and no guilt.",
+                "Pick a few things you do now and then. GapWise learns how often you usually do them, with no streaks and no guilt.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

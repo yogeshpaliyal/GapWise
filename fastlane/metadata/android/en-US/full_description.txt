@@ -1,6 +1,6 @@
-When did you last get a haircut? Water the plants? Call home? Gapwise remembers, so you don't have to.
+When did you last get a haircut? Water the plants? Call home? GapWise remembers, so you don't have to.
 
-Tap once when you do something. Gapwise counts the days since, learns how often you usually do it, and gives you a gentle nudge around when it's due again. There are no streaks to break and nothing to feel guilty about.
+Tap once when you do something. GapWise counts the days since, learns how often you usually do it, and gives you a gentle nudge around when it's due again. There are no streaks to break and nothing to feel guilty about.
 
 <b>Remember the last time</b>
 • One tap to log, with undo
@@ -8,7 +8,7 @@ Tap once when you do something. Gapwise counts the days since, learns how often 
 • Events that last days, like a trip or a sick day, get a start and an end
 
 <b>Know the next</b>
-• After a few logs, Gapwise learns your rhythm, like "usually every 36 days"
+• After a few logs, GapWise learns your rhythm, like "usually every 36 days"
 • One-off long gaps, like a holiday, don't throw it off
 • Each event's icon changes shape as time passes, so you can see what's due at a glance
 
