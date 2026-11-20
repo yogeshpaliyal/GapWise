@@ -2,6 +2,14 @@
 
 # Gapwise
 
+<p>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="19%">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="19%">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="19%">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="19%">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="19%">
+</p>
+
 **Remember the last time. Know the next.**
 
 Gapwise tracks how long it's been since you last did the things that don't run on a fixed schedule: a haircut, an oil change, calling home, washing the bedsheets. It learns your usual rhythm and gives you a gentle nudge around when something is usually due. There are no streaks and no guilt.
@@ -38,6 +46,18 @@ Google needs to know the app before it can grant Drive access. One-time setup in
 No client ID goes into the code: Google matches the package name and signing certificate.
 
 This is already configured in the Google Cloud project `gapwise-515217`: consent screen in Testing, `drive.appdata` scope, and Android clients for the debug key and the release upload key (SHA-1 `87:BA:2F:A9:26:DE:9F:D0:33:2A:93:74:B4:5C:1A:9A:69:31:69:78`). Play App Signing's SHA-1 still needs its own client once the app is on Play. Until this is done, Drive actions show a message pointing here.
+
+## Store listing
+
+The Play listing lives in `fastlane/metadata/android/en-US/` (title, descriptions, screenshots, feature graphic and icon). The art is generated from real screenshots in `docs/screenshots/` in the same style as Halo:
+
+```
+python3 docs/play_screenshots.py docs/screenshots fastlane/metadata/android/en-US/images/phoneScreenshots
+python3 docs/play_assets.py docs/screenshots fastlane/metadata/android/en-US/images
+for f in fastlane/metadata/android/en-US/images/{,phoneScreenshots/}*.svg; do rsvg-convert "$f" -o "${f%.svg}.png" && rm "$f"; done
+```
+
+Needs `rsvg-convert`, Pillow, and the Bitter, DM Sans and TeX Gyre Chorus fonts.
 
 ## Build
 

@@ -8,3 +8,7 @@ build/
 .externalNativeBuild
 .cxx
 .kotlin/
+
+# Generated store art (render to PNG, keep only the PNGs)
+fastlane/metadata/android/*/images/**/*.svg
+fastlane/metadata/android/*/images/*.svg
