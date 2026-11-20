@@ -1,5 +1,7 @@
 package com.yogeshpaliyal.gapwise.shortcuts
 
+import com.yogeshpaliyal.gapwise.L10n
+
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -33,7 +35,7 @@ object ShortcutPublisher {
             val e = item.event
             ShortcutInfoCompat.Builder(context, "log_${e.id}")
                 .setShortLabel("${e.emoji} ${e.name}".take(25))
-                .setLongLabel("Log ${e.name}")
+                .setLongLabel(L10n.s(R.string.a11y_log_event, e.name))
                 .setIcon(IconCompat.createWithResource(context, R.mipmap.ic_launcher))
                 .setRank(i)
                 .setIntent(
@@ -67,9 +69,9 @@ class LogShortcutActivity : ComponentActivity() {
             val name = repo.get(id)?.event?.name
             val result = repo.logNow(id)
             val msg = when {
-                result == null || name == null -> "Event not found"
-                result is LogResult.Ended -> "Ended “$name”"
-                else -> "Logged “$name”"
+                result == null || name == null -> L10n.s(R.string.event_not_found)
+                result is LogResult.Ended -> L10n.s(R.string.toast_ended, name)
+                else -> L10n.s(R.string.toast_logged, name)
             }
             Toast.makeText(applicationContext, msg, Toast.LENGTH_SHORT).show()
             finish()

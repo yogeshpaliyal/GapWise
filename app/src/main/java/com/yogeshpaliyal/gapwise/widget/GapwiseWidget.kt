@@ -1,5 +1,7 @@
 package com.yogeshpaliyal.gapwise.widget
 
+import com.yogeshpaliyal.gapwise.L10n
+
 import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.Composable
@@ -115,13 +117,13 @@ class GapwiseWidget : GlanceAppWidget() {
                 @Composable {
                     TitleBar(
                         startIcon = ImageProvider(R.drawable.ic_stat_gapwise),
-                        title = if (picked) "GapWise" else "Due soon",
+                        title = if (picked) L10n.s(R.string.app_name) else L10n.s(R.string.sort_due),
                         iconColor = GlanceTheme.colors.primary,
                         textColor = GlanceTheme.colors.onSurface,
                         actions = {
                             CircleIconButton(
                                 imageProvider = ImageProvider(R.drawable.ic_add_24),
-                                contentDescription = "New event",
+                                contentDescription = L10n.s(R.string.new_event),
                                 onClick = actionStartActivity(addEventIntent(context)),
                                 backgroundColor = GlanceTheme.colors.primary,
                                 contentColor = GlanceTheme.colors.onPrimary,
@@ -141,7 +143,7 @@ class GapwiseWidget : GlanceAppWidget() {
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        "Nothing tracked yet. Tap to add your first event.",
+                        L10n.s(R.string.widget_empty),
                         style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, textAlign = TextAlign.Center),
                     )
                 }

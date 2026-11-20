@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.ui.common
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -60,9 +63,9 @@ fun PastDatePickerDialog(initial: Long, onDismiss: () -> Unit, onPicked: (Long) 
             TextButton(onClick = {
                 state.selectedDateMillis?.let { onPicked(combine(fromUtcMidnight(it), timeOf(initial))) }
                 onDismiss()
-            }) { Text("OK") }
+            }) { Text(L10n.s(R.string.ok)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(L10n.s(R.string.cancel)) } },
     ) {
         DatePicker(state = state)
     }
@@ -80,9 +83,9 @@ fun TimePickerDialog(initial: Long, onDismiss: () -> Unit, onPicked: (Long) -> U
             TextButton(onClick = {
                 onPicked(combine(TimeText.localDate(initial), LocalTime.of(state.hour, state.minute)))
                 onDismiss()
-            }) { Text("OK") }
+            }) { Text(L10n.s(R.string.ok)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(L10n.s(R.string.cancel)) } },
         text = { TimePicker(state = state) },
     )
 }

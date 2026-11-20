@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.ui.edit
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -150,10 +153,10 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (vm.isNew) "New event" else "Edit event") },
-                navigationIcon = { IconButton(onClick = onDone) { Icon(Icons.Filled.Close, "Cancel") } },
+                title = { Text(if (vm.isNew) L10n.s(R.string.new_event) else L10n.s(R.string.edit_event)) },
+                navigationIcon = { IconButton(onClick = onDone) { Icon(Icons.Filled.Close, L10n.s(R.string.cancel)) } },
                 actions = {
-                    TextButton(onClick = { vm.save(onDone) }, enabled = vm.name.isNotBlank()) { Text(if (vm.isNew) "Add" else "Save") }
+                    TextButton(onClick = { vm.save(onDone) }, enabled = vm.name.isNotBlank()) { Text(if (vm.isNew) L10n.s(R.string.add) else L10n.s(R.string.save)) }
                 },
             )
         },
@@ -166,7 +169,7 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
                 OutlinedTextField(
                     value = vm.emoji,
                     onValueChange = { vm.emoji = it.take(8) },
-                    label = { Text("Icon") },
+                    label = { Text(L10n.s(R.string.icon)) },
                     singleLine = true,
                     textStyle = MaterialTheme.typography.headlineSmall.copy(textAlign = TextAlign.Center),
                     modifier = Modifier.size(width = 84.dp, height = 72.dp),
@@ -174,8 +177,8 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
                 OutlinedTextField(
                     value = vm.name,
                     onValueChange = { vm.name = it },
-                    label = { Text("What do you want to track?") },
-                    placeholder = { Text("e.g. Haircut") },
+                    label = { Text(L10n.s(R.string.name_label)) },
+                    placeholder = { Text(L10n.s(R.string.name_hint)) },
                     singleLine = true,
                     modifier = Modifier.weight(1f),
                 )
@@ -192,7 +195,7 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
                 }
             }
 
-            Label("Color")
+            Label(L10n.s(R.string.color))
             FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Palette.colors.forEach { c ->
                     Box(
@@ -207,7 +210,7 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
                 }
             }
 
-            Label("Category")
+            Label(L10n.s(R.string.category))
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 vm.categories.forEach { c ->
                     ToggleButton(checked = vm.category == c, onCheckedChange = { vm.category = c }) { Text(c) }
@@ -217,7 +220,7 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
                 OutlinedTextField(
                     value = newCategory,
                     onValueChange = { newCategory = it },
-                    label = { Text("Or a new category") },
+                    label = { Text(L10n.s(R.string.new_category)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { vm.useCategory(newCategory); newCategory = "" }),
@@ -226,47 +229,47 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
                 OutlinedButton(
                     onClick = { vm.useCategory(newCategory); newCategory = "" },
                     enabled = newCategory.isNotBlank(),
-                ) { Text("Use") }
+                ) { Text(L10n.s(R.string.use)) }
             }
 
             ToggleRow(
-                "Has a start and an end",
-                "For things that last days, like a trip, a sick day or a period.",
+                L10n.s(R.string.multi_day),
+                L10n.s(R.string.multi_day_hint),
                 vm.multiDay,
             ) { vm.multiDay = it }
             ToggleRow(
-                "Gentle nudges",
-                "A quiet notification around when you usually do this. Ignoring it is fine.",
+                L10n.s(R.string.nudges_toggle),
+                L10n.s(R.string.nudges_toggle_hint),
                 vm.nudges,
             ) { vm.nudges = it }
 
             if (vm.isNew) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Label(if (vm.multiDay) "Last time" else "Last time you did it")
+                    Label(if (vm.multiDay) L10n.s(R.string.last_time) else L10n.s(R.string.last_time_you))
                     val startAt = vm.firstLogAt
                     if (startAt == null) {
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(onClick = { vm.firstLogAt = System.currentTimeMillis() }) { Text("Just now") }
-                            OutlinedButton(onClick = { picker = "startDate" }) { Text("Pick a date") }
+                            OutlinedButton(onClick = { vm.firstLogAt = System.currentTimeMillis() }) { Text(L10n.s(R.string.just_now)) }
+                            OutlinedButton(onClick = { picker = "startDate" }) { Text(L10n.s(R.string.pick_date)) }
                         }
                         Text(
-                            "Optional. Leave it empty if you haven't done it yet.",
+                            L10n.s(R.string.last_time_optional),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     } else {
-                        DateTimeRow(if (vm.multiDay) "Started" else "Date", startAt, { picker = "startDate" }, { picker = "startTime" })
+                        DateTimeRow(if (vm.multiDay) L10n.s(R.string.started) else L10n.s(R.string.date), startAt, { picker = "startDate" }, { picker = "startTime" })
                         if (vm.multiDay) {
                             ToggleRow(
-                                "Still going",
-                                if (vm.firstEndAt == null) "Turn off to set when it ended" else "Turn on if it hasn't ended yet",
+                                L10n.s(R.string.still_going),
+                                if (vm.firstEndAt == null) L10n.s(R.string.still_going_off) else L10n.s(R.string.still_going_on),
                                 vm.firstEndAt == null,
                             ) { going -> vm.firstEndAt = if (going) null else maxOf(startAt, System.currentTimeMillis()) }
                             vm.firstEndAt?.let { endAt ->
-                                DateTimeRow("Ended", endAt, { picker = "endDate" }, { picker = "endTime" })
+                                DateTimeRow(L10n.s(R.string.ended), endAt, { picker = "endDate" }, { picker = "endTime" })
                             }
                         }
-                        TextButton(onClick = { vm.firstLogAt = null; vm.firstEndAt = null }) { Text("Clear") }
+                        TextButton(onClick = { vm.firstLogAt = null; vm.firstEndAt = null }) { Text(L10n.s(R.string.clear)) }
                     }
                 }
             }
@@ -276,7 +279,7 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
                 enabled = vm.name.isNotBlank(),
                 shapes = ButtonDefaults.shapes(),
                 modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(bottom = 24.dp),
-            ) { Text(if (vm.isNew) "Add event" else "Save changes", style = MaterialTheme.typography.titleMedium) }
+            ) { Text(if (vm.isNew) L10n.s(R.string.add_event) else L10n.s(R.string.save_changes), style = MaterialTheme.typography.titleMedium) }
         }
     }
 
@@ -304,7 +307,7 @@ private fun Label(text: String) = Text(text, style = MaterialTheme.typography.ti
 private fun DateTimeRow(label: String, at: Long, onDate: () -> Unit, onTime: () -> Unit) {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         PickerTile(Icons.Outlined.CalendarMonth, label, TimeText.date(at), onDate, Modifier.weight(1f))
-        PickerTile(Icons.Outlined.Schedule, "Time", TimeText.time(at), onTime, Modifier.weight(1f))
+        PickerTile(Icons.Outlined.Schedule, L10n.s(R.string.time), TimeText.time(at), onTime, Modifier.weight(1f))
     }
 }
 

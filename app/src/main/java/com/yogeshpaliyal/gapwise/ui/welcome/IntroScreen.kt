@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.ui.welcome
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -69,22 +72,22 @@ import kotlinx.coroutines.launch
 
 private class IntroPage(val title: String, val body: String, val art: @Composable () -> Unit)
 
-private val pages = listOf(
+private val pages: List<IntroPage> get() = listOf(
     IntroPage(
-        "Remember the\nlast time",
-        "Haircuts, oil changes, calling your parents. GapWise keeps track of when you last did the things you do now and then.",
+        L10n.s(R.string.intro1_title),
+        L10n.s(R.string.intro1_body),
     ) { ArtCards() },
     IntroPage(
-        "One tap\nlogs it",
-        "Did it today? Tap the card. That's it. You can fix the date or add a note any time.",
+        L10n.s(R.string.intro2_title),
+        L10n.s(R.string.intro2_body),
     ) { ArtTap() },
     IntroPage(
-        "Know what's\ndue next",
-        "After a few logs GapWise learns your usual gap, and the shape tells you when it's about time. No streaks, no guilt.",
+        L10n.s(R.string.intro3_title),
+        L10n.s(R.string.intro3_body),
     ) { ArtShapes() },
     IntroPage(
-        "Yours,\nand only yours",
-        "No account and no ads. Everything stays on your phone, with an optional backup to your own Google Drive.",
+        L10n.s(R.string.intro4_title),
+        L10n.s(R.string.intro4_body),
     ) { ArtPrivate() },
 )
 
@@ -99,7 +102,7 @@ fun IntroScreen(onDone: () -> Unit) {
     Surface(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), horizontalArrangement = Arrangement.End) {
-                if (!last) TextButton(onClick = onDone) { Text("Skip") } else Spacer(Modifier.height(48.dp))
+                if (!last) TextButton(onClick = onDone) { Text(L10n.s(R.string.skip)) } else Spacer(Modifier.height(48.dp))
             }
             HorizontalPager(state = pager, modifier = Modifier.weight(1f)) { i ->
                 val page = pages[i]
@@ -124,7 +127,7 @@ fun IntroScreen(onDone: () -> Unit) {
                     onClick = { if (last) onDone() else scope.launch { pager.animateScrollToPage(pager.currentPage + 1) } },
                     shapes = ButtonDefaults.shapes(),
                     modifier = Modifier.heightIn(min = 56.dp),
-                ) { Text(if (last) "Get started" else "Next", style = MaterialTheme.typography.titleMedium) }
+                ) { Text(if (last) L10n.s(R.string.get_started) else L10n.s(R.string.next), style = MaterialTheme.typography.titleMedium) }
             }
         }
     }
@@ -174,8 +177,8 @@ private fun MiniCard(emoji: String, name: String, count: String, unit: String, c
 @Composable
 private fun ArtCards() = Backdrop(GapStatus.BUILDING) {
     Box(Modifier.size(300.dp, 280.dp)) {
-        MiniCard("💇", "Haircut", "36", "days ago", 0xFFE0569A, GapStatus.DUE, Modifier.align(Alignment.TopStart).rotate(-6f))
-        MiniCard("🛢️", "Oil change", "4", "months ago", 0xFF3E7CB1, GapStatus.BUILDING, Modifier.align(Alignment.BottomEnd).rotate(5f))
+        MiniCard("💇", L10n.s(R.string.sug_haircut), "36", L10n.p(R.plurals.time_days_ago_unit, 36), 0xFFE0569A, GapStatus.DUE, Modifier.align(Alignment.TopStart).rotate(-6f))
+        MiniCard("🛢️", L10n.s(R.string.sug_oil_change), "4", L10n.p(R.plurals.time_months_ago_unit, 4), 0xFF3E7CB1, GapStatus.BUILDING, Modifier.align(Alignment.BottomEnd).rotate(5f))
     }
 }
 
@@ -192,8 +195,8 @@ private fun ArtTap() = Backdrop(GapStatus.FRESH) {
     Box(contentAlignment = Alignment.Center) {
         AnimatedContent(done, transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "tap") { d ->
             MiniCard(
-                "🪴", "Water plants",
-                if (d) "Now" else "12", if (d) "just logged" else "days ago",
+                "🪴", L10n.s(R.string.sug_water_plants),
+                if (d) L10n.s(R.string.time_now) else "12", if (d) L10n.s(R.string.time_just_logged) else L10n.p(R.plurals.time_days_ago_unit, 12),
                 0xFF4E7D57, if (d) GapStatus.FRESH else GapStatus.PAST,
                 Modifier.scale(1.25f),
             )
@@ -225,9 +228,9 @@ private fun ArtShapes() = Backdrop(GapStatus.DUE) {
 @Composable
 private fun ArtPrivate() = Backdrop(GapStatus.LEARNING) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Promise(Icons.Rounded.NoAccounts, "No account, no ads", -3f)
-        Promise(Icons.Rounded.CloudDone, "Backs up to your Drive", 2f)
-        Promise(Icons.Rounded.Code, "Open source", -2f)
+        Promise(Icons.Rounded.NoAccounts, L10n.s(R.string.promise_no_account), -3f)
+        Promise(Icons.Rounded.CloudDone, L10n.s(R.string.promise_drive), 2f)
+        Promise(Icons.Rounded.Code, L10n.s(R.string.promise_open_source), -2f)
     }
 }
 

@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.ui.common
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -38,15 +41,17 @@ import com.yogeshpaliyal.gapwise.ui.home.EventUi
  * read the whole home screen at a glance:
  *   circle → fresh, scallop → building, sun → around now, burst → past usual.
  */
-enum class GapStatus(val label: String) {
-    NEW("Not logged yet"),
-    LEARNING("Learning your rhythm"),
-    FRESH("Recently done"),
-    BUILDING("Getting closer"),
-    DUE("Around now"),
-    PAST("Past your usual"),
-    ONGOING("In progress"),
-    PAUSED("Paused"),
+enum class GapStatus(@androidx.annotation.StringRes private val labelRes: Int) {
+    NEW(R.string.status_new),
+    LEARNING(R.string.status_learning),
+    FRESH(R.string.status_fresh),
+    BUILDING(R.string.status_building),
+    DUE(R.string.status_due),
+    PAST(R.string.status_past),
+    ONGOING(R.string.status_ongoing),
+    PAUSED(R.string.status_paused);
+
+    val label: String get() = L10n.s(labelRes)
 }
 
 fun EventUi.status(now: Long): GapStatus = when {

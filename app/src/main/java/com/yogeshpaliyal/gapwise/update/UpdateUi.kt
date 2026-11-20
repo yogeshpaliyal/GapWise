@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.update
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
@@ -72,18 +75,18 @@ fun UpdateBanner(modifier: Modifier = Modifier) {
                         val s = state
                         Text(
                             when (s) {
-                                is UpdateState.ReadyToInstall -> "Update ready"
-                                is UpdateState.Downloading -> "Downloading update"
-                                is UpdateState.Available -> if (s.version != null) "Version ${s.version} is available" else "An update is available"
+                                is UpdateState.ReadyToInstall -> L10n.s(R.string.update_ready)
+                                is UpdateState.Downloading -> L10n.s(R.string.update_downloading)
+                                is UpdateState.Available -> if (s.version != null) L10n.s(R.string.update_version_available, s.version) else L10n.s(R.string.update_available)
                                 else -> ""
                             },
                             style = MaterialTheme.typography.titleMedium,
                         )
                         Text(
                             when (s) {
-                                is UpdateState.ReadyToInstall -> "Restart GapWise to finish. Your data stays as it is."
-                                is UpdateState.Downloading -> "Keep using the app. We'll let you know when it's ready."
-                                else -> "Get the latest fixes and features."
+                                is UpdateState.ReadyToInstall -> L10n.s(R.string.update_ready_body)
+                                is UpdateState.Downloading -> L10n.s(R.string.update_downloading_body)
+                                else -> L10n.s(R.string.update_body)
                             },
                             style = MaterialTheme.typography.bodySmall,
                         )
@@ -101,7 +104,7 @@ fun UpdateBanner(modifier: Modifier = Modifier) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                         Spacer(Modifier.weight(1f))
                         if (s !is UpdateState.ReadyToInstall) {
-                            TextButton(onClick = { dismissed = true }) { Text("Later") }
+                            TextButton(onClick = { dismissed = true }) { Text(L10n.s(R.string.later)) }
                         }
                         FilledTonalButton(
                             onClick = {
@@ -109,7 +112,7 @@ fun UpdateBanner(modifier: Modifier = Modifier) {
                                 else activity?.let(updater::startUpdate)
                             },
                             shapes = ButtonDefaults.shapes(),
-                        ) { Text(if (s is UpdateState.ReadyToInstall) "Restart now" else "Update") }
+                        ) { Text(if (s is UpdateState.ReadyToInstall) L10n.s(R.string.restart_now) else L10n.s(R.string.update)) }
                     }
                 }
             }
@@ -126,12 +129,12 @@ fun UpdateSettings(versionName: String) {
     val activity = LocalContext.current as? Activity
     val s = state
     val subtitle = when (s) {
-        UpdateState.Idle -> "Version $versionName. ${updater.sourceLabel}."
-        UpdateState.Checking -> "Checking…"
-        is UpdateState.UpToDate -> "You're on the latest version ($versionName)."
-        is UpdateState.Available -> (if (s.version != null) "Version ${s.version} is available." else "An update is available.") + " Tap to update."
-        is UpdateState.Downloading -> "Downloading the update…"
-        UpdateState.ReadyToInstall -> "Update downloaded. Tap to restart and finish."
+        UpdateState.Idle -> L10n.s(R.string.update_idle, versionName, updater.sourceLabel)
+        UpdateState.Checking -> L10n.s(R.string.update_checking)
+        is UpdateState.UpToDate -> L10n.s(R.string.update_latest, versionName)
+        is UpdateState.Available -> if (s.version != null) L10n.s(R.string.update_tap_version, s.version) else L10n.s(R.string.update_tap)
+        is UpdateState.Downloading -> L10n.s(R.string.update_downloading_settings)
+        UpdateState.ReadyToInstall -> L10n.s(R.string.update_downloaded_settings)
         is UpdateState.Failed -> s.message
     }
     Column(
@@ -147,7 +150,7 @@ fun UpdateSettings(versionName: String) {
             }
             .padding(16.dp),
     ) {
-        Text("Check for updates", style = MaterialTheme.typography.titleMedium)
+        Text(L10n.s(R.string.check_updates), style = MaterialTheme.typography.titleMedium)
         Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         AnimatedVisibility(visible = s == UpdateState.Checking) {
             Column {
@@ -163,6 +166,6 @@ fun UpdateSettings(versionName: String) {
             .padding(16.dp),
     ) {
         Text(updater.rateLabel, style = MaterialTheme.typography.titleMedium)
-        Text("It helps other people find GapWise.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(L10n.s(R.string.rate_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

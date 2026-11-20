@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.ui.detail
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -87,8 +90,8 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
 
     LaunchedEffect(Unit) {
         vm.logged.collect { r ->
-            val msg = if (r is LogResult.Ended) "Ended" else "Logged"
-            val res = snackbar.showSnackbar(msg, actionLabel = "Undo")
+            val msg = if (r is LogResult.Ended) L10n.s(R.string.snack_ended_short) else L10n.s(R.string.snack_logged_short)
+            val res = snackbar.showSnackbar(msg, actionLabel = L10n.s(R.string.undo))
             if (res == SnackbarResult.ActionPerformed) vm.undo(r)
         }
     }
@@ -98,35 +101,35 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
             TopAppBar(
                 title = { Text(ui?.event?.name ?: "") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") }
+                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, L10n.s(R.string.back)) }
                 },
                 actions = {
-                    IconButton(onClick = { onEdit(vm.eventId) }) { Icon(Icons.Outlined.Edit, "Edit") }
+                    IconButton(onClick = { onEdit(vm.eventId) }) { Icon(Icons.Outlined.Edit, L10n.s(R.string.edit)) }
                     Box {
-                        IconButton(onClick = { menu = true }) { Icon(Icons.Outlined.MoreVert, "More") }
+                        IconButton(onClick = { menu = true }) { Icon(Icons.Outlined.MoreVert, L10n.s(R.string.more)) }
                         val e = ui?.event
                         DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                             DropdownMenuItem(
-                                text = { Text(if (e?.pinned == true) "Unpin" else "Pin to top") },
+                                text = { Text(if (e?.pinned == true) L10n.s(R.string.unpin) else L10n.s(R.string.pin_to_top)) },
                                 onClick = { vm.togglePin(); menu = false },
                             )
                             DropdownMenuItem(
-                                text = { Text(if (e?.paused == true) "Resume" else "Pause (travel, injury…)") },
+                                text = { Text(if (e?.paused == true) L10n.s(R.string.resume) else L10n.s(R.string.pause_menu)) },
                                 onClick = { vm.togglePaused(); menu = false },
                             )
                             DropdownMenuItem(
-                                text = { Text(if (e?.hidden == true) "Unhide" else "Hide from home") },
+                                text = { Text(if (e?.hidden == true) L10n.s(R.string.unhide) else L10n.s(R.string.hide_from_home)) },
                                 onClick = { vm.toggleHidden(); menu = false },
                             )
                             DropdownMenuItem(
-                                text = { Text("Share") },
+                                text = { Text(L10n.s(R.string.share)) },
                                 onClick = {
                                     menu = false
-                                    ui?.let { context.startActivity(Intent.createChooser(shareIntent(it), "Share")) }
+                                    ui?.let { context.startActivity(Intent.createChooser(shareIntent(it), L10n.s(R.string.share))) }
                                 },
                             )
                             DropdownMenuItem(
-                                text = { Text("Delete", color = MaterialTheme.colorScheme.error) },
+                                text = { Text(L10n.s(R.string.delete), color = MaterialTheme.colorScheme.error) },
                                 onClick = { confirmDelete = true; menu = false },
                             )
                         }
@@ -153,11 +156,11 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
             if (item.rhythm.gaps.isNotEmpty()) {
                 item { Spacer(Modifier.height(16.dp)) }
                 item {
-                    InfoCard("Time between logs") {
+                    InfoCard(L10n.s(R.string.card_gaps)) {
                         GapChart(item.rhythm.gaps, item.rhythm.usualDays, color)
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            "The dashed line is your usual gap. Faded bars are one-off long gaps, and they don't count.",
+                            L10n.s(R.string.card_gaps_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -165,13 +168,13 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
                 }
             }
             item { Spacer(Modifier.height(16.dp)) }
-            item { InfoCard("Calendar") { LogCalendar(item.item.logs, color) } }
+            item { InfoCard(L10n.s(R.string.card_calendar)) { LogCalendar(item.item.logs, color) } }
             item {
                 Column(Modifier.padding(top = 24.dp, bottom = 8.dp)) {
-                    Text("History", style = MaterialTheme.typography.headlineSmall)
+                    Text(L10n.s(R.string.history), style = MaterialTheme.typography.headlineSmall)
                     if (logs.isNotEmpty()) {
                         Text(
-                            "Tap any entry to change its date, time or note.",
+                            L10n.s(R.string.history_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -179,7 +182,7 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
                 }
             }
             if (logs.isEmpty()) {
-                item { Text("Nothing logged yet. Tap Log now, or add a past day.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                item { Text(L10n.s(R.string.history_empty), color = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
             historyTimeline(
                 logs = item.item.logs,
@@ -200,7 +203,7 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
     val event = ui?.event
     if (addingPast && event != null) {
         LogEditorSheet(
-            title = "Log a past time",
+            title = L10n.s(R.string.log_past_time),
             multiDay = event.isMultiDay,
             initialStart = System.currentTimeMillis() - DAY_MS,
             initialEnd = if (event.isMultiDay) System.currentTimeMillis() - DAY_MS else null,
@@ -211,7 +214,7 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
     }
     editing?.let { log ->
         LogEditorSheet(
-            title = "Edit log",
+            title = L10n.s(R.string.edit_log),
             multiDay = event?.isMultiDay == true,
             initialStart = log.startAt,
             initialEnd = log.endAt,
@@ -224,12 +227,12 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
     if (confirmDelete) {
         AlertDialog(
             onDismissRequest = { confirmDelete = false },
-            title = { Text("Delete “${event?.name}”?") },
-            text = { Text("This removes the event and all of its history.") },
+            title = { Text(L10n.s(R.string.delete_title, event?.name.orEmpty())) },
+            text = { Text(L10n.s(R.string.delete_body)) },
             confirmButton = {
-                TextButton(onClick = { confirmDelete = false; vm.delete(onBack) }) { Text("Delete") }
+                TextButton(onClick = { confirmDelete = false; vm.delete(onBack) }) { Text(L10n.s(R.string.delete)) }
             },
-            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text(L10n.s(R.string.cancel)) } },
         )
     }
 }
@@ -246,8 +249,8 @@ private fun Header(ui: EventUi, color: Color, onLog: () -> Unit, onPast: () -> U
         Text(status.label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(6.dp))
         if (ongoing != null) {
-            Text("Day ${TimeText.daysBetween(ongoing, now) + 1}", style = CountStyle.copy(fontSize = 80.sp, lineHeight = 80.sp))
-            Text("Started ${TimeText.date(ongoing)}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(L10n.s(R.string.day_n, (TimeText.daysBetween(ongoing, now) + 1).toInt()), style = CountStyle.copy(fontSize = 80.sp, lineHeight = 80.sp))
+            Text(L10n.s(R.string.started_on, TimeText.date(ongoing)), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         } else {
             val (n, u) = TimeText.elapsed(ui.rhythm.lastAt, now)
             Row(verticalAlignment = Alignment.Bottom) {
@@ -256,13 +259,13 @@ private fun Header(ui: EventUi, color: Color, onLog: () -> Unit, onPast: () -> U
                 Text(u, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 12.dp))
             }
             ui.rhythm.lastAt?.let {
-                Text("Last time ${TimeText.dateTime(it)}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(L10n.s(R.string.last_time_on, TimeText.dateTime(it)), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         if (ui.event.paused) {
             Spacer(Modifier.height(6.dp))
             Text(
-                "No nudges until you resume. The gap from this pause won't count against your rhythm.",
+                L10n.s(R.string.paused_hint),
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center,
             )
@@ -270,9 +273,9 @@ private fun Header(ui: EventUi, color: Color, onLog: () -> Unit, onPast: () -> U
         Spacer(Modifier.height(20.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             val label = when {
-                !ui.event.isMultiDay -> "Log now"
-                ongoing != null -> "End now"
-                else -> "Start now"
+                !ui.event.isMultiDay -> L10n.s(R.string.log_now)
+                ongoing != null -> L10n.s(R.string.end_now)
+                else -> L10n.s(R.string.start_now)
             }
             Button(
                 onClick = onLog,
@@ -285,7 +288,7 @@ private fun Header(ui: EventUi, color: Color, onLog: () -> Unit, onPast: () -> U
                 shapes = ButtonDefaults.shapes(),
                 modifier = Modifier.heightIn(min = 56.dp),
                 contentPadding = PaddingValues(horizontal = 24.dp),
-            ) { Text("Log a past day", style = MaterialTheme.typography.titleMedium) }
+            ) { Text(L10n.s(R.string.log_past_day), style = MaterialTheme.typography.titleMedium) }
         }
     }
 }
@@ -294,18 +297,18 @@ private fun Header(ui: EventUi, color: Color, onLog: () -> Unit, onPast: () -> U
 private fun RhythmCard(ui: EventUi) {
     val r = ui.rhythm
     val now = System.currentTimeMillis()
-    InfoCard("Rhythm") {
+    InfoCard(L10n.s(R.string.card_rhythm)) {
         if (r.usualDays == null) {
             val left = (3 - r.logCount).coerceAtLeast(1)
             Text(
-                "Log this $left more time${if (left > 1) "s" else ""} and GapWise will learn how often you usually do it.",
+                L10n.p(R.plurals.rhythm_learning, left),
                 style = MaterialTheme.typography.bodyLarge,
             )
         } else {
             Text(TimeText.usualText(r.usualDays), style = MaterialTheme.typography.headlineSmall)
             r.nextExpectedAt?.let {
                 Text(
-                    "Expected around ${TimeText.date(it)}",
+                    L10n.s(R.string.expected_around, TimeText.date(it)),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -313,12 +316,12 @@ private fun RhythmCard(ui: EventUi) {
             Spacer(Modifier.height(8.dp))
             RhythmBar(ui, ui.status(now), now, eventColor(ui.event.color))
         }
-        r.usualLengthDays?.let { Text("Usually lasts ${it.roundToInt()} days", style = MaterialTheme.typography.bodyMedium) }
+        r.usualLengthDays?.let { Text(L10n.p(R.plurals.usually_lasts, it.roundToInt()), style = MaterialTheme.typography.bodyMedium) }
         Spacer(Modifier.height(12.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(28.dp)) {
-            Stat("Times logged", "${r.logCount}")
-            Stat("Shortest gap", r.gaps.filterNot { it.outlier }.minOfOrNull { it.days }?.let { "${it.roundToInt()}d" } ?: "—")
-            Stat("Longest gap", r.gaps.maxOfOrNull { it.days }?.let { "${it.roundToInt()}d" } ?: "—")
+            Stat(L10n.s(R.string.stat_times), "${r.logCount}")
+            Stat(L10n.s(R.string.stat_shortest), r.gaps.filterNot { it.outlier }.minOfOrNull { it.days }?.let { L10n.s(R.string.days_short, it.roundToInt()) } ?: "—")
+            Stat(L10n.s(R.string.stat_longest), r.gaps.maxOfOrNull { it.days }?.let { L10n.s(R.string.days_short, it.roundToInt()) } ?: "—")
         }
     }
 }
@@ -349,8 +352,8 @@ private fun shareIntent(ui: EventUi): Intent {
     val r = ui.rhythm
     val text = buildString {
         append("${ui.event.emoji} ${ui.event.name}: ${TimeText.elapsedInline(r.lastAt)}")
-        r.usualDays?.let { append(" · ${TimeText.usualText(it).lowercase()}") }
-        append("\n— tracked with GapWise")
+        r.usualDays?.let { append(" · " + TimeText.usualText(it).replaceFirstChar { c -> c.lowercase() }) }
+        append("\n" + L10n.s(R.string.share_footer))
     }
     return Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text)
 }

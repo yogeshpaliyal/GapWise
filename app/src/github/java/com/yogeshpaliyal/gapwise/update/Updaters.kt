@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.update
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -45,10 +48,10 @@ private class GithubUpdater(private val app: Context) : AppUpdater {
     private var downloadUrl: String? = null
     private var activity: ComponentActivity? = null
 
-    override val sourceLabel: String =
-        if (tracksMaster) "Checks the latest-master build on GitHub" else "Checks GitHub releases"
+    override val sourceLabel: String
+        get() = if (tracksMaster) L10n.s(R.string.source_github_master) else L10n.s(R.string.source_github)
 
-    override val rateLabel = "Star GapWise on GitHub"
+    override val rateLabel: String get() = L10n.s(R.string.rate_github)
 
     override fun attach(activity: ComponentActivity) {
         this.activity = activity
@@ -77,7 +80,7 @@ private class GithubUpdater(private val app: Context) : AppUpdater {
                 downloadUrl = url
                 _state.value = if (newer) UpdateState.Available(version) else UpdateState.UpToDate(BuildConfig.VERSION_NAME)
             } catch (e: Exception) {
-                _state.value = if (userInitiated) UpdateState.Failed("Couldn't reach GitHub. Check your connection and try again.") else UpdateState.Idle
+                _state.value = if (userInitiated) UpdateState.Failed(L10n.s(R.string.update_err_github)) else UpdateState.Idle
             }
         }
     }

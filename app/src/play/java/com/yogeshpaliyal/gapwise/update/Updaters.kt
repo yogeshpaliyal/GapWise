@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.update
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -38,8 +41,8 @@ private class PlayUpdater(private val app: Context) : AppUpdater {
     private var info: AppUpdateInfo? = null
     private var launcher: ActivityResultLauncher<IntentSenderRequest>? = null
 
-    override val sourceLabel = "Updates come from Google Play"
-    override val rateLabel = "Rate GapWise on Google Play"
+    override val sourceLabel: String get() = L10n.s(R.string.source_play)
+    override val rateLabel: String get() = L10n.s(R.string.rate_play)
 
     private val listener = InstallStateUpdatedListener { s ->
         _state.value = when (s.installStatus()) {
@@ -49,7 +52,7 @@ private class PlayUpdater(private val app: Context) : AppUpdater {
                 UpdateState.Downloading(if (total > 0) s.bytesDownloaded().toFloat() / total else null)
             }
             InstallStatus.DOWNLOADED -> UpdateState.ReadyToInstall
-            InstallStatus.FAILED -> UpdateState.Failed("The update didn't download. Try again from Settings.")
+            InstallStatus.FAILED -> UpdateState.Failed(L10n.s(R.string.update_err_download))
             InstallStatus.CANCELED -> UpdateState.Available(null)
             else -> _state.value
         }
@@ -89,7 +92,7 @@ private class PlayUpdater(private val app: Context) : AppUpdater {
             .addOnFailureListener {
                 // Common on devices without Play or for builds not installed from Play.
                 _state.value = if (userInitiated) {
-                    UpdateState.Failed("Couldn't check Google Play. Updates only work for the copy installed from Play.")
+                    UpdateState.Failed(L10n.s(R.string.update_err_play))
                 } else {
                     UpdateState.Idle
                 }

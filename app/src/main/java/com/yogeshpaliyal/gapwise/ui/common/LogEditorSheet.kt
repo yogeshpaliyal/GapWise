@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.ui.common
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -66,9 +69,9 @@ private fun longDate(ms: Long): String {
     val d = TimeText.localDate(ms)
     val today = LocalDate.now()
     return when (d) {
-        today -> "Today"
-        today.minusDays(1) -> "Yesterday"
-        else -> "${d.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())}, ${TimeText.shortDate(ms)}"
+        today -> L10n.s(R.string.today)
+        today.minusDays(1) -> L10n.s(R.string.yesterday)
+        else -> L10n.s(R.string.weekday_time, d.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()), TimeText.shortDate(ms))
     }
 }
 
@@ -114,7 +117,7 @@ fun LogEditorSheet(
             // Quick date choices.
             val today = LocalDate.now()
             val picked = TimeText.localDate(start)
-            val quick = listOf("Today" to today, "Yesterday" to today.minusDays(1))
+            val quick = listOf(L10n.s(R.string.today) to today, L10n.s(R.string.yesterday) to today.minusDays(1))
             Row(horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)) {
                 quick.forEachIndexed { i, (label, date) ->
                     ToggleButton(
@@ -129,20 +132,20 @@ fun LogEditorSheet(
                     onCheckedChange = { picker = "startDate" },
                     shapes = ButtonGroupDefaults.connectedTrailingButtonShapes(),
                     modifier = Modifier.weight(1f),
-                ) { Text("Earlier…") }
+                ) { Text(L10n.s(R.string.earlier)) }
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 PickerTile(
                     icon = Icons.Outlined.CalendarMonth,
-                    label = if (multiDay) "Started" else "Date",
+                    label = if (multiDay) L10n.s(R.string.started) else L10n.s(R.string.date),
                     value = TimeText.date(start),
                     onClick = { picker = "startDate" },
                     modifier = Modifier.weight(1f),
                 )
                 PickerTile(
                     icon = Icons.Outlined.Schedule,
-                    label = "Time",
+                    label = L10n.s(R.string.time),
                     value = TimeText.time(start),
                     onClick = { picker = "startTime" },
                     modifier = Modifier.weight(1f),
@@ -152,9 +155,9 @@ fun LogEditorSheet(
             if (multiDay) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text("Still going", style = MaterialTheme.typography.titleMedium)
+                        Text(L10n.s(R.string.still_going), style = MaterialTheme.typography.titleMedium)
                         Text(
-                            if (end == null) "Turn off to set when it ended" else "Turn on if it hasn't ended yet",
+                            if (end == null) L10n.s(R.string.still_going_off) else L10n.s(R.string.still_going_on),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -168,8 +171,8 @@ fun LogEditorSheet(
                     val days = TimeText.daysBetween(start, e) + 1
                     PickerTile(
                         icon = Icons.Outlined.EventAvailable,
-                        label = "Ended",
-                        value = "${TimeText.date(e)}, $days day${if (days == 1L) "" else "s"}",
+                        label = L10n.s(R.string.ended),
+                        value = L10n.p(R.plurals.ended_value, days.toInt(), TimeText.date(e), days.toInt()),
                         onClick = { picker = "endDate" },
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -179,8 +182,8 @@ fun LogEditorSheet(
             TextField(
                 value = note,
                 onValueChange = { note = it },
-                placeholder = { Text("Add a note, like where or with whom") },
-                label = { Text("Note") },
+                placeholder = { Text(L10n.s(R.string.note_hint)) },
+                label = { Text(L10n.s(R.string.note)) },
                 shape = MaterialTheme.shapes.large,
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent,
@@ -192,8 +195,8 @@ fun LogEditorSheet(
             AnimatedContent(targetState = confirmingDelete, label = "actions") { confirming ->
                 if (confirming && onDelete != null) {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                        Text("Delete this log?", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                        TextButton(onClick = { confirmingDelete = false }) { Text("Keep") }
+                        Text(L10n.s(R.string.delete_log_q), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                        TextButton(onClick = { confirmingDelete = false }) { Text(L10n.s(R.string.keep)) }
                         Spacer(Modifier.width(8.dp))
                         Button(
                             onClick = onDelete,
@@ -202,7 +205,7 @@ fun LogEditorSheet(
                                 containerColor = MaterialTheme.colorScheme.error,
                                 contentColor = MaterialTheme.colorScheme.onError,
                             ),
-                        ) { Text("Delete") }
+                        ) { Text(L10n.s(R.string.delete)) }
                     }
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -214,7 +217,7 @@ fun LogEditorSheet(
                             ) {
                                 Icon(Icons.Outlined.DeleteOutline, null, Modifier.size(20.dp))
                                 Spacer(Modifier.width(6.dp))
-                                Text("Delete")
+                                Text(L10n.s(R.string.delete))
                             }
                         }
                         Spacer(Modifier.weight(1f))
@@ -223,7 +226,7 @@ fun LogEditorSheet(
                             shapes = ButtonDefaults.shapes(),
                             modifier = Modifier.heightIn(min = 56.dp),
                             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 32.dp),
-                        ) { Text("Save", style = MaterialTheme.typography.titleMedium) }
+                        ) { Text(L10n.s(R.string.save), style = MaterialTheme.typography.titleMedium) }
                     }
                 }
             }

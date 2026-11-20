@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.widget
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
@@ -70,11 +73,11 @@ fun compactElapsed(from: Long?, now: Long): String {
     val diff = now - from
     val days = TimeText.daysBetween(from, now)
     return when {
-        diff < HOUR_MS -> "Now"
-        days == 0L -> "${diff / HOUR_MS}h"
-        days < 60 -> "${days}d"
-        days < 730 -> "${(days / 30.4).roundToInt()}mo"
-        else -> "%.1fy".format(days / 365.25)
+        diff < HOUR_MS -> L10n.s(R.string.time_now)
+        days == 0L -> L10n.s(R.string.time_hours_short, (diff / HOUR_MS).toInt())
+        days < 60 -> L10n.s(R.string.days_short, days.toInt())
+        days < 730 -> L10n.s(R.string.months_short, (days / 30.4).roundToInt())
+        else -> L10n.s(R.string.years_short, String.format(java.util.Locale.getDefault(), "%.1f", days / 365.25))
     }
 }
 
@@ -106,10 +109,10 @@ fun EventWithLogs.toWidgetEvent(now: Long): WidgetEvent {
         id = event.id,
         emoji = event.emoji,
         name = event.name,
-        count = if (ui.ongoing) "Day ${TimeText.daysBetween(ui.rhythm.ongoingSince!!, now) + 1}" else compactElapsed(ui.rhythm.lastAt, now),
+        count = if (ui.ongoing) L10n.s(R.string.day_n, (TimeText.daysBetween(ui.rhythm.ongoingSince!!, now) + 1).toInt()) else compactElapsed(ui.rhythm.lastAt, now),
         due = when {
-            event.paused -> "Paused"
-            ui.ongoing -> "In progress"
+            event.paused -> L10n.s(R.string.status_paused)
+            ui.ongoing -> L10n.s(R.string.status_ongoing)
             else -> TimeText.dueText(ui.rhythm.nextExpectedAt, now)
         },
         status = status,

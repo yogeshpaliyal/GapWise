@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.ui.detail
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -83,7 +86,7 @@ fun GapChart(gaps: List<Gap>, usual: Double?, color: Color, modifier: Modifier =
                 modifier = Modifier.weight(1f),
             )
             Text(
-                "max ${max.roundToInt()}d",
+                L10n.s(R.string.chart_max, max.roundToInt()),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -118,16 +121,16 @@ fun LogCalendar(logs: List<LogEntity>, color: Color, modifier: Modifier = Modifi
     Column(modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = { month = month.minusMonths(1) }) {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, "Previous month")
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, L10n.s(R.string.prev_month))
             }
             Text(
-                "${month.month.getDisplayName(TextStyle.FULL, Locale.getDefault())} ${month.year}",
+                java.time.format.DateTimeFormatter.ofPattern(android.text.format.DateFormat.getBestDateTimePattern(Locale.getDefault(), "MMMMyyyy"), Locale.getDefault()).format(month),
                 style = MaterialTheme.typography.titleSmall,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.weight(1f),
             )
             IconButton(onClick = { month = month.plusMonths(1) }, enabled = month < YearMonth.now()) {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, "Next month")
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, L10n.s(R.string.next_month))
             }
         }
         Row(Modifier.fillMaxWidth()) {

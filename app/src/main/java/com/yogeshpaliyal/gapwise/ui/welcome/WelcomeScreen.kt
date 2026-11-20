@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.ui.welcome
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import android.app.Application
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -87,10 +90,10 @@ fun WelcomeScreen(onDone: () -> Unit, vm: WelcomeViewModel = viewModel()) {
     Surface(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
         Column(Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
-            Text("Remember the last time.\nKnow the next.", style = MaterialTheme.typography.displaySmall)
+            Text(L10n.s(R.string.welcome_title), style = MaterialTheme.typography.displaySmall)
             Spacer(Modifier.height(8.dp))
             Text(
-                "Pick a few things you do now and then. GapWise learns how often you usually do them, with no streaks and no guilt.",
+                L10n.s(R.string.welcome_body),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -99,7 +102,7 @@ fun WelcomeScreen(onDone: () -> Unit, vm: WelcomeViewModel = viewModel()) {
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            item { ToggleButton(checked = filter == null, onCheckedChange = { filter = null }) { Text("All") } }
+            item { ToggleButton(checked = filter == null, onCheckedChange = { filter = null }) { Text(L10n.s(R.string.filter_all)) } }
             items(categories) { c ->
                 ToggleButton(checked = filter == c, onCheckedChange = { filter = c }) { Text(c) }
             }
@@ -144,7 +147,7 @@ fun WelcomeScreen(onDone: () -> Unit, vm: WelcomeViewModel = viewModel()) {
             }
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Text(
-                    "Tap one to say when you last did it. Not sure? We'll guess, and you can fix it later from the event's page.",
+                    L10n.s(R.string.welcome_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -155,7 +158,7 @@ fun WelcomeScreen(onDone: () -> Unit, vm: WelcomeViewModel = viewModel()) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            TextButton(onClick = { vm.finish(onDone) }, enabled = !vm.saving) { Text("Skip") }
+            TextButton(onClick = { vm.finish(onDone) }, enabled = !vm.saving) { Text(L10n.s(R.string.skip)) }
             Button(
                 onClick = { vm.finish(onDone) },
                 enabled = vm.selected.isNotEmpty() && !vm.saving,
@@ -164,9 +167,8 @@ fun WelcomeScreen(onDone: () -> Unit, vm: WelcomeViewModel = viewModel()) {
             ) {
                 Text(
                     when (vm.selected.size) {
-                        0 -> "Pick a few"
-                        1 -> "Add 1 event"
-                        else -> "Add ${vm.selected.size} events"
+                        0 -> L10n.s(R.string.pick_a_few)
+                        else -> L10n.p(R.plurals.add_n_events, vm.selected.size)
                     },
                     style = MaterialTheme.typography.titleMedium,
                 )

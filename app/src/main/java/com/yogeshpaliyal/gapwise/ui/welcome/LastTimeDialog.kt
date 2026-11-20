@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.ui.welcome
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -45,14 +48,14 @@ data class LastTime(val startAt: Long?, val endAt: Long?, val label: String)
 
 private data class Ago(val label: String, val days: Int)
 
-private val agoOptions = listOf(
-    Ago("Today", 0), Ago("Yesterday", 1), Ago("A few days ago", 3), Ago("About a week ago", 7),
-    Ago("A couple of weeks ago", 14), Ago("About a month ago", 30), Ago("A few months ago", 90),
+private val agoOptions: List<Ago> get() = listOf(
+    Ago(L10n.s(R.string.today), 0), Ago(L10n.s(R.string.yesterday), 1), Ago(L10n.s(R.string.ago_few_days), 3), Ago(L10n.s(R.string.ago_week), 7),
+    Ago(L10n.s(R.string.ago_two_weeks), 14), Ago(L10n.s(R.string.ago_month), 30), Ago(L10n.s(R.string.ago_few_months), 90),
 )
 
 /** How long a multi-day event lasted, in days; null = still going. */
-private val lengths: List<Pair<String, Int?>> = listOf(
-    "1 day" to 1, "2 days" to 2, "3 days" to 3, "A week" to 7, "Still going" to null,
+private val lengths: List<Pair<String, Int?>> get() = listOf(
+    L10n.p(R.plurals.n_days, 1) to 1, L10n.p(R.plurals.n_days, 2) to 2, L10n.p(R.plurals.n_days, 3) to 3, L10n.s(R.string.a_week) to 7, L10n.s(R.string.still_going) to null,
 )
 
 private sealed interface When {
@@ -83,7 +86,7 @@ fun LastTimeDialog(
     var length by remember {
         mutableStateOf(
             if (current?.startAt != null && current.endAt == null) lengths.last()
-            else current?.let { c -> lengths.firstOrNull { it.second != null && c.label.endsWith("· ${it.first}") } } ?: lengths[1],
+            else current?.let { c -> lengths.firstOrNull { it.second != null && c.label == L10n.s(R.string.last_time_with_length, c.label.substringBefore(" · "), it.first) } } ?: lengths[1],
         )
     }
     var pickDate by remember { mutableStateOf(false) }
@@ -99,7 +102,7 @@ fun LastTimeDialog(
                 Column {
                     Text(suggestion.name, style = MaterialTheme.typography.titleLarge)
                     Text(
-                        if (suggestion.multiDay) "When did it last start?" else "When did you last do it?",
+                        if (suggestion.multiDay) L10n.s(R.string.ask_last_start) else L10n.s(R.string.ask_last_do),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -113,13 +116,13 @@ fun LastTimeDialog(
                 val picked = choice as? When.Picked
                 ToggleButton(checked = picked != null, onCheckedChange = { pickDate = true }) {
                     Icon(Icons.Rounded.CalendarMonth, null, Modifier.padding(end = 6.dp))
-                    Text(picked?.let { TimeText.date(it.at) } ?: "Pick a date")
+                    Text(picked?.let { TimeText.date(it.at) } ?: L10n.s(R.string.pick_date))
                 }
-                ToggleButton(checked = choice == When.NotSure, onCheckedChange = { choice = When.NotSure }) { Text("Not sure") }
+                ToggleButton(checked = choice == When.NotSure, onCheckedChange = { choice = When.NotSure }) { Text(L10n.s(R.string.not_sure)) }
             }
 
             if (suggestion.multiDay && choice != null && choice != When.NotSure) {
-                Text("How long did it last?", style = MaterialTheme.typography.titleSmall)
+                Text(L10n.s(R.string.ask_how_long), style = MaterialTheme.typography.titleSmall)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     lengths.forEach { l ->
                         ToggleButton(checked = length == l, onCheckedChange = { length = l }) { Text(l.first) }
@@ -129,21 +132,21 @@ fun LastTimeDialog(
 
             if (choice == When.NotSure) {
                 Text(
-                    "We'll guess from how often people usually do this. Fix it later from the event's page.",
+                    L10n.s(R.string.not_sure_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
 
             Row(Modifier.fillMaxWidth().padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                if (current != null) TextButton(onClick = onRemove) { Text("Remove") }
+                if (current != null) TextButton(onClick = onRemove) { Text(L10n.s(R.string.remove)) }
                 Spacer(Modifier.weight(1f))
                 Button(
                     onClick = { choice?.let { onPick(resolve(it, suggestion.multiDay, length)) } },
                     enabled = choice != null,
                     shapes = ButtonDefaults.shapes(),
                     modifier = Modifier.heightIn(min = 52.dp),
-                ) { Text(if (current == null) "Add" else "Save") }
+                ) { Text(if (current == null) L10n.s(R.string.add) else L10n.s(R.string.save)) }
             }
         }
     }
@@ -161,10 +164,10 @@ private fun resolve(choice: When, multiDay: Boolean, length: Pair<String, Int?>)
     val (start, label) = when (choice) {
         is When.Preset -> (now - choice.ago.days * DAY) to choice.ago.label
         is When.Picked -> choice.at to TimeText.date(choice.at)
-        When.NotSure -> return LastTime(null, null, "Not sure, we'll guess")
+        When.NotSure -> return LastTime(null, null, L10n.s(R.string.not_sure_label))
     }
     if (!multiDay) return LastTime(start, null, label)
-    val days = length.second ?: return LastTime(start, null, "$label · ${length.first}")
+    val days = length.second ?: return LastTime(start, null, L10n.s(R.string.last_time_with_length, label, length.first))
     val end = (start + (days - 1) * DAY).coerceAtMost(now)
-    return LastTime(start, end, "$label · ${length.first}")
+    return LastTime(start, end, L10n.s(R.string.last_time_with_length, label, length.first))
 }

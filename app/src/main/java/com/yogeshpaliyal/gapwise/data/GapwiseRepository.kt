@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.data
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import android.content.Context
 import com.yogeshpaliyal.gapwise.domain.DAY_MS
 import com.yogeshpaliyal.gapwise.shortcuts.ShortcutPublisher
@@ -121,7 +124,7 @@ class GapwiseRepository(
             } else {
                 val start = now - (s.typicalDays / 2.0 * DAY_MS).toLong()
                 val end = if (s.multiDay) start + 2 * DAY_MS else null
-                dao.insertLog(LogEntity(eventId = id, startAt = start, endAt = end, note = "Approximate, from welcome tour"))
+                dao.insertLog(LogEntity(eventId = id, startAt = start, endAt = end, note = L10n.s(R.string.note_approx)))
             }
         }
         changed()

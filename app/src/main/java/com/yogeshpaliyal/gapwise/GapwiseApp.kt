@@ -18,6 +18,7 @@ class GapwiseApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        L10n.init(this)
         Nudges.createChannel(this)
         Nudges.schedule(this)
         com.yogeshpaliyal.gapwise.backup.DriveBackupWorker.schedule(this)

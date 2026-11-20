@@ -74,5 +74,5 @@ const val REPEAT_WINDOW_MS = 60_000L
 /** "12 seconds ago" for the confirmation prompt. */
 fun secondsAgoText(ms: Long): String {
     val s = (ms / 1000).coerceAtLeast(1)
-    return if (s == 1L) "1 second ago" else "$s seconds ago"
+    return com.yogeshpaliyal.gapwise.L10n.p(com.yogeshpaliyal.gapwise.R.plurals.seconds_ago, s.toInt())
 }

@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.ui.settings
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -56,15 +59,15 @@ private enum class DriveAction { BACKUP, RESTORE, AUTO_ON }
 /** Turns failures into something a person can act on. */
 private fun friendly(e: Throwable): String = when {
     e is ApiException && e.statusCode == 10 ->
-        "Google Drive isn't set up for this build of the app yet. See \"Google Drive backup\" in the README."
-    e is ApiException && e.statusCode == 7 -> "Couldn't reach Google. Check your connection and try again."
+        L10n.s(R.string.drive_err_setup)
+    e is ApiException && e.statusCode == 7 -> L10n.s(R.string.drive_err_google)
     e is DriveBackup.DriveException && e.code == 403 ->
-        "Google Drive refused the request. The Drive API may not be enabled for this app's Google Cloud project."
-    e is DriveBackup.DriveException && e.code == 401 -> "Drive access expired. Try again to sign in."
-    e is IOException -> "Couldn't reach Google Drive. Check your connection and try again."
+        L10n.s(R.string.drive_err_refused)
+    e is DriveBackup.DriveException && e.code == 401 -> L10n.s(R.string.drive_err_expired)
+    e is IOException -> L10n.s(R.string.drive_err_offline)
     e is kotlinx.serialization.SerializationException || e is IllegalArgumentException ->
-        "The backup in Drive couldn't be read, so nothing was changed."
-    else -> e.message ?: "Something went wrong with Google Drive."
+        L10n.s(R.string.drive_err_unreadable)
+    else -> e.message ?: L10n.s(R.string.drive_err_other)
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -96,22 +99,22 @@ fun DriveSection() {
 
     suspend fun run(action: DriveAction, token: String) {
         when (action) {
-            DriveAction.BACKUP -> guarded("Backing up…") {
+            DriveAction.BACKUP -> guarded(L10n.s(R.string.drive_backing_up)) {
                 val remote = DriveBackup.upload(token, repo.exportJson())
                 prefs.lastDriveBackupAt = remote.modifiedAt
                 last = remote.modifiedAt
-                message = "Backed up to Google Drive."
+                message = L10n.s(R.string.drive_backed_up)
             }
-            DriveAction.RESTORE -> guarded("Looking for your backup…") {
+            DriveAction.RESTORE -> guarded(L10n.s(R.string.drive_looking)) {
                 val remote = DriveBackup.latest(token)
-                if (remote == null) message = "There's no GapWise backup in this Google account yet."
+                if (remote == null) message = L10n.s(R.string.drive_none)
                 else restoreOffer = token to remote
             }
             DriveAction.AUTO_ON -> {
                 prefs.driveAutoBackup = true
                 auto = true
                 DriveBackupWorker.schedule(context)
-                message = "GapWise will back up once a day on Wi-Fi."
+                message = L10n.s(R.string.drive_auto_on)
             }
         }
     }
@@ -121,7 +124,7 @@ fun DriveSection() {
         pending = null
         val token = DriveBackup.tokenFrom(context, result.data)
         if (action == null || token == null) {
-            message = "Google Drive access wasn't granted, so nothing was changed."
+            message = L10n.s(R.string.drive_denied)
         } else {
             scope.launch { run(action, token) }
         }
@@ -129,7 +132,7 @@ fun DriveSection() {
 
     fun start(action: DriveAction) {
         scope.launch {
-            guarded("Connecting to Google…") {
+            guarded(L10n.s(R.string.drive_connecting)) {
                 when (val auth = DriveBackup.authorize(context)) {
                     is DriveBackup.Auth.Granted -> run(action, auth.token)
                     is DriveBackup.Auth.NeedsConsent -> {
@@ -160,16 +163,16 @@ fun DriveSection() {
                 }
                 Spacer(Modifier.width(14.dp))
                 Column(Modifier.weight(1f)) {
-                    Text("Google Drive backup", style = MaterialTheme.typography.titleLarge)
+                    Text(L10n.s(R.string.drive_title), style = MaterialTheme.typography.titleLarge)
                     Text(
-                        if (last > 0) "Last backup ${TimeText.dateTime(last)}" else "Not backed up yet",
+                        if (last > 0) L10n.s(R.string.drive_last, TimeText.dateTime(last)) else L10n.s(R.string.drive_never),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
             Text(
-                "Saved to a private app folder in your Google Drive that only GapWise can see. Each backup replaces the last one.",
+                L10n.s(R.string.drive_body),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -179,19 +182,19 @@ fun DriveSection() {
                     enabled = busy == null,
                     shapes = ButtonDefaults.shapes(),
                     modifier = Modifier.weight(1f).heightIn(min = 52.dp),
-                ) { Text("Back up now") }
+                ) { Text(L10n.s(R.string.drive_backup_now)) }
                 FilledTonalButton(
                     onClick = { start(DriveAction.RESTORE) },
                     enabled = busy == null,
                     shapes = ButtonDefaults.shapes(),
                     modifier = Modifier.weight(1f).heightIn(min = 52.dp),
-                ) { Text("Restore") }
+                ) { Text(L10n.s(R.string.drive_restore)) }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("Back up every day", style = MaterialTheme.typography.titleMedium)
+                    Text(L10n.s(R.string.drive_daily), style = MaterialTheme.typography.titleMedium)
                     Text(
-                        "On Wi-Fi, when the battery isn't low",
+                        L10n.s(R.string.drive_daily_hint),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -226,23 +229,23 @@ fun DriveSection() {
     restoreOffer?.let { (token, remote) ->
         AlertDialog(
             onDismissRequest = { restoreOffer = null },
-            title = { Text("Restore from ${TimeText.dateTime(remote.modifiedAt)}?") },
+            title = { Text(L10n.s(R.string.drive_restore_title, TimeText.dateTime(remote.modifiedAt))) },
             text = {
-                Text("This replaces every event and all history on this phone with the backup from Google Drive. Anything you added since then will be lost.")
+                Text(L10n.s(R.string.drive_restore_body))
             },
             confirmButton = {
                 TextButton(onClick = {
                     restoreOffer = null
                     scope.launch {
-                        guarded("Restoring…") {
+                        guarded(L10n.s(R.string.drive_restoring)) {
                             val content = DriveBackup.download(token, remote.id)
                             val count = repo.restoreJson(content)
-                            message = "Restored $count event${if (count == 1) "" else "s"} from Google Drive."
+                            message = L10n.p(R.plurals.drive_restored, count)
                         }
                     }
-                }) { Text("Replace and restore") }
+                }) { Text(L10n.s(R.string.drive_replace)) }
             },
-            dismissButton = { TextButton(onClick = { restoreOffer = null }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { restoreOffer = null }) { Text(L10n.s(R.string.cancel)) } },
         )
     }
 }

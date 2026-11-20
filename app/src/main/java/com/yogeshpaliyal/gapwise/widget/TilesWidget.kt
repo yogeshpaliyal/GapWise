@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.widget
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
@@ -70,11 +73,11 @@ fun desiredColumns(n: Int): Int = when (n) {
 }
 
 fun gridLabel(n: Int, list: Boolean = false): String {
-    if (list) return if (n == 0) "Shows what's due soonest" else "$n in a list, in this order"
-    if (n == 0) return "Shows the 4 most due events"
+    if (list) return if (n == 0) L10n.s(R.string.grid_list_auto) else L10n.p(R.plurals.grid_list_n, n)
+    if (n == 0) return L10n.s(R.string.grid_tiles_auto)
     val cols = desiredColumns(n)
     val rows = ceil(n / cols.toDouble()).toInt()
-    return if (rows == 1) "$n in a row" else "$cols × $rows grid"
+    return if (rows == 1) L10n.p(R.plurals.grid_row, n) else L10n.s(R.string.grid_cols_rows, cols, rows)
 }
 
 class GapwiseTilesWidget : GlanceAppWidget() {
@@ -120,7 +123,7 @@ class GapwiseTilesWidget : GlanceAppWidget() {
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        "Add events in GapWise",
+                        L10n.s(R.string.widget_tiles_empty),
                         style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, textAlign = TextAlign.Center),
                     )
                 }

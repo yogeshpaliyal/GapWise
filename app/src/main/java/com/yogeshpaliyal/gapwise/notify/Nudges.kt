@@ -1,5 +1,7 @@
 package com.yogeshpaliyal.gapwise.notify
 
+import com.yogeshpaliyal.gapwise.L10n
+
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -93,17 +95,17 @@ object Nudges {
 
         val body = buildString {
             append(TimeText.elapsedInline(r.lastAt).replaceFirstChar { it.uppercase() })
-            r.usualDays?.let { append(" · ${TimeText.usualText(it).lowercase()}") }
+            r.usualDays?.let { append(" · " + TimeText.usualText(it).replaceFirstChar { c -> c.lowercase() }) }
         }
         val n = NotificationCompat.Builder(context, CHANNEL)
             .setSmallIcon(R.drawable.ic_stat_gapwise)
-            .setContentTitle("${e.emoji} ${e.name} — usually around now")
+            .setContentTitle(L10n.s(R.string.nudge_title, e.emoji, e.name))
             .setContentText(body)
             .setContentIntent(open)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .addAction(0, if (e.isMultiDay) "Start" else "Log it", log)
-            .addAction(0, "View insights", open)
+            .addAction(0, if (e.isMultiDay) L10n.s(R.string.nudge_start) else L10n.s(R.string.nudge_log), log)
+            .addAction(0, L10n.s(R.string.nudge_view), open)
             .build()
         NotificationManagerCompat.from(context).notify(id, n)
     }

@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.ui.home
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
@@ -47,15 +50,15 @@ fun tint(color: Color, amount: Float = 0.16f): Color =
     color.copy(alpha = amount).compositeOver(MaterialTheme.colorScheme.surfaceContainerLowest)
 
 fun EventUi.statusLine(now: Long): String = when {
-    event.paused -> "Paused"
-    ongoing -> "Day ${TimeText.daysBetween(rhythm.ongoingSince!!, now) + 1} so far"
+    event.paused -> L10n.s(R.string.status_paused)
+    ongoing -> L10n.s(R.string.tile_day_so_far, (TimeText.daysBetween(rhythm.ongoingSince!!, now) + 1).toInt())
     rhythm.hasRhythm -> TimeText.dueText(rhythm.nextExpectedAt, now) ?: ""
-    rhythm.logCount == 0 -> "Tap to log the first time"
-    else -> "Log a couple more to learn your rhythm"
+    rhythm.logCount == 0 -> L10n.s(R.string.tile_tap_first)
+    else -> L10n.s(R.string.tile_log_more)
 }
 
 fun EventUi.elapsed(now: Long): Pair<String, String> =
-    if (ongoing) TimeText.elapsed(rhythm.ongoingSince, now).let { it.first to "since it started" }
+    if (ongoing) TimeText.elapsed(rhythm.ongoingSince, now).let { it.first to L10n.s(R.string.tile_since_started) }
     else TimeText.elapsed(rhythm.lastAt, now)
 
 @Composable
@@ -83,8 +86,8 @@ fun EventTile(ui: EventUi, now: Long, onLog: () -> Unit, onOpen: () -> Unit, mod
         modifier = modifier
             .clip(MaterialTheme.shapes.large)
             .combinedClickable(
-                onClickLabel = "Log ${ui.event.name}",
-                onLongClickLabel = "Open details",
+                onClickLabel = L10n.s(R.string.a11y_log_event, ui.event.name),
+                onLongClickLabel = L10n.s(R.string.a11y_open_details),
                 onClick = {
                     haptics.performHapticFeedback(HapticFeedbackType.Confirm)
                     onLog()
@@ -97,7 +100,7 @@ fun EventTile(ui: EventUi, now: Long, onLog: () -> Unit, onOpen: () -> Unit, mod
                 StatusBadge(ui.event.emoji, status, container = tint(color, 0.30f), size = 52.dp)
                 Spacer(Modifier.weight(1f))
                 if (ui.event.pinned) {
-                    Icon(Icons.Filled.PushPin, "Pinned", Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Icon(Icons.Filled.PushPin, L10n.s(R.string.a11y_pinned), Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             Spacer(Modifier.height(14.dp))
@@ -133,8 +136,8 @@ fun EventRow(ui: EventUi, now: Long, onLog: () -> Unit, onOpen: () -> Unit, modi
         modifier = modifier
             .clip(MaterialTheme.shapes.medium)
             .combinedClickable(
-                onClickLabel = "Log ${ui.event.name}",
-                onLongClickLabel = "Open details",
+                onClickLabel = L10n.s(R.string.a11y_log_event, ui.event.name),
+                onLongClickLabel = L10n.s(R.string.a11y_open_details),
                 onClick = {
                     haptics.performHapticFeedback(HapticFeedbackType.Confirm)
                     onLog()
@@ -216,7 +219,7 @@ fun UpNextCard(ui: EventUi, now: Long, onLog: () -> Unit, onOpen: () -> Unit, mo
                 StatusBadge(ui.event.emoji, status, container = tint(s.due, 0.55f), size = 76.dp)
                 Spacer(Modifier.width(16.dp))
                 Column(Modifier.weight(1f)) {
-                    Text("Up next", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(L10n.s(R.string.up_next), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(ui.event.name, style = MaterialTheme.typography.headlineSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
             }
@@ -235,9 +238,9 @@ fun UpNextCard(ui: EventUi, now: Long, onLog: () -> Unit, onOpen: () -> Unit, mo
             FilledTonalButton(onClick = onLog, shapes = ButtonDefaults.shapes()) {
                 Text(
                     when {
-                        !ui.event.isMultiDay -> "Log it now"
-                        ui.ongoing -> "End it now"
-                        else -> "Start it now"
+                        !ui.event.isMultiDay -> L10n.s(R.string.action_log_now)
+                        ui.ongoing -> L10n.s(R.string.action_end_now)
+                        else -> L10n.s(R.string.action_start_now)
                     },
                 )
             }

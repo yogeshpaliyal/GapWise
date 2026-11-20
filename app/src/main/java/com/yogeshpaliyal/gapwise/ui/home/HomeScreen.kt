@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.ui.home
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -94,11 +97,11 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         vm.logged.collect { (name, result) ->
             val msg = when (result) {
-                is LogResult.Added -> "Logged $name"
-                is LogResult.Ended -> "Ended $name"
+                is LogResult.Added -> L10n.s(R.string.snack_logged, name)
+                is LogResult.Ended -> L10n.s(R.string.snack_ended, name)
             }
             snackbar.currentSnackbarData?.dismiss()
-            val r = snackbar.showSnackbar(msg, actionLabel = "Undo", duration = SnackbarDuration.Short)
+            val r = snackbar.showSnackbar(msg, actionLabel = L10n.s(R.string.undo), duration = SnackbarDuration.Short)
             if (r == SnackbarResult.ActionPerformed) vm.undo(result)
         }
     }
@@ -115,7 +118,7 @@ fun HomeScreen(
         modifier = Modifier.nestedScroll(scroll.nestedScrollConnection),
         topBar = {
             LargeFlexibleTopAppBar(
-                title = { Text("GapWise") },
+                title = { Text(L10n.s(R.string.app_name)) },
                 subtitle = { Text(summary(statuses, state.totalCount)) },
                 scrollBehavior = scroll,
             )
@@ -125,7 +128,7 @@ fun HomeScreen(
                 expanded = true,
                 floatingActionButton = {
                     FloatingToolbarDefaults.VibrantFloatingActionButton(onClick = onAdd) {
-                        Icon(Icons.Filled.Add, "New event")
+                        Icon(Icons.Filled.Add, L10n.s(R.string.new_event))
                     }
                 },
                 colors = FloatingToolbarDefaults.vibrantFloatingToolbarColors(),
@@ -134,10 +137,10 @@ fun HomeScreen(
                     searching = !searching
                     if (!searching) vm.setQuery("")
                 }) {
-                    Icon(if (searching) Icons.Filled.Close else Icons.Outlined.Search, if (searching) "Close search" else "Search")
+                    Icon(if (searching) Icons.Filled.Close else Icons.Outlined.Search, if (searching) L10n.s(R.string.close_search) else L10n.s(R.string.search))
                 }
-                IconButton(onClick = { options = true }) { Icon(Icons.Outlined.Tune, "Sort and layout") }
-                IconButton(onClick = onSettings) { Icon(Icons.Outlined.Settings, "Settings") }
+                IconButton(onClick = { options = true }) { Icon(Icons.Outlined.Tune, L10n.s(R.string.sort_and_layout)) }
+                IconButton(onClick = onSettings) { Icon(Icons.Outlined.Settings, L10n.s(R.string.settings)) }
             }
         },
         floatingActionButtonPosition = FabPosition.Center,
@@ -148,7 +151,7 @@ fun HomeScreen(
                 OutlinedTextField(
                     value = state.filters.query,
                     onValueChange = vm::setQuery,
-                    placeholder = { Text("Search your events") },
+                    placeholder = { Text(L10n.s(R.string.search_hint)) },
                     singleLine = true,
                     shape = CircleShape,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
@@ -160,10 +163,10 @@ fun HomeScreen(
             when {
                 state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { LoadingIndicator() }
                 state.totalCount == 0 -> EmptyState(
-                    "Track your first thing",
-                    "Add something you do now and then, like a haircut, an oil change or calling home. Tap + to start.",
+                    L10n.s(R.string.empty_title),
+                    L10n.s(R.string.empty_body),
                 )
-                state.events.isEmpty() -> EmptyState("Nothing matches", "Try another word, or clear the category filter.")
+                state.events.isEmpty() -> EmptyState(L10n.s(R.string.no_match_title), L10n.s(R.string.no_match_body))
                 else -> LazyVerticalGrid(
                     columns = if (state.filters.grid) GridCells.Adaptive(minSize = 164.dp) else GridCells.Fixed(1),
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 120.dp),
@@ -192,7 +195,7 @@ fun HomeScreen(
                     }
                     item(key = "hint", span = { GridItemSpan(maxLineSpan) }) {
                         Text(
-                            "Tap a card to log it. Press and hold to see its history.",
+                            L10n.s(R.string.home_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
@@ -217,14 +220,14 @@ fun HomeScreen(
 }
 
 private fun summary(statuses: List<GapStatus>, total: Int): String {
-    if (total == 0) return "Remember the last time. Know the next."
+    if (total == 0) return L10n.s(R.string.summary_empty)
     val due = statuses.count { it == GapStatus.DUE }
     val past = statuses.count { it == GapStatus.PAST }
     return when {
-        due == 0 && past == 0 -> "Nothing is due. Enjoy the quiet."
-        past == 0 -> "$due around now"
-        due == 0 -> "$past past your usual"
-        else -> "$due around now, $past past your usual"
+        due == 0 && past == 0 -> L10n.s(R.string.summary_quiet)
+        past == 0 -> L10n.p(R.plurals.summary_due, due)
+        due == 0 -> L10n.p(R.plurals.summary_past, past)
+        else -> L10n.s(R.string.summary_both, L10n.p(R.plurals.summary_due, due), L10n.p(R.plurals.summary_past, past))
     }
 }
 
@@ -236,7 +239,7 @@ private fun CategoryToggles(categories: List<String>, selected: String?, onSelec
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         item {
-            ToggleButton(checked = selected == null, onCheckedChange = { onSelect(null) }) { Text("All") }
+            ToggleButton(checked = selected == null, onCheckedChange = { onSelect(null) }) { Text(L10n.s(R.string.filter_all)) }
         }
         items(categories) { c ->
             ToggleButton(checked = selected == c, onCheckedChange = { onSelect(if (selected == c) null else c) }) { Text(c) }
@@ -251,7 +254,7 @@ private fun ViewOptions(state: HomeState, vm: HomeViewModel) {
         Modifier.padding(horizontal = 24.dp).padding(bottom = 24.dp).navigationBarsPadding(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text("Sort by", style = MaterialTheme.typography.titleLarge)
+        Text(L10n.s(R.string.sort_by), style = MaterialTheme.typography.titleLarge)
         val modes = SortMode.entries
         Row(horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)) {
             modes.forEachIndexed { i, m ->
@@ -268,27 +271,27 @@ private fun ViewOptions(state: HomeState, vm: HomeViewModel) {
             }
         }
         Spacer(Modifier.height(8.dp))
-        Text("Layout", style = MaterialTheme.typography.titleLarge)
+        Text(L10n.s(R.string.layout), style = MaterialTheme.typography.titleLarge)
         Row(horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)) {
             ToggleButton(
                 checked = state.filters.grid,
                 onCheckedChange = { if (!state.filters.grid) vm.toggleGrid() },
                 shapes = ButtonGroupDefaults.connectedLeadingButtonShapes(),
                 modifier = Modifier.weight(1f),
-            ) { Text("Cards") }
+            ) { Text(L10n.s(R.string.layout_cards)) }
             ToggleButton(
                 checked = !state.filters.grid,
                 onCheckedChange = { if (state.filters.grid) vm.toggleGrid() },
                 shapes = ButtonGroupDefaults.connectedTrailingButtonShapes(),
                 modifier = Modifier.weight(1f),
-            ) { Text("List") }
+            ) { Text(L10n.s(R.string.layout_list)) }
         }
         if (state.hiddenCount > 0) {
             Spacer(Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("Show hidden events", style = MaterialTheme.typography.titleMedium)
-                    Text("${state.hiddenCount} hidden", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(L10n.s(R.string.show_hidden), style = MaterialTheme.typography.titleMedium)
+                    Text(L10n.p(R.plurals.hidden_count, state.hiddenCount), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Switch(checked = state.filters.showHidden, onCheckedChange = { vm.toggleHidden() })
             }

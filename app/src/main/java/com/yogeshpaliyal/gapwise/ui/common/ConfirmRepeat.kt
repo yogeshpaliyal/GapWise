@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.ui.common
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -39,15 +42,15 @@ fun EventWithLogs.repeatPrompt(now: Long = System.currentTimeMillis()): RepeatPr
 fun ConfirmRepeatDialog(prompt: RepeatPrompt, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     val (title, body, action) = if (prompt.wouldEnd) {
         Triple(
-            "End ${prompt.name} already?",
-            "It started ${secondsAgoText(prompt.agoMs)}. Ending it now records it as lasting less than a minute.",
-            "End it",
+            L10n.s(R.string.confirm_end_title, prompt.name),
+            L10n.s(R.string.confirm_end_body, secondsAgoText(prompt.agoMs)),
+            L10n.s(R.string.confirm_end_action),
         )
     } else {
         Triple(
-            "Log ${prompt.name} again?",
-            "You logged it ${secondsAgoText(prompt.agoMs)}. Tap Log again only if you really did it twice.",
-            "Log again",
+            L10n.s(R.string.confirm_log_title, prompt.name),
+            L10n.s(R.string.confirm_log_body, secondsAgoText(prompt.agoMs)),
+            L10n.s(R.string.confirm_log_action),
         )
     }
     AlertDialog(
@@ -55,7 +58,7 @@ fun ConfirmRepeatDialog(prompt: RepeatPrompt, onConfirm: () -> Unit, onDismiss: 
         title = { Text(title) },
         text = { Text(body) },
         confirmButton = { Button(onClick = onConfirm, shapes = ButtonDefaults.shapes()) { Text(action) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(L10n.s(R.string.cancel)) } },
     )
 }
 
@@ -105,9 +108,9 @@ class ConfirmLogActivity : ComponentActivity() {
         lifecycleScope.launch {
             val result = app.repository.logNow(id)
             val msg = when (result) {
-                is LogResult.Ended -> "Ended $name"
-                is LogResult.Added -> "Logged $name"
-                null -> "That event no longer exists"
+                is LogResult.Ended -> L10n.s(R.string.snack_ended, name)
+                is LogResult.Added -> L10n.s(R.string.snack_logged, name)
+                null -> L10n.s(R.string.event_gone)
             }
             Toast.makeText(applicationContext, msg, Toast.LENGTH_SHORT).show()
             finish()

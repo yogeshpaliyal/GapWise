@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.ui.home
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,11 +25,14 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-enum class SortMode(val key: String, val label: String, val shortLabel: String) {
-    DUE("due", "Due soon", "Due"),
-    RECENT("recent", "Recently done", "Recent"),
-    NAME("name", "Name", "A–Z"),
-    CUSTOM("custom", "My order", "Mine");
+enum class SortMode(val key: String, private val labelRes: Int, private val shortRes: Int) {
+    DUE("due", R.string.sort_due, R.string.sort_due_short),
+    RECENT("recent", R.string.sort_recent, R.string.sort_recent_short),
+    NAME("name", R.string.sort_name, R.string.sort_name_short),
+    CUSTOM("custom", R.string.sort_custom, R.string.sort_custom_short);
+
+    val label: String get() = L10n.s(labelRes)
+    val shortLabel: String get() = L10n.s(shortRes)
 
     companion object {
         fun of(key: String) = entries.firstOrNull { it.key == key } ?: DUE

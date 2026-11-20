@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.ui.settings
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -72,7 +75,7 @@ fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
                     context.contentResolver.openOutputStream(uri)?.use { it.write(json.toByteArray()) }
                 }
             }.isSuccess
-            Toast.makeText(context, if (ok) "Exported" else "Export failed", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, if (ok) L10n.s(R.string.exported) else L10n.s(R.string.export_failed), Toast.LENGTH_SHORT).show()
         }
     }
     val importer = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -84,7 +87,7 @@ fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
                 } ?: error("empty")
                 repo.importJson(text)
             }
-            val msg = result.fold({ "Imported $it events" }, { "That file doesn't look like a GapWise backup" })
+            val msg = result.fold({ L10n.p(R.plurals.imported, it) }, { L10n.s(R.string.import_bad) })
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
         }
     }
@@ -92,8 +95,8 @@ fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+                title = { Text(L10n.s(R.string.settings)) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, L10n.s(R.string.back)) } },
             )
         },
     ) { padding ->
@@ -105,9 +108,9 @@ fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(Modifier.weight(1f)) {
-                    Text("Gentle nudges", style = MaterialTheme.typography.titleMedium)
+                    Text(L10n.s(R.string.nudges_toggle), style = MaterialTheme.typography.titleMedium)
                     Text(
-                        "A quiet notification when something is usually due. You can turn them off per event too.",
+                        L10n.s(R.string.nudges_settings_hint),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -123,15 +126,15 @@ fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
             HorizontalDivider()
             ShapeLegend()
             HorizontalDivider()
-            Item("Suggested events", "Browse over 40 starter ideas") { onOpenTour() }
-            Item("Export to a file", "Save all events and history as a JSON file") {
+            Item(L10n.s(R.string.suggested_events), L10n.s(R.string.suggested_events_hint)) { onOpenTour() }
+            Item(L10n.s(R.string.export_file), L10n.s(R.string.export_file_hint)) {
                 exporter.launch("gapwise-${LocalDate.now()}.json")
             }
-            Item("Import from a file", "Add events from a GapWise JSON file. Nothing is overwritten.") {
+            Item(L10n.s(R.string.import_file), L10n.s(R.string.import_file_hint)) {
                 importer.launch(arrayOf("application/json", "text/plain", "*/*"))
             }
             HorizontalDivider()
-            Item("Privacy", "No account, no ads, no tracking. Your data stays on this phone unless you back it up to your own Google Drive.") {}
+            Item(L10n.s(R.string.privacy), L10n.s(R.string.privacy_body)) {}
             HorizontalDivider()
             com.yogeshpaliyal.gapwise.update.UpdateSettings(BuildConfigInfo.versionName(context))
         }
@@ -144,16 +147,16 @@ private fun WidgetSection() {
     val supported = remember { PinWidget.isSupported(context) }
     fun add(kind: PinWidget.Kind) {
         if (!PinWidget.request(context, kind)) {
-            Toast.makeText(context, "Your launcher didn't allow adding the widget", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, L10n.s(R.string.widget_pin_refused), Toast.LENGTH_SHORT).show()
         }
     }
     Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Column {
-            Text("Home screen widgets", style = MaterialTheme.typography.titleLarge)
+            Text(L10n.s(R.string.widgets_title), style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(4.dp))
             Text(
-                if (supported) "Log things without opening the app. Add one here, then pick which events it shows."
-                else "Your launcher can't add widgets from inside an app. Long-press an empty spot on your home screen, open Widgets and look for GapWise.",
+                if (supported) L10n.s(R.string.widgets_body)
+                else L10n.s(R.string.widgets_unsupported),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -161,13 +164,13 @@ private fun WidgetSection() {
         if (supported) {
             WidgetCard(
                 icon = Icons.AutoMirrored.Rounded.ViewList,
-                title = "Due soon",
-                body = "A list of what's coming up. Tap a row to log it.",
+                title = L10n.s(R.string.sort_due),
+                body = L10n.s(R.string.widget_list_body),
             ) { add(PinWidget.Kind.DueSoon) }
             WidgetCard(
                 icon = Icons.Rounded.GridView,
-                title = "Event tiles",
-                body = "A grid of 1 to 12 tiles. Tap a tile to log it.",
+                title = L10n.s(R.string.widget_tiles_title),
+                body = L10n.s(R.string.widget_tiles_body),
             ) { add(PinWidget.Kind.Tiles) }
         }
     }
@@ -196,7 +199,7 @@ private fun WidgetCard(icon: ImageVector, title: String, body: String, onAdd: ()
                 Text(body, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Spacer(Modifier.width(12.dp))
-            FilledTonalButton(onClick = onAdd) { Text("Add") }
+            FilledTonalButton(onClick = onAdd) { Text(L10n.s(R.string.add)) }
         }
     }
 }
@@ -204,9 +207,9 @@ private fun WidgetCard(icon: ImageVector, title: String, body: String, onAdd: ()
 @Composable
 private fun ShapeLegend() {
     Column(Modifier.fillMaxWidth().padding(16.dp)) {
-        Text("Reading the shapes", style = MaterialTheme.typography.titleMedium)
+        Text(L10n.s(R.string.shapes_title), style = MaterialTheme.typography.titleMedium)
         Text(
-            "Each event's icon changes shape as time passes.",
+            L10n.s(R.string.shapes_body),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

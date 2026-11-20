@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.widget
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
@@ -155,14 +158,14 @@ private fun ConfigScreen(
         modifier = Modifier.nestedScroll(scroll.nestedScrollConnection),
         topBar = {
             LargeFlexibleTopAppBar(
-                title = { Text(if (isList) "Choose events for the list" else "Choose events for the tiles") },
+                title = { Text(if (isList) L10n.s(R.string.cfg_title_list) else L10n.s(R.string.cfg_title_tiles)) },
                 subtitle = {
                     Text(
-                        if (isList) "Tap in the order you want them, up to $MAX_TILES. Pick none to show what's due soonest."
-                        else "Tap in the order you want them, up to $MAX_TILES. Pick none to show the most due.",
+                        if (isList) L10n.s(R.string.cfg_sub_list, MAX_TILES)
+                        else L10n.s(R.string.cfg_sub_tiles, MAX_TILES),
                     )
                 },
-                navigationIcon = { IconButton(onClick = onCancel) { Icon(Icons.Filled.Close, "Cancel") } },
+                navigationIcon = { IconButton(onClick = onCancel) { Icon(Icons.Filled.Close, L10n.s(R.string.cancel)) } },
                 scrollBehavior = scroll,
             )
         },
@@ -174,13 +177,13 @@ private fun ConfigScreen(
                 ) {
                     Column(Modifier.weight(1f)) {
                         Text(
-                            if (selected.isEmpty()) "Automatic" else "${selected.size} picked",
+                            if (selected.isEmpty()) L10n.s(R.string.cfg_automatic) else L10n.p(R.plurals.cfg_picked, selected.size),
                             style = MaterialTheme.typography.titleMedium,
                         )
                         Text(gridLabel(selected.size, isList), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     if (selected.isNotEmpty()) {
-                        TextButton(onClick = { selected.clear() }) { Text("Clear") }
+                        TextButton(onClick = { selected.clear() }) { Text(L10n.s(R.string.clear)) }
                         Spacer(Modifier.width(4.dp))
                     }
                     Button(
@@ -188,7 +191,7 @@ private fun ConfigScreen(
                         shapes = ButtonDefaults.shapes(),
                         modifier = Modifier.heightIn(min = 56.dp),
                         contentPadding = PaddingValues(horizontal = 28.dp),
-                    ) { Text("Done", style = MaterialTheme.typography.titleMedium) }
+                    ) { Text(L10n.s(R.string.done), style = MaterialTheme.typography.titleMedium) }
                 }
             }
         },
@@ -200,7 +203,7 @@ private fun ConfigScreen(
         }
         if (list.isEmpty()) {
             Box(Modifier.padding(padding).fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
-                Text("You haven't added any events yet. Add some in GapWise, then come back.", style = MaterialTheme.typography.bodyLarge)
+                Text(L10n.s(R.string.cfg_no_events), style = MaterialTheme.typography.bodyLarge)
             }
             return@Scaffold
         }
@@ -228,10 +231,10 @@ private fun ConfigScreen(
                         }
                         Spacer(Modifier.width(14.dp))
                         Column(Modifier.weight(1f)) {
-                            Text("Automatic: due soon", style = MaterialTheme.typography.titleMedium)
+                            Text(L10n.s(R.string.cfg_auto_title), style = MaterialTheme.typography.titleMedium)
                             Text(
-                                if (isList) "Select none to show what's due soonest from all your events. The list keeps itself up to date."
-                                else "Select none to show the 4 most due from all your events. The tiles keep themselves up to date.",
+                                if (isList) L10n.s(R.string.cfg_auto_list)
+                                else L10n.s(R.string.cfg_auto_tiles),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -243,7 +246,7 @@ private fun ConfigScreen(
             }
             item(key = "or") {
                 Text(
-                    "Or pick your own",
+                    L10n.s(R.string.cfg_or_pick),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 12.dp, start = 4.dp),

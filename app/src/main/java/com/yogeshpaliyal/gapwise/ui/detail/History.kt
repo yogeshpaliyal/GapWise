@@ -1,5 +1,8 @@
 package com.yogeshpaliyal.gapwise.ui.detail
 
+import com.yogeshpaliyal.gapwise.L10n
+import com.yogeshpaliyal.gapwise.R
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -144,14 +147,14 @@ private fun LogNode(
             Row(Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
                     val weekday = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
-                    Text("$weekday, ${TimeText.time(log.startAt)}", style = MaterialTheme.typography.titleMedium)
+                    Text(L10n.s(R.string.weekday_time, weekday, TimeText.time(log.startAt)), style = MaterialTheme.typography.titleMedium)
                     if (multiDay) {
                         val end = log.endAt
                         val span = if (end == null) {
-                            "Still going"
+                            L10n.s(R.string.still_going)
                         } else {
                             val d = TimeText.daysBetween(log.startAt, end) + 1
-                            "Lasted $d day${if (d == 1L) "" else "s"}, until ${TimeText.shortDate(end)}"
+                            L10n.p(R.plurals.lasted_until, d.toInt(), d.toInt(), TimeText.shortDate(end))
                         }
                         Text(span, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
@@ -160,12 +163,12 @@ private fun LogNode(
                         Spacer(Modifier.height(4.dp))
                         Text(note, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     } else {
-                        Text("Add a note", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                        Text(L10n.s(R.string.add_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                     }
                 }
                 Icon(
                     Icons.Outlined.Edit,
-                    contentDescription = "Edit",
+                    contentDescription = L10n.s(R.string.edit),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 12.dp).size(20.dp),
                 )
@@ -181,16 +184,15 @@ private fun GapConnector(days: Double, outlier: Boolean, usualDays: Double?, col
     val rail = if (outlier) MaterialTheme.colorScheme.outlineVariant else color.copy(alpha = 0.35f)
     val d = days.roundToInt()
     val label = when {
-        days < 1 -> "Same day"
-        d == 1 -> "1 day later"
-        else -> "$d days later"
+        days < 1 -> L10n.s(R.string.same_day)
+        else -> L10n.p(R.plurals.days_later, d)
     }
     val vsUsual = usualDays?.takeIf { !outlier && it >= 1 }?.let { u ->
         val diff = (days - u).roundToInt()
         when {
-            kotlin.math.abs(diff) <= (u * 0.1).coerceAtLeast(1.0) -> "right on your usual"
-            diff > 0 -> "$diff longer than usual"
-            else -> "${-diff} sooner than usual"
+            kotlin.math.abs(diff) <= (u * 0.1).coerceAtLeast(1.0) -> L10n.s(R.string.right_on_usual)
+            diff > 0 -> L10n.p(R.plurals.longer_than_usual, diff)
+            else -> L10n.p(R.plurals.sooner_than_usual, -diff)
         }
     }
     Row(Modifier.fillMaxWidth().heightIn(min = height), verticalAlignment = Alignment.CenterVertically) {
@@ -213,7 +215,7 @@ private fun GapConnector(days: Double, outlier: Boolean, usualDays: Double?, col
         ) {
             Row(Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(label, style = MaterialTheme.typography.labelLarge)
-                val extra = if (outlier) "one-off, not counted" else vsUsual
+                val extra = if (outlier) L10n.s(R.string.one_off) else vsUsual
                 if (extra != null) {
                     Text(
                         "  $extra",
