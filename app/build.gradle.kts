@@ -15,8 +15,8 @@ android {
         minSdk = 26
         targetSdk = 36
         // Bumped by the "Release" GitHub workflow; don't edit by hand unless you mean it.
-        versionCode = 5
-        versionName = "0.3.0"
+        versionCode = 6
+        versionName = "0.3.1"
         // The commit this was built from (CI only). Debug builds compare it with latest-master.
         buildConfigField("String", "GIT_SHA", "\"${System.getenv("GITHUB_SHA") ?: ""}\"")
     }

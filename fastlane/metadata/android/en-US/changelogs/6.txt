@@ -1,0 +1,2 @@
+• F-Droid flavor: keep names (-dontobfuscate) so builds are reproducible
+• F-Droid flavor: also -dontoptimize; R8's optimiser isn't deterministic either
