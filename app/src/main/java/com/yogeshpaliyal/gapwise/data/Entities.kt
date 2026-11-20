@@ -56,4 +56,23 @@ data class EventWithLogs(
     val sortedLogs: List<LogEntity> get() = logs.sortedBy { it.startAt }
     val lastLog: LogEntity? get() = logs.maxByOrNull { it.startAt }
     val ongoing: LogEntity? get() = if (event.isMultiDay) lastLog?.takeIf { it.endAt == null } else null
+
+    /** The last time a tap changed this event: a log, or the end of a multi-day period. */
+    val lastActionAt: Long? get() = lastLog?.let { maxOf(it.startAt, it.endAt ?: 0L) }
+
+    /**
+     * Milliseconds since the last tap, if it was within [REPEAT_WINDOW_MS]. A second tap that
+     * soon is more likely a mistake than intent, so the app and widgets ask first.
+     */
+    fun recentActionAgo(now: Long = System.currentTimeMillis()): Long? =
+        lastActionAt?.let { now - it }?.takeIf { it in 0 until REPEAT_WINDOW_MS }
+}
+
+/** A repeat tap within this window asks for confirmation. */
+const val REPEAT_WINDOW_MS = 60_000L
+
+/** "12 seconds ago" for the confirmation prompt. */
+fun secondsAgoText(ms: Long): String {
+    val s = (ms / 1000).coerceAtLeast(1)
+    return if (s == 1L) "1 second ago" else "$s seconds ago"
 }

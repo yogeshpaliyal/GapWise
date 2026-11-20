@@ -59,6 +59,7 @@ import com.yogeshpaliyal.gapwise.data.LogResult
 import com.yogeshpaliyal.gapwise.domain.DAY_MS
 import com.yogeshpaliyal.gapwise.domain.TimeText
 import com.yogeshpaliyal.gapwise.ui.common.LogEditorSheet
+import com.yogeshpaliyal.gapwise.ui.common.ConfirmRepeatDialog
 import com.yogeshpaliyal.gapwise.ui.home.EventUi
 import com.yogeshpaliyal.gapwise.ui.home.eventColor
 import com.yogeshpaliyal.gapwise.ui.home.RhythmBar
@@ -189,6 +190,11 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
                 onClick = { editing = it },
             )
         }
+    }
+
+    val confirm by vm.confirm.collectAsStateWithLifecycle()
+    confirm?.let { p ->
+        ConfirmRepeatDialog(prompt = p, onConfirm = { vm.confirmRepeat() }, onDismiss = vm::cancelRepeat)
     }
 
     val event = ui?.event

@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.yogeshpaliyal.gapwise.app
 import com.yogeshpaliyal.gapwise.data.EventWithLogs
 import com.yogeshpaliyal.gapwise.data.LogResult
+import com.yogeshpaliyal.gapwise.ui.common.RepeatPrompt
+import com.yogeshpaliyal.gapwise.ui.common.repeatPrompt
 import com.yogeshpaliyal.gapwise.domain.Rhythm
 import com.yogeshpaliyal.gapwise.domain.RhythmCalculator
 import kotlinx.coroutines.delay
@@ -119,8 +121,28 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         prefs.gridView = filters.value.grid
     }
 
+    /** Set when a tap lands within a minute of the last one; the screen asks before logging. */
+    val confirm = MutableStateFlow<RepeatPrompt?>(null)
+
     fun log(ui: EventUi) = viewModelScope.launch {
+        // Check fresh data: the list on screen may be a moment old.
+        val prompt = repo.get(ui.event.id)?.repeatPrompt()
+        if (prompt != null) {
+            confirm.value = prompt
+            return@launch
+        }
         repo.logNow(ui.event.id)?.let { _logged.emit(ui.event.name to it) }
+    }
+
+    fun confirmRepeat() = viewModelScope.launch {
+        val p = confirm.value ?: return@launch
+        confirm.value = null
+        repo.logNow(p.eventId)?.let { _logged.emit(p.name to it) }
+    }
+
+    fun cancelRepeat() {
+        confirm.value = null
+    }
     }
 
     fun undo(result: LogResult) = viewModelScope.launch { repo.undo(result) }

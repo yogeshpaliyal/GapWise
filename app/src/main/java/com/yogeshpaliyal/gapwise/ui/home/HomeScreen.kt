@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yogeshpaliyal.gapwise.data.LogResult
+import com.yogeshpaliyal.gapwise.ui.common.ConfirmRepeatDialog
 import com.yogeshpaliyal.gapwise.ui.common.GapStatus
 import com.yogeshpaliyal.gapwise.ui.common.StatusBadge
 import com.yogeshpaliyal.gapwise.ui.common.status
@@ -201,6 +202,11 @@ fun HomeScreen(
                 }
             }
         }
+    }
+
+    val confirm by vm.confirm.collectAsStateWithLifecycle()
+    confirm?.let { p ->
+        ConfirmRepeatDialog(prompt = p, onConfirm = { vm.confirmRepeat() }, onDismiss = vm::cancelRepeat)
     }
 
     if (options) {

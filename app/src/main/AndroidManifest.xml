@@ -37,6 +37,15 @@
             android:taskAffinity=""
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
+        <!-- Asks "Log it again?" for widget and shortcut taps within a minute of the last one. -->
+        <activity
+            android:name=".ui.common.ConfirmLogActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity="com.yogeshpaliyal.gapwise.confirm"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <receiver
             android:name=".notify.NudgeActionReceiver"
             android:exported="false" />

@@ -66,6 +66,14 @@ class SmokeTest {
             waitOrDump("editor closes") { compose.onAllNodesWithText("New event").fetchSemanticsNodes().isEmpty() }
             waitOrDump("event saved") { runBlocking { app.repository.getAll().any { it.event.name == "Haircut" } } }
 
+            // Two taps on the same card within a minute: the second one asks first.
+            compose.onAllNodesWithText("Water plants")[0].performClick()
+            waitOrDump("first tap logged") { runBlocking { app.repository.getAll().first { it.event.name == "Water plants" }.recentActionAgo() != null } }
+            compose.onAllNodesWithText("Water plants")[0].performClick()
+            waitOrDump("repeat confirmation") { compose.onAllNodesWithText("Log Water plants again?").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithText("Cancel").performClick()
+            compose.waitForIdle()
+
             // Details + history timeline for an event with two logs.
             compose.onAllNodesWithText("Water plants")[0].performTouchInput { longClick() }
 

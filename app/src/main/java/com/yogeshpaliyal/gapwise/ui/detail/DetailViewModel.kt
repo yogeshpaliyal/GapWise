@@ -11,6 +11,9 @@ import com.yogeshpaliyal.gapwise.data.LogResult
 import com.yogeshpaliyal.gapwise.domain.RhythmCalculator
 import com.yogeshpaliyal.gapwise.ui.home.EventUi
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import com.yogeshpaliyal.gapwise.ui.common.RepeatPrompt
+import com.yogeshpaliyal.gapwise.ui.common.repeatPrompt
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +33,26 @@ class DetailViewModel(application: Application, handle: SavedStateHandle) : Andr
     private val _logged = MutableSharedFlow<LogResult>(extraBufferCapacity = 4)
     val logged: SharedFlow<LogResult> = _logged
 
-    fun logNow() = viewModelScope.launch { repo.logNow(eventId)?.let { _logged.emit(it) } }
+    /** Set when "Log now" is tapped within a minute of the last log; the screen asks first. */
+    val confirm = MutableStateFlow<RepeatPrompt?>(null)
+
+    fun logNow() = viewModelScope.launch {
+        val prompt = repo.get(eventId)?.repeatPrompt()
+        if (prompt != null) {
+            confirm.value = prompt
+            return@launch
+        }
+        repo.logNow(eventId)?.let { _logged.emit(it) }
+    }
+
+    fun confirmRepeat() = viewModelScope.launch {
+        confirm.value = null
+        repo.logNow(eventId)?.let { _logged.emit(it) }
+    }
+
+    fun cancelRepeat() {
+        confirm.value = null
+    }
     fun undo(r: LogResult) = viewModelScope.launch { repo.undo(r) }
 
     fun addLog(start: Long, end: Long?, note: String?) = viewModelScope.launch { repo.addLog(eventId, start, end, note) }

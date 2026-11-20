@@ -58,6 +58,12 @@ class LogShortcutActivity : ComponentActivity() {
         }
         lifecycleScope.launch {
             val repo = app.repository
+            // Tapped again within a minute: ask first instead of logging twice.
+            if (repo.get(id)?.recentActionAgo() != null) {
+                startActivity(com.yogeshpaliyal.gapwise.ui.common.ConfirmLogActivity.intent(this@LogShortcutActivity, id))
+                finish()
+                return@launch
+            }
             val name = repo.get(id)?.event?.name
             val result = repo.logNow(id)
             val msg = when {

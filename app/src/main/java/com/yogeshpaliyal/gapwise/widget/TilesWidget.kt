@@ -22,7 +22,10 @@ import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
-import androidx.glance.appwidget.state.getAppWidgetState
+import androidx.glance.currentState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.glance.appwidget.updateAll
 import androidx.glance.background
 import androidx.glance.color.ColorProvider
@@ -78,20 +81,29 @@ class GapwiseTilesWidget : GlanceAppWidget() {
     override val stateDefinition: GlanceStateDefinition<*> = PreferencesGlanceStateDefinition
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val prefs = getAppWidgetState<Preferences>(context, id)
-        val chosen = prefs[TileIdsKey].orEmpty().split(',').mapNotNull { it.trim().toLongOrNull() }
-        val all = context.app.repository.getAll()
+        val repo = context.app.repository
+        val initial = repo.getAll()
+        provideContent {
+            // Live: the database, this widget's picks, and the clock all trigger a redraw.
+            val prefs = currentState<Preferences>()
+            val chosen = prefs[TileIdsKey].orEmpty().split(',').mapNotNull { it.trim().toLongOrNull() }
+            val all by remember { repo.observeAll() }.collectAsState(initial)
+            val now by remember { widgetTicker }.collectAsState(System.currentTimeMillis())
+            val tiles = remember(all, chosen, now) { buildTiles(all, chosen, now) }
+            GapwiseGlanceTheme { Content(tiles) }
+        }
+    }
+
+    private fun buildTiles(all: List<EventWithLogs>, chosen: List<Long>, now: Long): List<WidgetEvent> {
         val byId = all.associateBy { it.event.id }
-        val items: List<EventWithLogs> = if (chosen.isNotEmpty()) {
+        val items = if (chosen.isNotEmpty()) {
             chosen.mapNotNull { byId[it] }
         } else {
             all.filter { !it.event.hidden && !it.event.paused }
                 .sortedBy { RhythmCalculator.compute(it).nextExpectedAt ?: Long.MAX_VALUE }
                 .take(4)
         }
-        val now = System.currentTimeMillis()
-        val tiles = items.take(MAX_TILES).map { it.toWidgetEvent(now) }
-        provideContent { GapwiseGlanceTheme { Content(tiles) } }
+        return items.take(MAX_TILES).map { it.toWidgetEvent(now) }
     }
 
     @Composable
@@ -154,7 +166,7 @@ class GapwiseTilesWidget : GlanceAppWidget() {
                 .fillMaxSize()
                 .cornerRadius(android.R.dimen.system_app_widget_inner_radius)
                 .background(ColorProvider(day = tile.dayTint, night = tile.nightTint))
-                .clickable(actionRunCallback<LogFromWidget>(actionParametersOf(EventIdKey to tile.id))),
+                .clickable(tapAction(tile)),
             contentAlignment = Alignment.Center,
         ) {
             Column(

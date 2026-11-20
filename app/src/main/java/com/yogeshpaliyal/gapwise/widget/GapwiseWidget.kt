@@ -5,7 +5,11 @@ import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.glance.GlanceId
+import com.yogeshpaliyal.gapwise.ui.common.ConfirmLogActivity
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.ImageProvider
@@ -63,8 +67,19 @@ class GapwiseWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val now = System.currentTimeMillis()
-        val rows = context.app.repository.getAll()
+        val repo = context.app.repository
+        val initial = repo.getAll()
+        provideContent {
+            // Read the database live: logging from the widget (or the app) updates it right away.
+            val items by remember { repo.observeAll() }.collectAsState(initial)
+            val now by remember { widgetTicker }.collectAsState(System.currentTimeMillis())
+            val rows = remember(items, now) { buildRows(items, now) }
+            GapwiseGlanceTheme { Content(rows) }
+        }
+    }
+
+    private fun buildRows(items: List<EventWithLogs>, now: Long): List<WidgetEvent> =
+        items
             .filter { !it.event.hidden && !it.event.paused }
             .sortedWith(
                 compareByDescending<EventWithLogs> { it.event.pinned }
@@ -72,8 +87,6 @@ class GapwiseWidget : GlanceAppWidget() {
             )
             .take(12)
             .map { it.toWidgetEvent(now) }
-        provideContent { GapwiseGlanceTheme { Content(rows) } }
-    }
 
     @Composable
     private fun Content(rows: List<WidgetEvent>) {
@@ -137,7 +150,7 @@ class GapwiseWidget : GlanceAppWidget() {
                 .cornerRadius(android.R.dimen.system_app_widget_inner_radius)
                 .background(ColorProvider(day = row.dayTint, night = row.nightTint))
                 .padding(horizontal = 10.dp, vertical = 8.dp)
-                .clickable(actionRunCallback<LogFromWidget>(actionParametersOf(EventIdKey to row.id))),
+                .clickable(tapAction(row)),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             WidgetBadge(row, 36.dp)
@@ -168,7 +181,13 @@ class GapwiseWidget : GlanceAppWidget() {
 class LogFromWidget : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         val id = parameters[EventIdKey] ?: return
-        context.app.repository.logNow(id) // refreshes every widget itself
+        val repo = context.app.repository
+        // The widget may not have redrawn since the last tap: check again before logging.
+        if (repo.get(id)?.recentActionAgo() != null) {
+            runCatching { context.startActivity(ConfirmLogActivity.intent(context, id)) }
+            return
+        }
+        repo.logNow(id) // refreshes every widget itself
     }
 }
 

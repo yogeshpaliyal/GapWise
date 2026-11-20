@@ -10,6 +10,14 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
+import androidx.glance.LocalContext
+import androidx.glance.action.Action
+import androidx.glance.action.actionParametersOf
+import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.appwidget.action.actionStartActivity
+import com.yogeshpaliyal.gapwise.ui.common.ConfirmLogActivity
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
@@ -53,6 +61,8 @@ data class WidgetEvent(
     val dayTint: Color,
     val nightTint: Color,
     val badge: Bitmap,
+    /** Tapped within the last minute: the next tap asks before logging again. */
+    val recent: Boolean,
 )
 
 fun compactElapsed(from: Long?, now: Long): String {
@@ -106,7 +116,30 @@ fun EventWithLogs.toWidgetEvent(now: Long): WidgetEvent {
         dayTint = blend(c, Color.White, 0.20f),
         nightTint = blend(c, Color(0xFF241E22), 0.32f),
         badge = badgeBitmap(status, accent.copy(alpha = 0.6f)),
+        recent = recentActionAgo(now) != null,
     )
+}
+
+/**
+ * What tapping an event in a widget does: log it straight away, or, if it was tapped
+ * within the last minute, open the "Log it again?" confirmation.
+ */
+@Composable
+fun tapAction(e: WidgetEvent): Action {
+    val context = LocalContext.current
+    return if (e.recent) {
+        actionStartActivity(ConfirmLogActivity.intent(context, e.id))
+    } else {
+        actionRunCallback<LogFromWidget>(actionParametersOf(EventIdKey to e.id))
+    }
+}
+
+/** Every 20 seconds while a widget is showing, so "ago" times and the one-minute window stay current. */
+val widgetTicker = flow {
+    while (true) {
+        emit(System.currentTimeMillis())
+        delay(20_000)
+    }
 }
 
 /** Status shape with the emoji on top. */
