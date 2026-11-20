@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.yogeshpaliyal.gapwise.BuildConfigInfo
 import com.yogeshpaliyal.gapwise.app
 import com.yogeshpaliyal.gapwise.notify.Nudges
+import com.yogeshpaliyal.gapwise.widget.PinWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -109,6 +110,8 @@ fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
             HorizontalDivider()
             DriveSection()
             HorizontalDivider()
+            WidgetSection()
+            HorizontalDivider()
             ShapeLegend()
             HorizontalDivider()
             Item("Suggested events", "Browse over 40 starter ideas") { onOpenTour() }
@@ -122,6 +125,33 @@ fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
             Item("Privacy", "No account, no ads, no tracking. Your data stays on this phone unless you back it up to your own Google Drive.") {}
             HorizontalDivider()
             com.yogeshpaliyal.gapwise.update.UpdateSettings(BuildConfigInfo.versionName(context))
+        }
+    }
+}
+
+@Composable
+private fun WidgetSection() {
+    val context = LocalContext.current
+    val supported = remember { PinWidget.isSupported(context) }
+    Column(Modifier.fillMaxWidth().padding(top = 16.dp)) {
+        Text("Home screen widgets", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 16.dp))
+        Text(
+            if (supported) "Add one straight from here, then pick which events it shows."
+            else "Your launcher can't add widgets from inside an app. Long-press an empty spot on your home screen, open Widgets and look for GapWise.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 16.dp),
+        )
+        if (supported) {
+            fun add(kind: PinWidget.Kind) {
+                if (!PinWidget.request(context, kind)) {
+                    Toast.makeText(context, "Your launcher didn't allow adding the widget", Toast.LENGTH_SHORT).show()
+                }
+            }
+            Item("Add the Due soon widget", "A list of what's coming up. Tap a row to log it.") { add(PinWidget.Kind.DueSoon) }
+            Item("Add the Event tiles widget", "A grid of tiles, from 1 to 12. Tap a tile to log it.") { add(PinWidget.Kind.Tiles) }
+        } else {
+            Spacer(Modifier.height(16.dp))
         }
     }
 }
