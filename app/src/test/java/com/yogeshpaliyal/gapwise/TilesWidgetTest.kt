@@ -2,7 +2,10 @@ package com.yogeshpaliyal.gapwise
 
 import android.appwidget.AppWidgetManager
 import android.content.Intent
+import androidx.compose.ui.test.hasScrollToNodeAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -48,7 +51,11 @@ class TilesWidgetTest {
             .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
         ActivityScenario.launch<TilesWidgetConfigActivity>(intent).use {
             compose.waitUntil(10_000) { compose.onAllNodesWithText("Haircut").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithText("Automatic: due soon").assertExists()
+            compose.onNodeWithText("Automatic").assertExists()
+            compose.onNode(hasScrollToNodeAction()).performScrollToNode(hasText("Haircut"))
             compose.onNodeWithText("Haircut").performClick()
+            compose.onNode(hasScrollToNodeAction()).performScrollToNode(hasText("Call Mom"))
             compose.onNodeWithText("Call Mom").performClick()
             compose.onNodeWithText("2 picked").assertExists()
             compose.onNodeWithText("2 in a row").assertExists()
