@@ -152,6 +152,8 @@ jobs:
           TAG: ${{ steps.version.outputs.tag }}
         run: |
           pip install --quiet apksigcopier
+          # apksigcopier calls apksigner, which lives in the SDK's build-tools.
+          export PATH="$(dirname "$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)"):$PATH"
           ./gradlew --no-configuration-cache --no-build-cache :app:assembleFdroidRelease
           apksigcopier compare "gapwise-$TAG-fdroid.apk" --unsigned app/build/outputs/apk/fdroid/release/app-fdroid-release-unsigned.apk
           echo "Unsigned rebuild matches the signed F-Droid APK."
