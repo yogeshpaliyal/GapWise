@@ -100,8 +100,10 @@ android {
     }
     // Google-only code (Drive backup) is shared by the github and play flavors.
     sourceSets {
-        getByName("github").java.srcDir("src/gms/java")
-        getByName("play").java.srcDir("src/gms/java")
+        for (flavor in listOf("github", "play")) {
+            getByName(flavor).java.srcDir("src/gms/java")
+            getByName(flavor).kotlin.srcDir("src/gms/java")
+        }
     }
 
     // F-Droid rejects Google's encrypted dependency block, and it isn't needed elsewhere either.

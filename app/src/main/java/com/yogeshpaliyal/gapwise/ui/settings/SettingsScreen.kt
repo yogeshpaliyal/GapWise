@@ -1,5 +1,6 @@
 package com.yogeshpaliyal.gapwise.ui.settings
 
+import com.yogeshpaliyal.gapwise.BuildConfig
 import com.yogeshpaliyal.gapwise.L10n
 import com.yogeshpaliyal.gapwise.R
 
