@@ -118,7 +118,7 @@ fun HomeScreen(
         modifier = Modifier.nestedScroll(scroll.nestedScrollConnection),
         topBar = {
             LargeFlexibleTopAppBar(
-                title = { Text(L10n.s(R.string.app_name)) },
+                title = { Text(L10n.s(R.string.brand)) },
                 subtitle = { Text(summary(statuses, state.totalCount)) },
                 scrollBehavior = scroll,
             )
