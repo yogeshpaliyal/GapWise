@@ -85,3 +85,9 @@ object Suggestions {
         Suggestion("Change passwords", "🔐", Categories.OTHER, 180),
     )
 }
+
+/**
+ * A starter event the user picked, with when they last did it. [lastAt] null means "not sure".
+ * For events with a start and an end, [endAt] null means it's still going.
+ */
+data class PickedSuggestion(val suggestion: Suggestion, val lastAt: Long?, val endAt: Long?)

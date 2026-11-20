@@ -107,7 +107,14 @@ class SmokeTest {
     fun welcomeTourAddsEvents() {
         ApplicationProvider.getApplicationContext<GapwiseApp>().prefs.welcomeSeen = false
         ActivityScenario.launch(MainActivity::class.java).use {
+            // Intro pages, then the starter picker.
+            compose.onNodeWithText("Remember the\nlast time").assertExists()
+            compose.onNodeWithText("Skip").performClick()
             compose.onNodeWithText("Water plants").performClick()
+            // Asks when it was last done.
+            compose.onNodeWithText("When did you last do it?").assertExists()
+            compose.onNodeWithText("Yesterday").performClick()
+            compose.onNodeWithText("Add").performClick()
             compose.onNodeWithText("Add 1 event").performClick()
             compose.waitUntil(10_000) { compose.onAllNodesWithText("GapWise").fetchSemanticsNodes().isNotEmpty() }
         }

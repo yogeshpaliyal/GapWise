@@ -67,9 +67,13 @@ class GapwiseRepository(
         changed()
     }
 
-    suspend fun createEvent(event: EventEntity, firstLogAt: Long? = null): Long {
+    /** [firstEndAt] only applies to events with a start and an end; null there means still going. */
+    suspend fun createEvent(event: EventEntity, firstLogAt: Long? = null, firstEndAt: Long? = null): Long {
         val id = dao.insertEvent(event.copy(sortOrder = dao.maxSortOrder() + 1))
-        if (firstLogAt != null) dao.insertLog(LogEntity(eventId = id, startAt = firstLogAt))
+        if (firstLogAt != null) {
+            val end = if (event.isMultiDay) firstEndAt?.coerceAtLeast(firstLogAt) else null
+            dao.insertLog(LogEntity(eventId = id, startAt = firstLogAt, endAt = end))
+        }
         changed()
         return id
     }
@@ -96,10 +100,14 @@ class GapwiseRepository(
     }
 
     /** Adds the chosen starter events, seeding an approximate "last time" for each. */
-    suspend fun addSuggestions(chosen: List<Suggestion>) {
+    /**
+     * Adds starter events. Each has the last time the user picked; if they weren't sure, an
+     * approximate one (half the typical gap ago), marked as such in the note.
+     */
+    suspend fun addSuggestions(chosen: List<PickedSuggestion>) {
         val now = System.currentTimeMillis()
         var order = dao.maxSortOrder()
-        chosen.forEachIndexed { i, s ->
+        chosen.forEach { (s, lastAt, endAt) ->
             order += 1
             val id = dao.insertEvent(
                 EventEntity(
@@ -107,9 +115,14 @@ class GapwiseRepository(
                     color = Palette.forIndex(order), isMultiDay = s.multiDay, sortOrder = order,
                 ),
             )
-            val start = now - (s.typicalDays / 2.0 * DAY_MS).toLong()
-            val end = if (s.multiDay) start + 2 * DAY_MS else null
-            dao.insertLog(LogEntity(eventId = id, startAt = start, endAt = end, note = "Approximate, from welcome tour"))
+            if (lastAt != null) {
+                val end = if (s.multiDay) endAt?.coerceAtLeast(lastAt) else null
+                dao.insertLog(LogEntity(eventId = id, startAt = lastAt, endAt = end))
+            } else {
+                val start = now - (s.typicalDays / 2.0 * DAY_MS).toLong()
+                val end = if (s.multiDay) start + 2 * DAY_MS else null
+                dao.insertLog(LogEntity(eventId = id, startAt = start, endAt = end, note = "Approximate, from welcome tour"))
+            }
         }
         changed()
     }

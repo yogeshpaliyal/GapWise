@@ -71,6 +71,8 @@ class EditViewModel(application: Application, handle: SavedStateHandle) : Androi
     var multiDay by mutableStateOf(false)
     var nudges by mutableStateOf(true)
     var firstLogAt by mutableStateOf<Long?>(null)
+    /** For events with a start and an end: when the last one ended. Null means it's still going. */
+    var firstEndAt by mutableStateOf<Long?>(null)
     var categories by mutableStateOf(Categories.defaults)
         private set
 
@@ -103,6 +105,7 @@ class EditViewModel(application: Application, handle: SavedStateHandle) : Androi
                     isMultiDay = multiDay, nudgesEnabled = nudges,
                 ),
                 firstLogAt = firstLogAt,
+                firstEndAt = if (multiDay) firstEndAt else null,
             )
         } else {
             repo.updateEvent(
@@ -125,6 +128,7 @@ private val quickEmojis = listOf(
 @Composable
 fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
     var pickDate by remember { mutableStateOf(false) }
+    var pickEnd by remember { mutableStateOf(false) }
     var newCategory by remember { mutableStateOf("") }
 
     Scaffold(
@@ -219,13 +223,40 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
             ) { vm.nudges = it }
 
             if (vm.isNew) {
-                Label("Last time you did it")
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = { pickDate = true }) {
-                        Text(vm.firstLogAt?.let { TimeText.date(it) } ?: "Pick a date")
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Label(if (vm.multiDay) "Last time" else "Last time you did it")
+                    if (vm.multiDay) SubLabel("Started")
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedButton(onClick = { pickDate = true }) {
+                            Text(vm.firstLogAt?.let { TimeText.date(it) } ?: "Pick a date")
+                        }
+                        OutlinedButton(onClick = { vm.firstLogAt = System.currentTimeMillis() }) { Text("Today") }
+                        if (vm.firstLogAt != null) {
+                            TextButton(onClick = { vm.firstLogAt = null; vm.firstEndAt = null }) { Text("Clear") }
+                        }
                     }
-                    OutlinedButton(onClick = { vm.firstLogAt = System.currentTimeMillis() }) { Text("Today") }
-                    if (vm.firstLogAt != null) TextButton(onClick = { vm.firstLogAt = null }) { Text("Clear") }
+                    if (vm.multiDay) {
+                        SubLabel("Ended")
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            OutlinedButton(onClick = { pickEnd = true }, enabled = vm.firstLogAt != null) {
+                                Text(vm.firstEndAt?.let { TimeText.date(it) } ?: "Pick a date")
+                            }
+                            ToggleButton(
+                                checked = vm.firstLogAt != null && vm.firstEndAt == null,
+                                onCheckedChange = { vm.firstEndAt = null },
+                                enabled = vm.firstLogAt != null,
+                            ) { Text("Still going") }
+                        }
+                        Text(
+                            if (vm.firstLogAt == null) "Pick when it started first."
+                            else if (vm.firstEndAt == null) "It will show as in progress until you end it."
+                            else TimeText.daysBetween(vm.firstLogAt!!, vm.firstEndAt!!).plus(1).let { n ->
+                                if (n == 1L) "Lasted 1 day." else "Lasted $n days."
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
 
@@ -239,12 +270,24 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
     }
 
     if (pickDate) {
-        PastDatePickerDialog(vm.firstLogAt ?: System.currentTimeMillis(), { pickDate = false }) { vm.firstLogAt = it }
+        PastDatePickerDialog(vm.firstLogAt ?: System.currentTimeMillis(), { pickDate = false }) {
+            vm.firstLogAt = it
+            // Keep the end on or after the start.
+            vm.firstEndAt = vm.firstEndAt?.coerceAtLeast(it)
+        }
+    }
+    if (pickEnd) {
+        PastDatePickerDialog(vm.firstEndAt ?: System.currentTimeMillis(), { pickEnd = false }) { end ->
+            vm.firstEndAt = vm.firstLogAt?.let { end.coerceAtLeast(it) } ?: end
+        }
     }
 }
 
 @Composable
 private fun Label(text: String) = Text(text, style = MaterialTheme.typography.titleLarge)
+
+@Composable
+private fun SubLabel(text: String) = Text(text, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
 @Composable
 private fun ToggleRow(title: String, body: String, checked: Boolean, onChange: (Boolean) -> Unit) {

@@ -17,6 +17,7 @@ import com.yogeshpaliyal.gapwise.ui.edit.EditScreen
 import com.yogeshpaliyal.gapwise.ui.home.HomeScreen
 import com.yogeshpaliyal.gapwise.ui.settings.SettingsScreen
 import com.yogeshpaliyal.gapwise.ui.theme.GapwiseTheme
+import com.yogeshpaliyal.gapwise.ui.welcome.IntroScreen
 import com.yogeshpaliyal.gapwise.ui.welcome.WelcomeScreen
 import com.yogeshpaliyal.gapwise.update.AppUpdater
 import com.yogeshpaliyal.gapwise.update.LocalUpdater
@@ -37,7 +38,7 @@ class MainActivity : ComponentActivity() {
         handleIntent(intent)
         updater = Updaters.create(this).also { it.attach(this) }
 
-        val start = if (app.prefs.welcomeSeen) Routes.HOME else Routes.WELCOME
+        val start = if (app.prefs.welcomeSeen) Routes.HOME else Routes.INTRO
 
         setContent {
             CompositionLocalProvider(LocalUpdater provides updater) {
@@ -50,6 +51,11 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 NavHost(navController = nav, startDestination = start) {
+                    composable(Routes.INTRO) {
+                        IntroScreen(onDone = {
+                            nav.navigate(Routes.WELCOME) { popUpTo(Routes.INTRO) { inclusive = true } }
+                        })
+                    }
                     composable(Routes.WELCOME) {
                         WelcomeScreen(onDone = {
                             app.prefs.welcomeSeen = true
@@ -114,6 +120,7 @@ class MainActivity : ComponentActivity() {
 }
 
 object Routes {
+    const val INTRO = "intro"
     const val WELCOME = "welcome"
     const val TOUR = "tour"
     const val HOME = "home"

@@ -33,6 +33,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,23 +46,32 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yogeshpaliyal.gapwise.app
+import com.yogeshpaliyal.gapwise.data.PickedSuggestion
 import com.yogeshpaliyal.gapwise.data.Suggestion
 import com.yogeshpaliyal.gapwise.data.Suggestions
 import kotlinx.coroutines.launch
 
 class WelcomeViewModel(application: Application) : AndroidViewModel(application) {
     private val repo = application.app.repository
-    val selected = mutableStateListOf<Suggestion>()
+    /** Picked suggestions, in the order they were picked, with when they were last done. */
+    val selected = mutableStateMapOf<Suggestion, LastTime>()
+    private val order = mutableStateListOf<Suggestion>()
     var saving by mutableStateOf(false)
         private set
 
-    fun toggle(s: Suggestion) {
-        if (s in selected) selected.remove(s) else selected.add(s)
+    fun pick(s: Suggestion, last: LastTime) {
+        if (s !in selected) order.add(s)
+        selected[s] = last
+    }
+
+    fun remove(s: Suggestion) {
+        selected.remove(s); order.remove(s)
     }
 
     fun finish(onDone: () -> Unit) = viewModelScope.launch {
         saving = true
-        if (selected.isNotEmpty()) repo.addSuggestions(selected.toList())
+        val chosen = order.mapNotNull { s -> selected[s]?.let { PickedSuggestion(s, it.startAt, it.endAt) } }
+        if (chosen.isNotEmpty()) repo.addSuggestions(chosen)
         onDone()
     }
 }
@@ -70,6 +80,7 @@ class WelcomeViewModel(application: Application) : AndroidViewModel(application)
 @Composable
 fun WelcomeScreen(onDone: () -> Unit, vm: WelcomeViewModel = viewModel()) {
     var filter by remember { mutableStateOf<String?>(null) }
+    var asking by remember { mutableStateOf<Suggestion?>(null) }
     val categories = remember { Suggestions.all.map { it.category }.distinct() }
     val shown = Suggestions.all.filter { filter == null || it.category == filter }
 
@@ -101,9 +112,10 @@ fun WelcomeScreen(onDone: () -> Unit, vm: WelcomeViewModel = viewModel()) {
             modifier = Modifier.weight(1f),
         ) {
             items(shown, key = { it.name + it.category }) { s ->
-                val on = s in vm.selected
+                val chosen = vm.selected[s]
+                val on = chosen != null
                 Surface(
-                    onClick = { vm.toggle(s) },
+                    onClick = { asking = s },
                     shape = MaterialTheme.shapes.medium,
                     color = if (on) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer,
                 ) {
@@ -115,13 +127,24 @@ fun WelcomeScreen(onDone: () -> Unit, vm: WelcomeViewModel = viewModel()) {
                             size = 40.dp,
                         )
                         Spacer(Modifier.padding(5.dp))
-                        Text(s.name, maxLines = 2, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodyMedium)
+                        Column {
+                            Text(s.name, maxLines = 2, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodyMedium)
+                            if (chosen != null) {
+                                Text(
+                                    chosen.label,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        }
                     }
                 }
             }
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Text(
-                    "We'll set an approximate “last time” for each. Fix it later from the event's page.",
+                    "Tap one to say when you last did it. Not sure? We'll guess, and you can fix it later from the event's page.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -151,4 +174,14 @@ fun WelcomeScreen(onDone: () -> Unit, vm: WelcomeViewModel = viewModel()) {
         }
     }
 }
+
+    asking?.let { s ->
+        LastTimeDialog(
+            suggestion = s,
+            current = vm.selected[s],
+            onDismiss = { asking = null },
+            onRemove = { vm.remove(s); asking = null },
+            onPick = { vm.pick(s, it); asking = null },
+        )
+    }
 }
