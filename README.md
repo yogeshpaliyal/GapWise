@@ -56,8 +56,10 @@ Requires JDK 17 and the Android SDK (compileSdk 37, minSdk 26). The stack is Kot
 | `github` | APK on GitHub | Release builds: newest GitHub Release (`vX.Y.Z`). Debug builds: the rolling `latest-master` pre-release. Updating opens the APK download. |
 | `play` | Google Play | Play In-App Updates (flexible: downloads in the background, then "Restart now"). Rating uses Play In-App Review. |
 
-Push a tag like `v1.2.0` to publish a GitHub Release with the GitHub APK and the Play `.aab`. Play needs the bundle signed with your upload key (see `.github/workflows/release.yml`), and Drive backup needs another Android OAuth client with Play's app-signing SHA-1.
+**Releasing** works like Halo: open *Actions → Release → Run workflow* and pick patch, minor or major. The workflow checks the signing secrets, bumps `versionName`/`versionCode` in `app/build.gradle.kts`, runs the tests, builds the signed GitHub APK and Play AAB, verifies the signing certificate, then commits the bump and tag to `master` in one atomic push and publishes a GitHub Release with notes built from the commits (plus the certificate fingerprint and checksums). It then announces the release in GitHub Discussions, and on Telegram, Bluesky and Mastodon when their secrets are set. Play needs the bundle signed with your upload key (`SIGNING_*` secrets), and Drive backup needs another Android OAuth client with Play's app-signing SHA-1.
+
+Debug builds install as **Gapwise Debug** (`com.yogeshpaliyal.gapwise.debug`) next to the release and Play apps.
 
 ## Latest build
 
-Every push to `master` builds a GitHub-flavor debug APK and publishes it to the [`latest-master`](../../releases/tag/latest-master) release.
+Every push to `master` that touches the app builds a GitHub-flavor debug APK and publishes it to the [`latest-master`](../../releases/tag/latest-master) release.

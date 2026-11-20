@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -30,8 +29,8 @@ object Updaters {
  * Sideloaded (GitHub) build.
  *  - Release builds look at the newest proper GitHub Release (tag vX.Y.Z, pre-releases skipped)
  *    and compare version names.
- *  - Debug builds look at the rolling latest-master pre-release and compare version codes
- *    using the version.json that CI attaches to it.
+ *  - Debug builds look at the rolling latest-master pre-release and compare the commit
+ *    they were built from with the one in the version.json that CI attaches to it.
  * Updating opens the APK download; Android's installer takes it from there.
  */
 private class GithubUpdater(private val app: Context) : AppUpdater {
@@ -100,9 +99,12 @@ private class GithubUpdater(private val app: Context) : AppUpdater {
     private fun latestMaster(): Triple<Boolean, String, String> {
         val base = "https://github.com/$repo/releases/download/latest-master/"
         val obj = json.parseToJsonElement(get(base + "version.json")).jsonObject
-        val code = obj.getValue("versionCode").jsonPrimitive.int
-        val name = obj["versionName"]?.jsonPrimitive?.content ?: "build $code"
-        return Triple(code > BuildConfig.VERSION_CODE, name, base + "gapwise-latest-master.apk")
+        val commit = obj["commit"]?.jsonPrimitive?.content.orEmpty()
+        // Debug builds share one version code, so compare the commit they were built from.
+        // Local builds (no commit baked in) never prompt.
+        val newer = BuildConfig.GIT_SHA.isNotEmpty() && commit.isNotEmpty() && commit != BuildConfig.GIT_SHA
+        val label = obj["versionName"]?.jsonPrimitive?.content ?: "latest master"
+        return Triple(newer, label, base + "gapwise-debug.apk")
     }
 
     private fun get(url: String, accept: String? = null): String {
