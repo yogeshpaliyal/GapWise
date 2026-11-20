@@ -52,7 +52,9 @@ class TranslationsTest {
                 for (n in listOf(0, 1, 2, 5, 21)) {
                     ctx.resources.getQuantityString(id, n, *argsFor(english).map { if (it is Int) n else it }.toTypedArray())
                 }
-                assertNotEquals("$tag/$name is empty", "", ctx.resources.getQuantityString(id, 3, 3))
+                val translated = ctx.resources.getQuantityString(id, 3)
+                assertEquals("$tag/$name placeholders", placeholders(english), placeholders(translated))
+                assertNotEquals("$tag/$name is empty", "", translated)
             }
         }
     }
