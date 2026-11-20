@@ -56,6 +56,10 @@ import com.yogeshpaliyal.gapwise.data.EventEntity
 import com.yogeshpaliyal.gapwise.data.Palette
 import com.yogeshpaliyal.gapwise.domain.TimeText
 import com.yogeshpaliyal.gapwise.ui.common.PastDatePickerDialog
+import com.yogeshpaliyal.gapwise.ui.common.PickerTile
+import com.yogeshpaliyal.gapwise.ui.common.TimePickerDialog
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Schedule
 import com.yogeshpaliyal.gapwise.ui.home.eventColor
 import kotlinx.coroutines.launch
 
@@ -127,8 +131,7 @@ private val quickEmojis = listOf(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
-    var pickDate by remember { mutableStateOf(false) }
-    var pickEnd by remember { mutableStateOf(false) }
+    var picker by remember { mutableStateOf<String?>(null) }
     var newCategory by remember { mutableStateOf("") }
 
     Scaffold(
@@ -223,39 +226,32 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
             ) { vm.nudges = it }
 
             if (vm.isNew) {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Label(if (vm.multiDay) "Last time" else "Last time you did it")
-                    if (vm.multiDay) SubLabel("Started")
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedButton(onClick = { pickDate = true }) {
-                            Text(vm.firstLogAt?.let { TimeText.date(it) } ?: "Pick a date")
-                        }
-                        OutlinedButton(onClick = { vm.firstLogAt = System.currentTimeMillis() }) { Text("Today") }
-                        if (vm.firstLogAt != null) {
-                            TextButton(onClick = { vm.firstLogAt = null; vm.firstEndAt = null }) { Text("Clear") }
-                        }
-                    }
-                    if (vm.multiDay) {
-                        SubLabel("Ended")
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                            OutlinedButton(onClick = { pickEnd = true }, enabled = vm.firstLogAt != null) {
-                                Text(vm.firstEndAt?.let { TimeText.date(it) } ?: "Pick a date")
-                            }
-                            ToggleButton(
-                                checked = vm.firstLogAt != null && vm.firstEndAt == null,
-                                onCheckedChange = { vm.firstEndAt = null },
-                                enabled = vm.firstLogAt != null,
-                            ) { Text("Still going") }
+                    val startAt = vm.firstLogAt
+                    if (startAt == null) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(onClick = { vm.firstLogAt = System.currentTimeMillis() }) { Text("Just now") }
+                            OutlinedButton(onClick = { picker = "startDate" }) { Text("Pick a date") }
                         }
                         Text(
-                            if (vm.firstLogAt == null) "Pick when it started first."
-                            else if (vm.firstEndAt == null) "It will show as in progress until you end it."
-                            else TimeText.daysBetween(vm.firstLogAt!!, vm.firstEndAt!!).plus(1).let { n ->
-                                if (n == 1L) "Lasted 1 day." else "Lasted $n days."
-                            },
+                            "Optional. Leave it empty if you haven't done it yet.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                    } else {
+                        DateTimeRow(if (vm.multiDay) "Started" else "Date", startAt, { picker = "startDate" }, { picker = "startTime" })
+                        if (vm.multiDay) {
+                            ToggleRow(
+                                "Still going",
+                                if (vm.firstEndAt == null) "Turn off to set when it ended" else "Turn on if it hasn't ended yet",
+                                vm.firstEndAt == null,
+                            ) { going -> vm.firstEndAt = if (going) null else maxOf(startAt, System.currentTimeMillis()) }
+                            vm.firstEndAt?.let { endAt ->
+                                DateTimeRow("Ended", endAt, { picker = "endDate" }, { picker = "endTime" })
+                            }
+                        }
+                        TextButton(onClick = { vm.firstLogAt = null; vm.firstEndAt = null }) { Text("Clear") }
                     }
                 }
             }
@@ -269,17 +265,20 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
         }
     }
 
-    if (pickDate) {
-        PastDatePickerDialog(vm.firstLogAt ?: System.currentTimeMillis(), { pickDate = false }) {
-            vm.firstLogAt = it
-            // Keep the end on or after the start.
-            vm.firstEndAt = vm.firstEndAt?.coerceAtLeast(it)
-        }
+    val now = System.currentTimeMillis()
+    // Start defaults to now; the end is kept on or after the start, and never in the future.
+    fun setStart(at: Long) {
+        vm.firstLogAt = at.coerceAtMost(now)
+        vm.firstEndAt = vm.firstEndAt?.coerceAtLeast(vm.firstLogAt!!)
     }
-    if (pickEnd) {
-        PastDatePickerDialog(vm.firstEndAt ?: System.currentTimeMillis(), { pickEnd = false }) { end ->
-            vm.firstEndAt = vm.firstLogAt?.let { end.coerceAtLeast(it) } ?: end
-        }
+    fun setEnd(at: Long) {
+        vm.firstEndAt = at.coerceAtMost(now).coerceAtLeast(vm.firstLogAt ?: at)
+    }
+    when (picker) {
+        "startDate" -> PastDatePickerDialog(vm.firstLogAt ?: now, { picker = null }) { setStart(it) }
+        "startTime" -> TimePickerDialog(vm.firstLogAt ?: now, { picker = null }) { setStart(it) }
+        "endDate" -> PastDatePickerDialog(vm.firstEndAt ?: now, { picker = null }) { setEnd(it) }
+        "endTime" -> TimePickerDialog(vm.firstEndAt ?: now, { picker = null }) { setEnd(it) }
     }
 }
 
@@ -287,7 +286,12 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
 private fun Label(text: String) = Text(text, style = MaterialTheme.typography.titleLarge)
 
 @Composable
-private fun SubLabel(text: String) = Text(text, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+private fun DateTimeRow(label: String, at: Long, onDate: () -> Unit, onTime: () -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        PickerTile(Icons.Outlined.CalendarMonth, label, TimeText.date(at), onDate, Modifier.weight(1f))
+        PickerTile(Icons.Outlined.Schedule, "Time", TimeText.time(at), onTime, Modifier.weight(1f))
+    }
+}
 
 @Composable
 private fun ToggleRow(title: String, body: String, checked: Boolean, onChange: (Boolean) -> Unit) {

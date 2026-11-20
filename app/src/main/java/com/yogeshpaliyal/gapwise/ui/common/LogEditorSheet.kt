@@ -238,7 +238,7 @@ fun LogEditorSheet(
 }
 
 @Composable
-private fun PickerTile(icon: ImageVector, label: String, value: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+internal fun PickerTile(icon: ImageVector, label: String, value: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Surface(
         onClick = onClick,
         shape = MaterialTheme.shapes.large,
