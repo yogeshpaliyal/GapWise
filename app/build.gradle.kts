@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 android {
@@ -94,8 +95,10 @@ kotlin {
     }
 }
 
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
+// Room's Gradle plugin keeps one schema per variant and merges them, so building several
+// flavors at once can't corrupt the exported schema file.
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
