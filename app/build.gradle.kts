@@ -96,6 +96,7 @@ android {
             buildConfigField("boolean", "HAS_DRIVE", "false")
             // Nothing that depends on the build machine may end up in this APK.
             buildConfigField("String", "GIT_SHA", "\"\"")
+            proguardFile("proguard-fdroid.pro")
         }
     }
     // Google-only code (Drive backup) is shared by the github and play flavors.
