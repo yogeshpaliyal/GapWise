@@ -24,7 +24,9 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import android.os.Looper
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 
 /**
  * Walks the main flows on the JVM so CI catches crashes before an APK ships:
@@ -64,11 +66,18 @@ class SmokeTest {
 
             // Back on home once the editor is gone and the new card is there.
             waitOrDump("editor closes") { compose.onAllNodesWithText("New event").fetchSemanticsNodes().isEmpty() }
-            waitOrDump("event saved") { runBlocking { app.repository.getAll().any { it.event.name == "Haircut" } } }
+            waitOrDump("event saved") {
+                shadowOf(Looper.getMainLooper()).idle()
+                runBlocking { app.repository.getAll().any { it.event.name == "Haircut" } }
+            }
 
             // Two taps on the same card within a minute: the second one asks first.
             compose.onAllNodesWithText("Water plants")[0].performClick()
-            waitOrDump("first tap logged") { runBlocking { app.repository.getAll().first { it.event.name == "Water plants" }.recentActionAgo() != null } }
+            waitOrDump("first tap logged") {
+                // Let the app's coroutines resume on the main looper before checking the database.
+                shadowOf(Looper.getMainLooper()).idle()
+                runBlocking { app.repository.getAll().first { it.event.name == "Water plants" }.recentActionAgo() != null }
+            }
             compose.onAllNodesWithText("Water plants")[0].performClick()
             waitOrDump("repeat confirmation") { compose.onAllNodesWithText("Log Water plants again?").fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithText("Cancel").performClick()
