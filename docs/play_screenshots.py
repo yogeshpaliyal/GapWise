@@ -9,8 +9,7 @@ Screenshots: home, widgets, edit (1080x2424) and settings (1080 wide, any height
 import base64, os, sys
 from PIL import Image, ImageFont
 
-SRC, OUT = sys.argv[1], sys.argv[2]
-os.makedirs(OUT, exist_ok=True)
+SRC = OUT = None  # set by main, or by docs/play_foldable.py
 W, H = 1080, 1920
 INK, QUIET, PLUM, BLUSH, HANDC, BG, GRID = "#1F1A1E", "#6E5F6C", "#6B2A72", "#FFB4D2", "#2F64A0", "#FBF6FA", "#F0E4EC"
 HEAD_FONT = "Bitter"
@@ -134,59 +133,67 @@ def pill(cx, y, label, dark=True):
 def save(n, body):
     open(os.path.join(OUT, f"{n}.svg"), "w").write(head() + body + "</svg>")
 
-# 1. Hero: the promise, and one card as a big floating callout with the three steps.
-t, _ = headline(["Remember the", "last time"], 128, 250, mark=(1, "last time"))
-s = t
-s += callout("home.jpg", (42, 772, 482, 534), 380, 660, 620, 4, "c1a", rx=64)
-s += badge(1, 110, 850) + hand("do it,", 165, 870, 92, -6)
-s += badge(2, 110, 1040) + hand("tap it,", 165, 1060, 92, -6)
-s += badge(3, 110, 1230) + hand("relax!", 165, 1250, 92, -6)
-s += arrow("M330,1330 Q430,1420 520,1360 M494,1350 l27,8 l-9,25")
-s += pill(W / 2, 1640, "No streaks. No guilt.")
-save(1, s)
+def main():
+    global SRC, OUT
+    SRC, OUT = sys.argv[1], sys.argv[2]
+    os.makedirs(OUT, exist_ok=True)
+    # 1. Hero: the promise, and one card as a big floating callout with the three steps.
+    t, _ = headline(["Remember the", "last time"], 128, 250, mark=(1, "last time"))
+    s = t
+    s += callout("home.jpg", (42, 772, 482, 534), 380, 660, 620, 4, "c1a", rx=64)
+    s += badge(1, 110, 850) + hand("do it,", 165, 870, 92, -6)
+    s += badge(2, 110, 1040) + hand("tap it,", 165, 1060, 92, -6)
+    s += badge(3, 110, 1230) + hand("relax!", 165, 1250, 92, -6)
+    s += arrow("M330,1330 Q430,1420 520,1360 M494,1350 l27,8 l-9,25")
+    s += pill(W / 2, 1640, "No streaks. No guilt.")
+    save(1, s)
 
-# 2. Widgets: the home screen in a phone, the tile widget zoomed out to the right.
-t, _ = headline(["One tap from", "your home screen"], 92, 170, eyebrow="WIDGETS", mark=(1, "home screen"))
-PX, PW = 70, 620
-s = t + phone(PX, 520, PW, "widgets.jpg", "p2")
-s += callout("widgets.jpg", (50, 765, 572, 532), 540, 760, 480, 4, "c2a", rx=48, pad=14)
-s += hand("one tap", 880, 1420, 96, -8, anchor="middle")
-s += hand("logs it!", 890, 1520, 96, -8, anchor="middle")
-s += arrow("M880,1330 Q910,1290 880,1250 M858,1268 l22,-20 l20,22")
-save(2, s)
+    # 2. Widgets: the home screen in a phone, the tile widget zoomed out to the right.
+    t, _ = headline(["One tap from", "your home screen"], 92, 170, eyebrow="WIDGETS", mark=(1, "home screen"))
+    PX, PW = 70, 620
+    s = t + phone(PX, 520, PW, "widgets.jpg", "p2")
+    s += callout("widgets.jpg", (50, 765, 572, 532), 540, 760, 480, 4, "c2a", rx=48, pad=14)
+    s += hand("one tap", 880, 1420, 96, -8, anchor="middle")
+    s += hand("logs it!", 890, 1520, 96, -8, anchor="middle")
+    s += arrow("M880,1330 Q910,1290 880,1250 M858,1268 l22,-20 l20,22")
+    save(2, s)
 
-# 3. Shapes: the legend from settings, big, with a note.
-t, _ = headline(["Know what's due", "at a glance"], 92, 170, eyebrow="SHAPES", mark=(1, "glance"))
-s = t
-s += callout("settings.jpg", (0, 1160, 1080, 640), 120, 470, 840, -2, "c3a", rx=56, pad=16)
-s += hand("the sun means", 140, 1340, 100, -8)
-s += hand("it's about time!", 230, 1460, 100, -8)
-s += arrow("M800,1300 Q880,1230 840,1150 M818,1172 l22,-24 l22,24")
-s += callout("home.jpg", (42, 772, 996, 534), 160, 1540, 760, 2, "c3b", rx=40, pad=10)
-save(3, s)
+    # 3. Shapes: the legend from settings, big, with a note.
+    t, _ = headline(["Know what's due", "at a glance"], 92, 170, eyebrow="SHAPES", mark=(1, "glance"))
+    s = t
+    s += callout("settings.jpg", (0, 1160, 1080, 640), 120, 470, 840, -2, "c3a", rx=56, pad=16)
+    s += hand("the sun means", 140, 1340, 100, -8)
+    s += hand("it's about time!", 230, 1460, 100, -8)
+    s += arrow("M800,1300 Q880,1230 840,1150 M818,1172 l22,-24 l22,24")
+    s += callout("home.jpg", (42, 772, 996, 534), 160, 1540, 760, 2, "c3b", rx=40, pad=10)
+    save(3, s)
 
-# 4. Track anything: the editor in a phone, the emoji picker zoomed.
-t, _ = headline(["Haircuts to", "oil changes"], 92, 170, eyebrow="TRACK ANYTHING", mark=(1, "oil changes"))
-s = t + phone(PX, 520, PW, "edit.jpg", "p4")
-s += callout("edit.jpg", (30, 570, 960, 350), 470, 900, 560, -4, "c4a", rx=40, pad=14)
-s += hand("any emoji,", 880, 1300, 88, -8, anchor="middle")
-s += hand("any colour!", 890, 1400, 88, -8, anchor="middle")
-s += arrow("M880,1200 Q910,1160 880,1120 M858,1138 l22,-20 l20,22")
-save(4, s)
+    # 4. Track anything: the editor in a phone, the emoji picker zoomed.
+    t, _ = headline(["Haircuts to", "oil changes"], 92, 170, eyebrow="TRACK ANYTHING", mark=(1, "oil changes"))
+    s = t + phone(PX, 520, PW, "edit.jpg", "p4")
+    s += callout("edit.jpg", (30, 570, 960, 350), 470, 900, 560, -4, "c4a", rx=40, pad=14)
+    s += hand("any emoji,", 880, 1300, 88, -8, anchor="middle")
+    s += hand("any colour!", 890, 1400, 88, -8, anchor="middle")
+    s += arrow("M880,1200 Q910,1160 880,1120 M858,1138 l22,-20 l20,22")
+    save(4, s)
 
-# 5. Private: promise cards, and the logo.
-t, _ = headline(["Your data", "stays yours"], 110, 190, eyebrow="PRIVATE", mark=(1, "yours"))
-s = t
-rows = [("No account, no ads", "Nothing to sign up for, nothing tracked", -3),
-        ("Backs up to your Drive", "A private folder only GapWise can see", 2),
-        ("Open source", "Read every line on GitHub", -2)]
-y = 640
-for title, body, rot in rows:
-    s += (f'<g transform="rotate({rot} {W/2} {y+110})"><g filter="url(#shadow)"><rect x="110" y="{y}" width="860" height="220" rx="56" fill="#FFFFFF"/></g>'
-          f'<circle cx="230" cy="{y+110}" r="54" fill="{PLUM}"/><path d="M204,{y+110} l18,20 l34,-38" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>'
-          f'<text x="320" y="{y+100}" font-family="{BODY_FONT}" font-weight="700" font-size="46" fill="{INK}">{title}</text>'
-          f'<text x="320" y="{y+156}" font-family="{BODY_FONT}" font-size="34" fill="{QUIET}">{body}</text></g>')
-    y += 290
-s += hand("promise!", 640, 1610, 120, -10)
-s += mark(230, 1640, 74)
-save(5, s)
+    # 5. Private: promise cards, and the logo.
+    t, _ = headline(["Your data", "stays yours"], 110, 190, eyebrow="PRIVATE", mark=(1, "yours"))
+    s = t
+    rows = [("No account, no ads", "Nothing to sign up for, nothing tracked", -3),
+            ("Backs up to your Drive", "A private folder only GapWise can see", 2),
+            ("Open source", "Read every line on GitHub", -2)]
+    y = 640
+    for title, body, rot in rows:
+        s += (f'<g transform="rotate({rot} {W/2} {y+110})"><g filter="url(#shadow)"><rect x="110" y="{y}" width="860" height="220" rx="56" fill="#FFFFFF"/></g>'
+              f'<circle cx="230" cy="{y+110}" r="54" fill="{PLUM}"/><path d="M204,{y+110} l18,20 l34,-38" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>'
+              f'<text x="320" y="{y+100}" font-family="{BODY_FONT}" font-weight="700" font-size="46" fill="{INK}">{title}</text>'
+              f'<text x="320" y="{y+156}" font-family="{BODY_FONT}" font-size="34" fill="{QUIET}">{body}</text></g>')
+        y += 290
+    s += hand("promise!", 640, 1610, 120, -10)
+    s += mark(230, 1640, 74)
+    save(5, s)
+
+
+if __name__ == "__main__":
+    main()

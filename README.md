@@ -54,7 +54,9 @@ The Play listing lives in `fastlane/metadata/android/en-US/` (title, description
 ```
 python3 docs/play_screenshots.py docs/screenshots fastlane/metadata/android/en-US/images/phoneScreenshots
 python3 docs/play_assets.py docs/screenshots fastlane/metadata/android/en-US/images
+python3 docs/play_foldable.py docs/screenshots docs/foldable
 for f in fastlane/metadata/android/en-US/images/{,phoneScreenshots/}*.svg; do rsvg-convert "$f" -o "${f%.svg}.png" && rm "$f"; done
+for f in docs/foldable/*.svg; do rsvg-convert "$f" -o "${f%.svg}.png" && rm "$f"; done
 ```
 
 Needs `rsvg-convert`, Pillow, and the Bitter, DM Sans and TeX Gyre Chorus fonts.
