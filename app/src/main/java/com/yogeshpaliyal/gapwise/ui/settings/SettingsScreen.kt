@@ -1,6 +1,15 @@
 package com.yogeshpaliyal.gapwise.ui.settings
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.automirrored.rounded.ViewList
+import androidx.compose.material.icons.rounded.GridView
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Surface
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -133,25 +142,61 @@ fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
 private fun WidgetSection() {
     val context = LocalContext.current
     val supported = remember { PinWidget.isSupported(context) }
-    Column(Modifier.fillMaxWidth().padding(top = 16.dp)) {
-        Text("Home screen widgets", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 16.dp))
-        Text(
-            if (supported) "Add one straight from here, then pick which events it shows."
-            else "Your launcher can't add widgets from inside an app. Long-press an empty spot on your home screen, open Widgets and look for GapWise.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp),
-        )
+    fun add(kind: PinWidget.Kind) {
+        if (!PinWidget.request(context, kind)) {
+            Toast.makeText(context, "Your launcher didn't allow adding the widget", Toast.LENGTH_SHORT).show()
+        }
+    }
+    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column {
+            Text("Home screen widgets", style = MaterialTheme.typography.titleLarge)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                if (supported) "Log things without opening the app. Add one here, then pick which events it shows."
+                else "Your launcher can't add widgets from inside an app. Long-press an empty spot on your home screen, open Widgets and look for GapWise.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         if (supported) {
-            fun add(kind: PinWidget.Kind) {
-                if (!PinWidget.request(context, kind)) {
-                    Toast.makeText(context, "Your launcher didn't allow adding the widget", Toast.LENGTH_SHORT).show()
-                }
+            WidgetCard(
+                icon = Icons.AutoMirrored.Rounded.ViewList,
+                title = "Due soon",
+                body = "A list of what's coming up. Tap a row to log it.",
+            ) { add(PinWidget.Kind.DueSoon) }
+            WidgetCard(
+                icon = Icons.Rounded.GridView,
+                title = "Event tiles",
+                body = "A grid of 1 to 12 tiles. Tap a tile to log it.",
+            ) { add(PinWidget.Kind.Tiles) }
+        }
+    }
+}
+
+@Composable
+private fun WidgetCard(icon: ImageVector, title: String, body: String, onAdd: () -> Unit) {
+    Surface(
+        onClick = onAdd,
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.size(48.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) { Icon(icon, contentDescription = null) }
             }
-            Item("Add the Due soon widget", "A list of what's coming up. Tap a row to log it.") { add(PinWidget.Kind.DueSoon) }
-            Item("Add the Event tiles widget", "A grid of tiles, from 1 to 12. Tap a tile to log it.") { add(PinWidget.Kind.Tiles) }
-        } else {
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f)) {
+                Text(title, style = MaterialTheme.typography.titleSmall)
+                Text(body, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Spacer(Modifier.width(12.dp))
+            FilledTonalButton(onClick = onAdd) { Text("Add") }
         }
     }
 }
