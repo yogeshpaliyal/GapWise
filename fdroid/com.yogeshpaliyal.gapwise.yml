@@ -17,7 +17,7 @@ AutoName: GapWise
 
 RepoType: git
 Repo: https://github.com/yogeshpaliyal/GapWise.git
-Binaries:
+Binaries: 
   https://github.com/yogeshpaliyal/GapWise/releases/download/v%v/gapwise-v%v-fdroid.apk
 
 Builds:
