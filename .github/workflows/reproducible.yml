@@ -32,7 +32,7 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v5
-      - run: ./gradlew --no-configuration-cache :app:assembleFdroidRelease
+      - run: ./gradlew --no-configuration-cache --no-build-cache :app:assembleFdroidRelease
       - uses: actions/upload-artifact@v4
         with:
           name: runner
@@ -57,7 +57,7 @@ jobs:
           packages: platform-tools
       - name: Build
         working-directory: build/com.yogeshpaliyal.gapwise
-        run: ./gradlew --no-configuration-cache --no-daemon :app:assembleFdroidRelease
+        run: ./gradlew --no-configuration-cache --no-build-cache --no-daemon :app:assembleFdroidRelease
       - uses: actions/upload-artifact@v4
         with:
           name: debian

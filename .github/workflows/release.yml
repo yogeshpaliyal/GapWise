@@ -118,7 +118,9 @@ jobs:
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
           TAG: ${{ steps.version.outputs.tag }}
         run: |
-          ./gradlew --no-configuration-cache :app:testGithubDebugUnitTest :app:assembleGithubRelease :app:assembleFdroidRelease :app:bundlePlayRelease
+          # --no-build-cache: release builds are made from scratch, like F-Droid's, never from
+          # outputs cached by earlier builds.
+          ./gradlew --no-configuration-cache --no-build-cache :app:testGithubDebugUnitTest :app:assembleGithubRelease :app:assembleFdroidRelease :app:bundlePlayRelease
           cp app/build/outputs/apk/github/release/app-github-release.apk "gapwise-$TAG.apk"
           cp app/build/outputs/apk/fdroid/release/app-fdroid-release.apk "gapwise-$TAG-fdroid.apk"
           cp app/build/outputs/bundle/playRelease/app-play-release.aab "gapwise-$TAG.aab"
@@ -150,7 +152,7 @@ jobs:
           TAG: ${{ steps.version.outputs.tag }}
         run: |
           pip install --quiet apksigcopier
-          ./gradlew --no-configuration-cache :app:assembleFdroidRelease
+          ./gradlew --no-configuration-cache --no-build-cache :app:assembleFdroidRelease
           apksigcopier compare "gapwise-$TAG-fdroid.apk" --unsigned app/build/outputs/apk/fdroid/release/app-fdroid-release-unsigned.apk
           echo "Unsigned rebuild matches the signed F-Droid APK."
 
