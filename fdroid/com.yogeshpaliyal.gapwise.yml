@@ -22,7 +22,7 @@ Binaries: https://github.com/yogeshpaliyal/GapWise/releases/download/v%v/gapwise
 Builds:
   - versionName: 0.3.0
     versionCode: 5
-    commit: v0.3.0
+    commit: d93c19c001f9953f3d0fa593cf95ec21e5119a86
     subdir: app
     sudo:
       - apt-get update

@@ -18,7 +18,8 @@ Each GitHub release has `gapwise-vX.Y.Z-fdroid.apk`.
 1. Release a version that includes the fdroid flavor (v0.3.0 or later), using the Release workflow.
 2. Fork https://gitlab.com/fdroid/fdroiddata and copy `com.yogeshpaliyal.gapwise.yml` from this
    folder to `metadata/com.yogeshpaliyal.gapwise.yml`. Set the `Builds` entry and
-   `CurrentVersion`/`CurrentVersionCode` to the release you made.
+   `CurrentVersion`/`CurrentVersionCode` to the release you made. `commit` must be the full hash.
+   Submitted as https://gitlab.com/fdroid/fdroiddata/-/merge_requests/58342.
 3. Check it locally if you can: `fdroid readmeta`, `fdroid lint com.yogeshpaliyal.gapwise`, then
    `fdroid build -v -l com.yogeshpaliyal.gapwise`.
 4. Open a merge request. Reviewers build it, and because of `Binaries` and `AllowedAPKSigningKeys`
