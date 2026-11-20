@@ -339,6 +339,11 @@
     <string name="toast_ended">「%1$s」を終了しました</string>
     <string name="toast_logged">「%1$s」を記録しました</string>
     <string name="note_approx">おおよそ（おすすめから追加）</string>
+    <string name="source_store">アップデートはアプリストアから届きます</string>
+    <string name="update_store_managed">バージョン%1$s。F-Droidまたはアプリストアが最新に保ちます。</string>
+    <string name="privacy_body_no_drive">アカウント不要、広告なし、トラッキングなし。データはこのスマホの中だけです。「ファイルに書き出す」でコピーを残せます。</string>
+    <string name="intro4_body_no_drive">アカウント不要、広告なし。すべてスマホの中に保存され、いつでもファイルに書き出せます。</string>
+    <string name="promise_export">いつでもファイルに書き出し</string>
     <plurals name="time_days_ago_unit">
         <item quantity="other">日前</item>
     </plurals>

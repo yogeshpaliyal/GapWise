@@ -120,8 +120,10 @@ fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
                 })
             }
             HorizontalDivider()
-            DriveSection()
-            HorizontalDivider()
+            if (BuildConfig.HAS_DRIVE) {
+                DriveSection()
+                HorizontalDivider()
+            }
             WidgetSection()
             HorizontalDivider()
             ShapeLegend()
@@ -134,7 +136,7 @@ fun SettingsScreen(onBack: () -> Unit, onOpenTour: () -> Unit) {
                 importer.launch(arrayOf("application/json", "text/plain", "*/*"))
             }
             HorizontalDivider()
-            Item(L10n.s(R.string.privacy), L10n.s(R.string.privacy_body)) {}
+            Item(L10n.s(R.string.privacy), L10n.s(if (BuildConfig.HAS_DRIVE) R.string.privacy_body else R.string.privacy_body_no_drive)) {}
             HorizontalDivider()
             com.yogeshpaliyal.gapwise.update.UpdateSettings(BuildConfigInfo.versionName(context))
         }

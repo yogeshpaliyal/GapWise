@@ -339,6 +339,11 @@
     <string name="toast_ended">«%1$s» terminado</string>
     <string name="toast_logged">«%1$s» registrado</string>
     <string name="note_approx">Aproximado, de las sugerencias iniciales</string>
+    <string name="source_store">Las actualizaciones llegan de tu tienda de apps</string>
+    <string name="update_store_managed">Versión %1$s. F-Droid o tu tienda de apps mantiene GapWise al día.</string>
+    <string name="privacy_body_no_drive">Sin cuenta, sin anuncios, sin rastreo. Tus datos se quedan en este móvil. Usa Exportar a un archivo para guardar una copia.</string>
+    <string name="intro4_body_no_drive">Sin cuenta y sin anuncios. Todo se queda en tu móvil y puedes exportar una copia a un archivo cuando quieras.</string>
+    <string name="promise_export">Exporta a un archivo cuando quieras</string>
     <plurals name="time_days_ago_unit">
         <item quantity="one">día</item>
         <item quantity="many">días</item>

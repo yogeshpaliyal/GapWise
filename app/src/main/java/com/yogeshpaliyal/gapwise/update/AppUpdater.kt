@@ -38,6 +38,9 @@ interface AppUpdater {
 
     fun startUpdate(activity: Activity)
 
+    /** False when an app store handles updates (F-Droid build): Settings hides the check row. */
+    val canCheck: Boolean get() = true
+
     /** Play only: restart into a downloaded update. */
     fun completeUpdate() {}
 

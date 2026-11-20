@@ -346,6 +346,11 @@
     <string name="toast_ended">Ended “%1$s”</string>
     <string name="toast_logged">Logged “%1$s”</string>
     <string name="note_approx">Approximate, from welcome tour</string>
+    <string name="source_store">Updates come from your app store</string>
+    <string name="update_store_managed">Version %1$s. F-Droid or your app store keeps GapWise up to date.</string>
+    <string name="privacy_body_no_drive">No account, no ads, no tracking. Your data stays on this phone. Use Export to a file to keep a copy.</string>
+    <string name="intro4_body_no_drive">No account and no ads. Everything stays on your phone, and you can export a copy to a file any time.</string>
+    <string name="promise_export">Export to a file any time</string>
     <plurals name="time_days_ago_unit">
         <item quantity="one">day ago</item>
         <item quantity="other">days ago</item>

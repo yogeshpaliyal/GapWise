@@ -55,9 +55,11 @@ android {
             // Release builds track the newest proper GitHub Release (vX.Y.Z).
             buildConfigField("String", "UPDATE_CHANNEL", "\"release\"")
             if (releaseKeystore != null) signingConfig = signingConfigs.getByName("release")
-            // Kept off until R8 rules are verified on a device.
             isMinifyEnabled = true
             isShrinkResources = true
+            // The commit hash AGP would record isn't the tag commit when CI builds (the version
+            // bump is committed after the build), which would break reproducible builds.
+            vcsInfo.include = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -72,18 +74,40 @@ android {
     }
 
     // Where the app is distributed decides how it updates itself.
-    //  - github: sideloaded APK from the latest-master release; checks GitHub for newer builds.
+    //  - github: sideloaded APK from GitHub releases; checks GitHub for newer builds.
     //  - play:   Google Play; uses Play In-App Updates and In-App Review. No self-update code.
+    //  - fdroid: F-Droid and IzzyOnDroid. Free software only (no Google Play services, so no
+    //            Drive backup) and no self-updater. Built reproducibly: F-Droid rebuilds it from
+    //            the tag and ships our signed APK only if its build matches byte for byte.
     flavorDimensions += "store"
     productFlavors {
         create("github") {
             dimension = "store"
             isDefault = true
             buildConfigField("String", "GITHUB_REPO", "\"yogeshpaliyal/Gapwise\"")
+            buildConfigField("boolean", "HAS_DRIVE", "true")
         }
         create("play") {
             dimension = "store"
+            buildConfigField("boolean", "HAS_DRIVE", "true")
         }
+        create("fdroid") {
+            dimension = "store"
+            buildConfigField("boolean", "HAS_DRIVE", "false")
+            // Nothing that depends on the build machine may end up in this APK.
+            buildConfigField("String", "GIT_SHA", "\"\"")
+        }
+    }
+    // Google-only code (Drive backup) is shared by the github and play flavors.
+    sourceSets {
+        getByName("github").java.srcDir("src/gms/java")
+        getByName("play").java.srcDir("src/gms/java")
+    }
+
+    // F-Droid rejects Google's encrypted dependency block, and it isn't needed elsewhere either.
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = true
     }
     testOptions {
         unitTests.isIncludeAndroidResources = true
@@ -134,7 +158,8 @@ dependencies {
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.glance.material3)
     implementation(libs.androidx.datastore.preferences)
-    implementation(libs.play.services.auth)
+    "githubImplementation"(libs.play.services.auth)
+    "playImplementation"(libs.play.services.auth)
     implementation(libs.kotlinx.serialization.json)
 
     "playImplementation"(libs.play.app.update)
@@ -153,4 +178,10 @@ tasks.withType<Test>().configureEach {
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         showStackTraces = true
     }
+}
+
+// Reproducible F-Droid builds: the baseline profile (assets/dexopt) isn't byte-for-byte stable
+// between machines, so the fdroid flavor ships without it. The other flavors keep it.
+tasks.configureEach {
+    if (name.contains("Fdroid") && name.contains("ArtProfile")) enabled = false
 }

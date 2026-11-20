@@ -339,6 +339,11 @@
     <string name="toast_ended">“%1$s” खत्म किया</string>
     <string name="toast_logged">“%1$s” दर्ज किया</string>
     <string name="note_approx">अंदाज़न, शुरुआती सुझावों से</string>
+    <string name="source_store">अपडेट आपके ऐप स्टोर से आते हैं</string>
+    <string name="update_store_managed">वर्शन %1$s। F-Droid या आपका ऐप स्टोर GapWise को अपडेट रखता है।</string>
+    <string name="privacy_body_no_drive">न अकाउंट, न विज्ञापन, न ट्रैकिंग। आपका डेटा इसी फ़ोन पर रहता है। कॉपी रखने के लिए फ़ाइल में एक्सपोर्ट करें।</string>
+    <string name="intro4_body_no_drive">न अकाउंट, न विज्ञापन। सब कुछ आपके फ़ोन पर रहता है, और आप कभी भी फ़ाइल में कॉपी एक्सपोर्ट कर सकते हैं।</string>
+    <string name="promise_export">कभी भी फ़ाइल में एक्सपोर्ट</string>
     <plurals name="time_days_ago_unit">
         <item quantity="one">दिन पहले</item>
         <item quantity="other">दिन पहले</item>

@@ -137,27 +137,36 @@ fun UpdateSettings(versionName: String) {
         UpdateState.ReadyToInstall -> L10n.s(R.string.update_downloaded_settings)
         is UpdateState.Failed -> s.message
     }
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .clickable {
-                when (s) {
-                    is UpdateState.Available -> activity?.let(updater::startUpdate)
-                    UpdateState.ReadyToInstall -> updater.completeUpdate()
-                    UpdateState.Checking, is UpdateState.Downloading -> Unit
-                    else -> updater.check(userInitiated = true)
+    if (updater.canCheck) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .clickable {
+                    when (s) {
+                        is UpdateState.Available -> activity?.let(updater::startUpdate)
+                        UpdateState.ReadyToInstall -> updater.completeUpdate()
+                        UpdateState.Checking, is UpdateState.Downloading -> Unit
+                        else -> updater.check(userInitiated = true)
+                    }
+                }
+                .padding(16.dp),
+        ) {
+            Text(L10n.s(R.string.check_updates), style = MaterialTheme.typography.titleMedium)
+            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            AnimatedVisibility(visible = s == UpdateState.Checking) {
+                Column {
+                    Spacer(Modifier.height(8.dp))
+                    LinearWavyProgressIndicator(Modifier.fillMaxWidth())
                 }
             }
-            .padding(16.dp),
-    ) {
-        Text(L10n.s(R.string.check_updates), style = MaterialTheme.typography.titleMedium)
-        Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        AnimatedVisibility(visible = s == UpdateState.Checking) {
-            Column {
-                Spacer(Modifier.height(8.dp))
-                LinearWavyProgressIndicator(Modifier.fillMaxWidth())
-            }
         }
+    } else {
+        Text(
+            L10n.s(R.string.update_store_managed, versionName),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(16.dp),
+        )
     }
     Column(
         Modifier

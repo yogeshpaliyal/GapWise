@@ -79,6 +79,19 @@ jobs:
           echo "code=$NEW_CODE" >> "$GITHUB_OUTPUT"
           echo "tag=v$NEW_NAME" >> "$GITHUB_OUTPUT"
 
+      # F-Droid shows this as the "What's new" text for the version (500 characters at most).
+      - name: Write the F-Droid changelog
+        env:
+          CODE: ${{ steps.version.outputs.code }}
+        run: |
+          PREV=$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || true)
+          DIR=fastlane/metadata/android/en-US/changelogs
+          mkdir -p "$DIR"
+          git log ${PREV:+$PREV..}HEAD --no-merges --reverse --format='• %s' -- app/ | grep -v '^• Release v' \
+            | head -c 480 > "$DIR/$CODE.txt" || true
+          [ -s "$DIR/$CODE.txt" ] || echo "• Small fixes and improvements." > "$DIR/$CODE.txt"
+          cat "$DIR/$CODE.txt"
+
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -97,7 +110,7 @@ jobs:
         run: echo "$KS" | base64 --decode > "$RUNNER_TEMP/gapwise-release.jks"
 
       # Nothing is pushed until this step succeeds.
-      - name: Test, then build the signed GitHub APK and Play AAB
+      - name: Test, then build the signed GitHub APK, F-Droid APK and Play AAB
         env:
           SIGNING_KEYSTORE_PATH: ${{ runner.temp }}/gapwise-release.jks
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
@@ -105,8 +118,9 @@ jobs:
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
           TAG: ${{ steps.version.outputs.tag }}
         run: |
-          ./gradlew --no-configuration-cache :app:testGithubDebugUnitTest :app:assembleGithubRelease :app:bundlePlayRelease
+          ./gradlew --no-configuration-cache :app:testGithubDebugUnitTest :app:assembleGithubRelease :app:assembleFdroidRelease :app:bundlePlayRelease
           cp app/build/outputs/apk/github/release/app-github-release.apk "gapwise-$TAG.apk"
+          cp app/build/outputs/apk/fdroid/release/app-fdroid-release.apk "gapwise-$TAG-fdroid.apk"
           cp app/build/outputs/bundle/playRelease/app-play-release.aab "gapwise-$TAG.aab"
           cp app/build/outputs/mapping/githubRelease/mapping.txt "gapwise-$TAG-mapping.txt"
 
@@ -128,6 +142,18 @@ jobs:
           FP=$(echo "$DIGEST" | tr 'a-f' 'A-F' | sed 's/../&:/g; s/:$//')
           echo "fingerprint=$FP" >> "$GITHUB_OUTPUT"
 
+      # F-Droid and IzzyOnDroid rebuild the fdroid flavor from the tag without our key, then copy
+      # our signature onto their build. That only works if an unsigned build matches the signed
+      # APK exactly, so check it here before anything is published.
+      - name: Check the F-Droid APK rebuilds identically
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          pip install --quiet apksigcopier
+          ./gradlew --no-configuration-cache :app:assembleFdroidRelease
+          apksigcopier compare "gapwise-$TAG-fdroid.apk" --unsigned app/build/outputs/apk/fdroid/release/app-fdroid-release-unsigned.apk
+          echo "Unsigned rebuild matches the signed F-Droid APK."
+
       - name: Remove keystore
         if: always()
         run: rm -f "$RUNNER_TEMP/gapwise-release.jks"
@@ -140,7 +166,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app/build.gradle.kts
+          git add app/build.gradle.kts fastlane/metadata/android/en-US/changelogs
           git commit -m "Release $TAG (versionCode $CODE)"
           git tag -a "$TAG" -m "GapWise $TAG"
           # One atomic push: master and the tag update together or not at all, so a failure
@@ -170,6 +196,7 @@ jobs:
             echo
             echo "- [Google Play](https://play.google.com/store/apps/details?id=com.yogeshpaliyal.gapwise)"
             echo "- \`gapwise-$TAG.apk\` below. The app tells you when a newer release is out."
+            echo "- \`gapwise-$TAG-fdroid.apk\`: the same app without Google Play services (no Drive backup, no update checks). This is the build F-Droid and IzzyOnDroid ship, and it's reproducible from this tag."
             echo
             echo "## Verify your download"
             echo
@@ -185,7 +212,7 @@ jobs:
             echo "File checksums (SHA-256):"
             echo
             echo '```'
-            sha256sum "gapwise-$TAG.apk" "gapwise-$TAG.aab"
+            sha256sum "gapwise-$TAG.apk" "gapwise-$TAG-fdroid.apk" "gapwise-$TAG.aab"
             echo '```'
           } > notes.md
           cat notes.md
@@ -195,7 +222,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.version.outputs.tag }}
         run: |
-          gh release create "$TAG" "gapwise-$TAG.apk" "gapwise-$TAG.aab" "gapwise-$TAG-mapping.txt" \
+          gh release create "$TAG" "gapwise-$TAG.apk" "gapwise-$TAG-fdroid.apk" "gapwise-$TAG.aab" "gapwise-$TAG-mapping.txt" \
             --title "GapWise $TAG" \
             --notes-file notes.md \
             --verify-tag \

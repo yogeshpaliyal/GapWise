@@ -2,6 +2,7 @@ package com.yogeshpaliyal.gapwise.ui.welcome
 
 import com.yogeshpaliyal.gapwise.L10n
 import com.yogeshpaliyal.gapwise.R
+import com.yogeshpaliyal.gapwise.BuildConfig
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateDpAsState
@@ -31,6 +32,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CloudDone
+import androidx.compose.material.icons.rounded.SaveAlt
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.NoAccounts
 import androidx.compose.material3.Button
@@ -87,7 +89,7 @@ private val pages: List<IntroPage> get() = listOf(
     ) { ArtShapes() },
     IntroPage(
         L10n.s(R.string.intro4_title),
-        L10n.s(R.string.intro4_body),
+        L10n.s(if (BuildConfig.HAS_DRIVE) R.string.intro4_body else R.string.intro4_body_no_drive),
     ) { ArtPrivate() },
 )
 
@@ -229,7 +231,8 @@ private fun ArtShapes() = Backdrop(GapStatus.DUE) {
 private fun ArtPrivate() = Backdrop(GapStatus.LEARNING) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Promise(Icons.Rounded.NoAccounts, L10n.s(R.string.promise_no_account), -3f)
-        Promise(Icons.Rounded.CloudDone, L10n.s(R.string.promise_drive), 2f)
+        if (BuildConfig.HAS_DRIVE) Promise(Icons.Rounded.CloudDone, L10n.s(R.string.promise_drive), 2f)
+        else Promise(Icons.Rounded.SaveAlt, L10n.s(R.string.promise_export), 2f)
         Promise(Icons.Rounded.Code, L10n.s(R.string.promise_open_source), -2f)
     }
 }

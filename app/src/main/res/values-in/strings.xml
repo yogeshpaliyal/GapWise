@@ -339,6 +339,11 @@
     <string name="toast_ended">“%1$s” diakhiri</string>
     <string name="toast_logged">“%1$s” dicatat</string>
     <string name="note_approx">Perkiraan, dari saran awal</string>
+    <string name="source_store">Pembaruan datang dari toko aplikasi Anda</string>
+    <string name="update_store_managed">Versi %1$s. F-Droid atau toko aplikasi Anda menjaga GapWise tetap terbaru.</string>
+    <string name="privacy_body_no_drive">Tanpa akun, tanpa iklan, tanpa pelacakan. Data Anda tetap di ponsel ini. Gunakan Ekspor ke file untuk menyimpan salinan.</string>
+    <string name="intro4_body_no_drive">Tanpa akun dan tanpa iklan. Semuanya tetap di ponsel Anda, dan Anda bisa mengekspor salinan ke file kapan saja.</string>
+    <string name="promise_export">Ekspor ke file kapan saja</string>
     <plurals name="time_days_ago_unit">
         <item quantity="other">hari lalu</item>
     </plurals>

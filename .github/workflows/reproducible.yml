@@ -1,0 +1,81 @@
+name: Reproducible F-Droid build
+
+# Builds the fdroid flavor twice, on two different machines, and checks the APKs are identical:
+#  - the GitHub runner (Ubuntu, Temurin JDK), the same setup the Release workflow uses
+#  - a Debian bookworm container with Debian's own OpenJDK 17, close to F-Droid's build server,
+#    from a different folder
+# If this passes, F-Droid and IzzyOnDroid can rebuild a release from its tag and ship the APK
+# signed with our key.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "app/**"
+      - "gradle/**"
+      - "*.gradle.kts"
+      - "gradle.properties"
+      - ".github/workflows/reproducible.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: reproducible-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v5
+      - run: ./gradlew --no-configuration-cache :app:assembleFdroidRelease
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runner
+          path: app/build/outputs/apk/fdroid/release/app-fdroid-release-unsigned.apk
+
+  debian:
+    runs-on: ubuntu-latest
+    container: debian:bookworm
+    steps:
+      - name: Install build tools
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends openjdk-17-jdk-headless git unzip wget ca-certificates >/dev/null
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v5
+        with:
+          # A different folder from the runner job, like F-Droid's build server.
+          path: build/com.yogeshpaliyal.gapwise
+      - uses: android-actions/setup-android@v3
+      - name: Build
+        working-directory: build/com.yogeshpaliyal.gapwise
+        run: ./gradlew --no-configuration-cache --no-daemon :app:assembleFdroidRelease
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debian
+          path: build/com.yogeshpaliyal.gapwise/app/build/outputs/apk/fdroid/release/app-fdroid-release-unsigned.apk
+
+  compare:
+    needs: [runner, debian]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+      - name: The two builds must be identical
+        run: |
+          sha256sum runner/*.apk debian/*.apk
+          if cmp -s runner/app-fdroid-release-unsigned.apk debian/app-fdroid-release-unsigned.apk; then
+            echo "Reproducible: both builds are byte for byte the same."
+            exit 0
+          fi
+          echo "::error::The fdroid APK differs between the two builds. Entries that differ:"
+          for d in runner debian; do
+            mkdir -p "x/$d" && unzip -q -o "$d/app-fdroid-release-unsigned.apk" -d "x/$d"
+            (cd "x/$d" && find . -type f -exec sha256sum {} + | sort -k2) > "$d.sums"
+          done
+          diff runner.sums debian.sums || true
+          exit 1
