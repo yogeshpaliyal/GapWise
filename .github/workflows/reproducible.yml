@@ -51,7 +51,10 @@ jobs:
         with:
           # A different folder from the runner job, like F-Droid's build server.
           path: build/com.yogeshpaliyal.gapwise
+      # Only the SDK manager and licenses; Gradle downloads the platform and build tools it needs.
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
       - name: Build
         working-directory: build/com.yogeshpaliyal.gapwise
         run: ./gradlew --no-configuration-cache --no-daemon :app:assembleFdroidRelease
