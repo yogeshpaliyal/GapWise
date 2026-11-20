@@ -1,0 +1,7 @@
+• Move all app text into string resources
+• CI: show full stack traces and logs for failing tests
+• Translate GapWise into Hindi, Spanish, Portuguese (Brazil), German, French, Indonesian and Japanese
+• Keep the app bar title as GapWise in debug builds; test every translation
+• TranslationsTest: format plurals with their own arguments
+• F-Droid flavor with reproducible builds, signed with the release key; GPL-3.0
+• Fix the gms source folder for Kotlin and a missi
