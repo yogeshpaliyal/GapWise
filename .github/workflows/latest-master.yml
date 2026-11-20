@@ -43,8 +43,8 @@ jobs:
           path: ~/.m2/repository/org/robolectric
           key: robolectric-${{ hashFiles('gradle/libs.versions.toml') }}
 
-      - name: Smoke-test the main flows, and make sure the Play flavor compiles
-        run: ./gradlew --no-configuration-cache :app:testGithubDebugUnitTest :app:compilePlayReleaseKotlin
+      - name: Smoke-test the main flows, and build both release variants through R8
+        run: ./gradlew --no-configuration-cache :app:testGithubDebugUnitTest :app:assembleGithubRelease :app:bundlePlayRelease
 
       - name: Build debug APK
         run: ./gradlew --no-configuration-cache :app:assembleGithubDebug

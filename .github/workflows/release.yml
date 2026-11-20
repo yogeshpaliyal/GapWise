@@ -108,6 +108,7 @@ jobs:
           ./gradlew --no-configuration-cache :app:testGithubDebugUnitTest :app:assembleGithubRelease :app:bundlePlayRelease
           cp app/build/outputs/apk/github/release/app-github-release.apk "gapwise-$TAG.apk"
           cp app/build/outputs/bundle/playRelease/app-play-release.aab "gapwise-$TAG.aab"
+          cp app/build/outputs/mapping/githubRelease/mapping.txt "gapwise-$TAG-mapping.txt"
 
       # Verifies the signature and records the certificate fingerprint for the release notes.
       - name: Show signing certificate
@@ -194,7 +195,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.version.outputs.tag }}
         run: |
-          gh release create "$TAG" "gapwise-$TAG.apk" "gapwise-$TAG.aab" \
+          gh release create "$TAG" "gapwise-$TAG.apk" "gapwise-$TAG.aab" "gapwise-$TAG-mapping.txt" \
             --title "GapWise $TAG" \
             --notes-file notes.md \
             --verify-tag \

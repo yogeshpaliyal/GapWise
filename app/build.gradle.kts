@@ -56,7 +56,8 @@ android {
             buildConfigField("String", "UPDATE_CHANNEL", "\"release\"")
             if (releaseKeystore != null) signingConfig = signingConfigs.getByName("release")
             // Kept off until R8 rules are verified on a device.
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
