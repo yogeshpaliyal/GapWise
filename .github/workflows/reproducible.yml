@@ -81,4 +81,15 @@ jobs:
             (cd "x/$d" && find . -type f -exec sha256sum {} + | sort -k2) > "$d.sums"
           done
           diff runner.sums debian.sums || true
+          # Show where the code differs, to find what isn't deterministic.
+          DEXDUMP=$(ls -d "$ANDROID_HOME"/build-tools/*/dexdump | sort -V | tail -1)
+          for f in $(cd x/runner && find . -name '*.dex'); do
+            if ! cmp -s "x/runner/$f" "x/debian/$f"; then
+              "$DEXDUMP" -d "x/runner/$f" > runner.dump 2>/dev/null
+              "$DEXDUMP" -d "x/debian/$f" > debian.dump 2>/dev/null
+              echo "::group::$f"
+              diff runner.dump debian.dump | head -150
+              echo "::endgroup::"
+            fi
+          done
           exit 1
