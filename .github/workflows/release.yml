@@ -121,7 +121,9 @@ jobs:
           # --no-build-cache: release builds are made from scratch, like F-Droid's, never from
           # outputs cached by earlier builds.
           ./gradlew --no-configuration-cache --no-build-cache :app:testGithubDebugUnitTest :app:assembleGithubRelease :app:assembleFdroidRelease :app:bundlePlayRelease
-          cp app/build/outputs/apk/github/release/app-github-release.apk "gapwise-$TAG.apk"
+          # "-app" sorts before "-fdroid". GapWise 0.3.1 and older install the first .apk in the
+          # release (GitHub lists assets by name), so this keeps them on the GitHub build.
+          cp app/build/outputs/apk/github/release/app-github-release.apk "gapwise-$TAG-app.apk"
           cp app/build/outputs/apk/fdroid/release/app-fdroid-release.apk "gapwise-$TAG-fdroid.apk"
           cp app/build/outputs/bundle/playRelease/app-play-release.aab "gapwise-$TAG.aab"
           cp app/build/outputs/mapping/githubRelease/mapping.txt "gapwise-$TAG-mapping.txt"
@@ -133,7 +135,7 @@ jobs:
           TAG: ${{ steps.version.outputs.tag }}
         run: |
           APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
-          OUT=$("$APKSIGNER" verify --print-certs "gapwise-$TAG.apk")
+          OUT=$("$APKSIGNER" verify --print-certs "gapwise-$TAG-app.apk")
           echo "$OUT" | grep -E "SHA-256|DN"
           if echo "$OUT" | grep -q "CN=Android Debug"; then
             echo "::error::The release APK is signed with the debug key"
@@ -199,7 +201,7 @@ jobs:
             echo "## Install"
             echo
             echo "- [Google Play](https://play.google.com/store/apps/details?id=com.yogeshpaliyal.gapwise)"
-            echo "- \`gapwise-$TAG.apk\` below. The app tells you when a newer release is out."
+            echo "- \`gapwise-$TAG-app.apk\` below. The app tells you when a newer release is out."
             echo "- \`gapwise-$TAG-fdroid.apk\`: the same app without Google Play services (no Drive backup, no update checks). This is the build F-Droid and IzzyOnDroid ship, and it's reproducible from this tag."
             echo
             echo "## Verify your download"
@@ -216,7 +218,7 @@ jobs:
             echo "File checksums (SHA-256):"
             echo
             echo '```'
-            sha256sum "gapwise-$TAG.apk" "gapwise-$TAG-fdroid.apk" "gapwise-$TAG.aab"
+            sha256sum "gapwise-$TAG-app.apk" "gapwise-$TAG-fdroid.apk" "gapwise-$TAG.aab"
             echo '```'
           } > notes.md
           cat notes.md
@@ -226,7 +228,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.version.outputs.tag }}
         run: |
-          gh release create "$TAG" "gapwise-$TAG.apk" "gapwise-$TAG-fdroid.apk" "gapwise-$TAG.aab" "gapwise-$TAG-mapping.txt" \
+          gh release create "$TAG" "gapwise-$TAG-app.apk" "gapwise-$TAG-fdroid.apk" "gapwise-$TAG.aab" "gapwise-$TAG-mapping.txt" \
             --title "GapWise $TAG" \
             --notes-file notes.md \
             --verify-tag \

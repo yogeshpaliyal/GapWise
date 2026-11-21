@@ -91,9 +91,12 @@ private class GithubUpdater(private val app: Context) : AppUpdater {
         val obj = json.parseToJsonElement(body).jsonObject
         val tag = obj.getValue("tag_name").jsonPrimitive.content
         val page = obj["html_url"]?.jsonPrimitive?.content ?: "https://github.com/$repo/releases/latest"
-        val apk = obj["assets"]?.jsonArray
+        // Releases also carry the fdroid flavor's APK. It has no updater, so never install it here.
+        val apks = obj["assets"]?.jsonArray
             ?.map { it.jsonObject }
-            ?.firstOrNull { it["name"]?.jsonPrimitive?.content?.endsWith(".apk") == true }
+            ?.filter { it["name"]?.jsonPrimitive?.content?.let { n -> n.endsWith(".apk") && !n.contains("fdroid") } == true }
+            .orEmpty()
+        val apk = (apks.firstOrNull { it["name"]?.jsonPrimitive?.content == "gapwise-$tag-app.apk" } ?: apks.firstOrNull())
             ?.get("browser_download_url")?.jsonPrimitive?.content
         val version = tag.removePrefix("v")
         return Triple(compareVersions(version, BuildConfig.VERSION_NAME) > 0, version, apk ?: page)
