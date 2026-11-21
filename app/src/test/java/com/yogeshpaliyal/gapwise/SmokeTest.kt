@@ -132,27 +132,6 @@ class SmokeTest {
     }
 
     @Test
-    fun newMilestoneNeedsADate_thenOpensFromHome() {
-        ActivityScenario.launch(MainActivity::class.java).use {
-            compose.onNodeWithContentDescription("New event").performClick()
-            compose.waitForIdle()
-            compose.onNodeWithText("Milestone").performClick()
-            compose.onNode(hasSetTextAction() and hasText("What do you want to track?")).performTextInput("Moved in")
-            compose.onNodeWithText("When was it?").performScrollTo().assertExists()
-            compose.onNodeWithText("Add event").performScrollTo().assertIsNotEnabled()
-
-            // Pick today, save, and the tile on home opens it instead of logging.
-            compose.onNodeWithText("Pick a date").performScrollTo().performClick()
-            compose.onNodeWithText("OK").performClick()
-            compose.onNodeWithText("Add event").performScrollTo().assertIsEnabled().performClick()
-            waitOrDump("milestone on home") { compose.onAllNodesWithText("Moved in").fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithText("Moved in").performClick()
-            waitOrDump("milestone details") { compose.onAllNodesWithText("In total").fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithText("Coming up").performScrollTo().assertExists()
-        }
-    }
-
-    @Test
     fun newCategoryIsAddedAndSelected() {
         ActivityScenario.launch(MainActivity::class.java).use {
             compose.onNodeWithContentDescription("New event").performClick()

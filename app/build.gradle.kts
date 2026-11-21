@@ -122,6 +122,9 @@ android {
                 showStandardStreams = true
             }
             it.systemProperty("robolectric.logging", "stdout")
+            // A fresh JVM per test class: Compose roots from one class's activities can linger
+            // into the next, so screens from an earlier test show up in a later one.
+            it.forkEvery = 1
         }
     }
 }
