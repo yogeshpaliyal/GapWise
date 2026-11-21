@@ -129,6 +129,16 @@ jobs:
           cp app/build/outputs/mapping/githubRelease/mapping.txt "gapwise-$TAG-mapping.txt"
 
       # Verifies the signature and records the certificate fingerprint for the release notes.
+      - name: Check the F-Droid APK has no network permission
+        run: |
+          AAPT2=$(ls -d "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)
+          for apk in app/build/outputs/apk/fdroid/release/*.apk; do
+            "$AAPT2" dump permissions "$apk"
+            if "$AAPT2" dump permissions "$apk" | grep -E "android.permission.(INTERNET|ACCESS_NETWORK_STATE)"; then
+              echo "::error::$apk asks for network access. The F-Droid build must stay offline."; exit 1
+            fi
+          done
+
       - name: Show signing certificate
         id: cert
         env:

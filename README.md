@@ -77,7 +77,7 @@ Requires JDK 17 and the Android SDK (compileSdk 37, minSdk 26). The stack is Kot
 |---|---|---|
 | `github` | APK on GitHub | Release builds: newest GitHub Release (`vX.Y.Z`). Debug builds: the rolling `latest-master` pre-release. Updating opens the APK download. |
 | `play` | Google Play | Play In-App Updates (flexible: downloads in the background, then "Restart now"). Rating uses Play In-App Review. |
-| `fdroid` | F-Droid, IzzyOnDroid, and `gapwise-vX-fdroid.apk` on GitHub | None, the store updates it. Free software only, so no Google Drive backup. Reproducible builds, same signing key. See [fdroid/README.md](fdroid/README.md). |
+| `fdroid` | F-Droid, IzzyOnDroid, and `gapwise-vX-fdroid.apk` on GitHub | None, the store updates it. Free software only, so no Google Drive backup. No internet permission. Reproducible builds, same signing key. See [fdroid/README.md](fdroid/README.md). |
 
 **Releasing** works like Halo: open *Actions → Release → Run workflow* and pick patch, minor or major. The workflow checks the signing secrets, bumps `versionName`/`versionCode` in `app/build.gradle.kts`, runs the tests, builds the signed GitHub APK, F-Droid APK and Play AAB, checks that an unsigned rebuild of the F-Droid APK matches the signed one, verifies the signing certificate, then commits the bump and tag to `master` in one atomic push and publishes a GitHub Release with notes built from the commits (plus the certificate fingerprint and checksums). It then announces the release in GitHub Discussions, and on Telegram, Bluesky and Mastodon when their secrets are set. Play needs the bundle signed with your upload key (`SIGNING_*` secrets), and Drive backup needs another Android OAuth client with Play's app-signing SHA-1.
 

@@ -46,6 +46,16 @@ jobs:
       - name: Smoke-test the main flows, and build both release variants through R8
         run: ./gradlew --no-configuration-cache :app:testGithubDebugUnitTest :app:assembleGithubRelease :app:assembleFdroidRelease :app:bundlePlayRelease
 
+      - name: Check the F-Droid APK has no network permission
+        run: |
+          AAPT2=$(ls -d "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)
+          for apk in app/build/outputs/apk/fdroid/release/*.apk; do
+            "$AAPT2" dump permissions "$apk"
+            if "$AAPT2" dump permissions "$apk" | grep -E "android.permission.(INTERNET|ACCESS_NETWORK_STATE)"; then
+              echo "::error::$apk asks for network access. The F-Droid build must stay offline."; exit 1
+            fi
+          done
+
       - name: Build debug APK
         run: ./gradlew --no-configuration-cache :app:assembleGithubDebug
 
