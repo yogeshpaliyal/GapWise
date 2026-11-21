@@ -1,9 +1,2 @@
-• F-Droid build: drop the internet permission
-• Milestones: count up from a fixed date
-• Smoke test: scroll to the milestone, since other tests share the database
-• Smoke test: use the Milestones chip to find the milestone
-• Smoke test: open the milestone the way a widget does
-• Smoke test: milestone tile on home opens on tap
-• Smoke test: control event next to the milestone
-• Smoke test: create a milestone in the editor and open it from home
-• Smoke test: b
+• Milestones: count up from a date, like a wedding, a birthday or a quit date, with the next anniversary and round numbers like 1,000 days
+• F-Droid build no longer has the internet permission
