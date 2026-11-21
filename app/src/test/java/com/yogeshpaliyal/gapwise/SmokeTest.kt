@@ -117,13 +117,11 @@ class SmokeTest {
                 firstLogAt = System.currentTimeMillis() - 1000 * day,
             )
         }
-        ActivityScenario.launch(MainActivity::class.java).use {
-            // Other tests' events share this database, so filter down to milestones.
-            waitOrDump("milestones chip") { compose.onAllNodesWithText("Milestones").fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithText("Milestones").performClick()
-            waitOrDump("milestone on home") { compose.onAllNodesWithText("1,000 days today").fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithText("Wedding").performClick()
+        // Opened the way a widget or notification opens it.
+        val intent = android.content.Intent(app, MainActivity::class.java).putExtra(MainActivity.EXTRA_EVENT_ID, id)
+        ActivityScenario.launch<MainActivity>(intent).use {
             waitOrDump("milestone details") { compose.onAllNodesWithText("In total").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithText("1,000 days today", substring = true).assertExists()
             compose.onNodeWithText("Coming up").performScrollTo().assertExists()
         }
         runBlocking {
