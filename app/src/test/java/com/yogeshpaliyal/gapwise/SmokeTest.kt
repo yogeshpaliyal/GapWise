@@ -140,6 +140,11 @@ class SmokeTest {
                 EventEntity(name = "Quit smoking", emoji = "🚭", color = 0xFF22C55E, category = "Health", isMilestone = true),
                 firstLogAt = System.currentTimeMillis() - 500 * day,
             )
+            app.repository.createEvent(
+                EventEntity(name = "Quit control", emoji = "🧪", color = 0xFF22C55E, category = "Health"),
+                firstLogAt = System.currentTimeMillis() - 5 * day,
+            )
+            println("DB: " + app.repository.getAll().map { it.event.name + "/" + it.event.isMilestone })
         }
         ActivityScenario.launch(MainActivity::class.java).use {
             compose.onNodeWithContentDescription("Search").performClick()
