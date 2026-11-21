@@ -132,6 +132,25 @@ class SmokeTest {
     }
 
     @Test
+    fun milestoneShowsOnHomeAndTapOpensIt() {
+        val app = ApplicationProvider.getApplicationContext<GapwiseApp>()
+        val day = 24 * 60 * 60 * 1000L
+        runBlocking {
+            app.repository.createEvent(
+                EventEntity(name = "Quit smoking", emoji = "🚭", color = 0xFF22C55E, category = "Health", isMilestone = true),
+                firstLogAt = System.currentTimeMillis() - 500 * day,
+            )
+        }
+        ActivityScenario.launch(MainActivity::class.java).use {
+            compose.onNodeWithContentDescription("Search").performClick()
+            compose.onNode(hasSetTextAction()).performTextInput("Quit")
+            waitOrDump("milestone tile") { compose.onAllNodesWithText("500 days today").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithText("Quit smoking").performClick()
+            waitOrDump("tap opens it") { compose.onAllNodesWithText("In total").fetchSemanticsNodes().isNotEmpty() }
+        }
+    }
+
+    @Test
     fun newMilestoneNeedsADate() {
         ActivityScenario.launch(MainActivity::class.java).use {
             compose.onNodeWithContentDescription("New event").performClick()
