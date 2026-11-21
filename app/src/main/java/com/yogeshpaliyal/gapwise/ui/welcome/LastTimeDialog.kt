@@ -102,7 +102,11 @@ fun LastTimeDialog(
                 Column {
                     Text(suggestion.name, style = MaterialTheme.typography.titleLarge)
                     Text(
-                        if (suggestion.multiDay) L10n.s(R.string.ask_last_start) else L10n.s(R.string.ask_last_do),
+                        when {
+                            suggestion.milestone -> L10n.s(R.string.ask_milestone_date)
+                            suggestion.multiDay -> L10n.s(R.string.ask_last_start)
+                            else -> L10n.s(R.string.ask_last_do)
+                        },
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -110,7 +114,8 @@ fun LastTimeDialog(
             }
 
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                agoOptions.forEach { a ->
+                // A milestone needs its real date, so it gets the calendar only.
+                if (!suggestion.milestone) agoOptions.forEach { a ->
                     ToggleButton(checked = choice == When.Preset(a), onCheckedChange = { choice = When.Preset(a) }) { Text(a.label) }
                 }
                 val picked = choice as? When.Picked
@@ -118,7 +123,9 @@ fun LastTimeDialog(
                     Icon(Icons.Rounded.CalendarMonth, null, Modifier.padding(end = 6.dp))
                     Text(picked?.let { TimeText.date(it.at) } ?: L10n.s(R.string.pick_date))
                 }
-                ToggleButton(checked = choice == When.NotSure, onCheckedChange = { choice = When.NotSure }) { Text(L10n.s(R.string.not_sure)) }
+                if (!suggestion.milestone) {
+                    ToggleButton(checked = choice == When.NotSure, onCheckedChange = { choice = When.NotSure }) { Text(L10n.s(R.string.not_sure)) }
+                }
             }
 
             if (suggestion.multiDay && choice != null && choice != When.NotSure) {

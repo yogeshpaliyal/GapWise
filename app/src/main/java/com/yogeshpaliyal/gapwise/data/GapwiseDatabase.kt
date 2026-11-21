@@ -10,6 +10,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Transaction
 import androidx.room.Update
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -70,12 +72,21 @@ interface GapwiseDao {
     suspend fun getLog(id: Long): LogEntity?
 }
 
-@Database(entities = [EventEntity::class, LogEntity::class], version = 1, exportSchema = true)
+@Database(entities = [EventEntity::class, LogEntity::class], version = 2, exportSchema = true)
 abstract class GapwiseDatabase : RoomDatabase() {
     abstract fun dao(): GapwiseDao
 
     companion object {
         fun create(context: Context): GapwiseDatabase =
-            Room.databaseBuilder(context, GapwiseDatabase::class.java, "gapwise.db").build()
+            Room.databaseBuilder(context, GapwiseDatabase::class.java, "gapwise.db")
+                .addMigrations(MIGRATION_1_2)
+                .build()
+
+        /** 2: milestones, events counted from a fixed date. */
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE events ADD COLUMN isMilestone INTEGER NOT NULL DEFAULT 0")
+            }
+        }
     }
 }

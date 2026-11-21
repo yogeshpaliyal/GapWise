@@ -84,8 +84,8 @@ class WelcomeViewModel(application: Application) : AndroidViewModel(application)
 fun WelcomeScreen(onDone: () -> Unit, vm: WelcomeViewModel = viewModel()) {
     var filter by remember { mutableStateOf<String?>(null) }
     var asking by remember { mutableStateOf<Suggestion?>(null) }
-    val categories = remember { Suggestions.all.map { it.category }.distinct() }
-    val shown = Suggestions.all.filter { filter == null || it.category == filter }
+    val categories = remember { Suggestions.all.map { it.group }.distinct() }
+    val shown = Suggestions.all.filter { filter == null || it.group == filter }
 
     Surface(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {

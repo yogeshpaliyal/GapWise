@@ -32,7 +32,10 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.graphics.shapes.toPath
 import com.yogeshpaliyal.gapwise.data.EventWithLogs
+import android.content.Intent
+import com.yogeshpaliyal.gapwise.MainActivity
 import com.yogeshpaliyal.gapwise.domain.HOUR_MS
+import com.yogeshpaliyal.gapwise.domain.MilestoneInfo
 import com.yogeshpaliyal.gapwise.domain.RhythmCalculator
 import com.yogeshpaliyal.gapwise.domain.TimeText
 import com.yogeshpaliyal.gapwise.ui.common.GapStatus
@@ -66,6 +69,8 @@ data class WidgetEvent(
     val badge: Bitmap,
     /** Tapped within the last minute: the next tap asks before logging again. */
     val recent: Boolean,
+    /** Milestones have nothing to log, so a tap opens them. */
+    val milestone: Boolean = false,
 )
 
 fun compactElapsed(from: Long?, now: Long): String {
@@ -79,6 +84,13 @@ fun compactElapsed(from: Long?, now: Long): String {
         days < 730 -> L10n.s(R.string.months_short, (days / 30.4).roundToInt())
         else -> L10n.s(R.string.years_short, String.format(java.util.Locale.getDefault(), "%.1f", days / 365.25))
     }
+}
+
+/** Compact milestone count: 4y, 7mo, 23d. */
+fun milestoneCount(m: MilestoneInfo): String = when {
+    m.years >= 1 -> L10n.s(R.string.years_short, m.years.toString())
+    m.months >= 1 -> L10n.s(R.string.months_short, m.months)
+    else -> L10n.s(R.string.days_short, m.totalDays.toInt())
 }
 
 private fun blend(fg: Color, bg: Color, amount: Float): Color = Color(
@@ -99,6 +111,7 @@ fun badgeBitmap(status: GapStatus, color: Color, px: Int = 120): Bitmap {
 fun EventWithLogs.toWidgetEvent(now: Long): WidgetEvent {
     val ui = EventUi(this, RhythmCalculator.compute(this))
     val status = ui.status(now)
+    val m = ui.milestone(now)
     val c = Color(event.color.toInt())
     val accent = when (status) {
         GapStatus.DUE -> Rose
@@ -109,8 +122,9 @@ fun EventWithLogs.toWidgetEvent(now: Long): WidgetEvent {
         id = event.id,
         emoji = event.emoji,
         name = event.name,
-        count = if (ui.ongoing) L10n.s(R.string.day_n, (TimeText.daysBetween(ui.rhythm.ongoingSince!!, now) + 1).toInt()) else compactElapsed(ui.rhythm.lastAt, now),
+        count = if (m != null) milestoneCount(m) else if (ui.ongoing) L10n.s(R.string.day_n, (TimeText.daysBetween(ui.rhythm.ongoingSince!!, now) + 1).toInt()) else compactElapsed(ui.rhythm.lastAt, now),
         due = when {
+            m != null -> TimeText.milestoneLine(m)
             event.paused -> L10n.s(R.string.status_paused)
             ui.ongoing -> L10n.s(R.string.status_ongoing)
             else -> TimeText.dueText(ui.rhythm.nextExpectedAt, now)
@@ -120,6 +134,7 @@ fun EventWithLogs.toWidgetEvent(now: Long): WidgetEvent {
         nightTint = blend(c, Color(0xFF241E22), 0.32f),
         badge = badgeBitmap(status, accent.copy(alpha = 0.6f)),
         recent = recentActionAgo(now) != null,
+        milestone = m != null,
     )
 }
 
@@ -130,7 +145,13 @@ fun EventWithLogs.toWidgetEvent(now: Long): WidgetEvent {
 @Composable
 fun tapAction(e: WidgetEvent): Action {
     val context = LocalContext.current
-    return if (e.recent) {
+    return if (e.milestone) {
+        actionStartActivity(
+            Intent(context, MainActivity::class.java)
+                .putExtra(MainActivity.EXTRA_EVENT_ID, e.id)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+        )
+    } else if (e.recent) {
         actionStartActivity(ConfirmLogActivity.intent(context, e.id))
     } else {
         actionRunCallback<LogFromWidget>(actionParametersOf(EventIdKey to e.id))

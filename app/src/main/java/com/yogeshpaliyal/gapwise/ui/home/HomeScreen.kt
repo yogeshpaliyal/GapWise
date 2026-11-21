@@ -157,8 +157,14 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
                 )
             }
-            if (state.categories.size > 1) {
-                CategoryToggles(state.categories, state.filters.category, vm::setCategory)
+            // The Milestones chip only helps when there are other things to filter out.
+            val milestoneChip = state.milestoneCount in 1 until state.totalCount
+            if (state.categories.size > 1 || milestoneChip) {
+                CategoryToggles(
+                    state.categories, state.filters.category, vm::setCategory,
+                    milestones = if (milestoneChip) state.filters.milestones else null,
+                    onMilestones = vm::showMilestones,
+                )
             }
             when {
                 state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { LoadingIndicator() }
@@ -233,13 +239,24 @@ private fun summary(statuses: List<GapStatus>, total: Int): String {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun CategoryToggles(categories: List<String>, selected: String?, onSelect: (String?) -> Unit) {
+private fun CategoryToggles(
+    categories: List<String>,
+    selected: String?,
+    onSelect: (String?) -> Unit,
+    milestones: Boolean?,
+    onMilestones: () -> Unit,
+) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         item {
-            ToggleButton(checked = selected == null, onCheckedChange = { onSelect(null) }) { Text(L10n.s(R.string.filter_all)) }
+            ToggleButton(checked = selected == null && milestones != true, onCheckedChange = { onSelect(null) }) { Text(L10n.s(R.string.filter_all)) }
+        }
+        if (milestones != null) {
+            item {
+                ToggleButton(checked = milestones, onCheckedChange = { onMilestones() }) { Text(L10n.s(R.string.filter_milestones)) }
+            }
         }
         items(categories) { c ->
             ToggleButton(checked = selected == c, onCheckedChange = { onSelect(if (selected == c) null else c) }) { Text(c) }

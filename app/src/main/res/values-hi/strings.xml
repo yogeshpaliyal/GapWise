@@ -440,4 +440,70 @@
         <item quantity="one">%d चुना</item>
         <item quantity="other">%d चुने</item>
     </plurals>
+
+    <!-- Milestones -->
+    <string name="status_milestone">माइलस्टोन</string>
+    <string name="filter_milestones">माइलस्टोन</string>
+    <string name="ms_breakdown">%1$s, %2$s, %3$s</string>
+    <string name="ms_tomorrow">कल</string>
+    <string name="ms_today">आज</string>
+    <string name="ms_days_today">आज %1$s दिन</string>
+    <string name="ms_next_in">%2$s %1$s</string>
+    <string name="ms_since">%1$s से</string>
+    <string name="ms_card_total">कुल मिलाकर</string>
+    <string name="ms_stat_days">दिन</string>
+    <string name="ms_stat_weeks">हफ़्ते</string>
+    <string name="ms_stat_months">महीने</string>
+    <string name="ms_card_next">आगे</string>
+    <string name="ms_n_days">%1$s दिन</string>
+    <string name="ms_reminders_on">उस दिन आपको सूचना मिलेगी।</string>
+    <string name="ms_reminders_off">इस माइलस्टोन के रिमाइंडर बंद हैं।</string>
+    <string name="ms_date_label">यह कब था?</string>
+    <string name="ms_date_hint">जिस दिन यह शुरू हुआ। इसे बाद में बदल सकते हैं।</string>
+    <string name="ms_reminders_toggle">सालगिरह रिमाइंडर</string>
+    <string name="ms_reminders_toggle_hint">हर सालगिरह और 1,000 दिन जैसी गोल संख्याओं पर सूचना</string>
+    <string name="kind_repeats">बार-बार</string>
+    <string name="kind_milestone">माइलस्टोन</string>
+    <string name="kind_repeats_hint">जो आप बार-बार करते हैं, जैसे बाल कटवाना।</string>
+    <string name="kind_milestone_hint">जिस तारीख से गिनती हो, जैसे शादी या जन्मदिन।</string>
+    <string name="ask_milestone_date">यह कब था?</string>
+    <string name="sug_ms_wedding">शादी</string>
+    <string name="sug_ms_birthday">मेरा जन्मदिन</string>
+    <string name="sug_ms_together">साथ होने से</string>
+    <string name="sug_ms_new_job">नौकरी शुरू की</string>
+    <string name="sug_ms_moved_in">नए घर में आए</string>
+    <string name="sug_ms_quit_smoking">धूम्रपान छोड़ा</string>
+    <string name="sug_ms_pet">पालतू परिवार में आया</string>
+    <plurals name="ms_years_unit">
+        <item quantity="one">साल</item>
+        <item quantity="other">साल</item>
+    </plurals>
+    <plurals name="ms_months_unit">
+        <item quantity="one">महीना</item>
+        <item quantity="other">महीने</item>
+    </plurals>
+    <plurals name="ms_days_unit">
+        <item quantity="one">दिन</item>
+        <item quantity="other">दिन</item>
+    </plurals>
+    <plurals name="ms_years">
+        <item quantity="one">%d साल</item>
+        <item quantity="other">%d साल</item>
+    </plurals>
+    <plurals name="ms_months">
+        <item quantity="one">%d महीना</item>
+        <item quantity="other">%d महीने</item>
+    </plurals>
+    <plurals name="ms_days">
+        <item quantity="one">%d दिन</item>
+        <item quantity="other">%d दिन</item>
+    </plurals>
+    <plurals name="ms_in_days">
+        <item quantity="one">%s दिन में</item>
+        <item quantity="other">%s दिन में</item>
+    </plurals>
+    <plurals name="ms_years_today">
+        <item quantity="one">आज %d साल</item>
+        <item quantity="other">आज %d साल</item>
+    </plurals>
 </resources>

@@ -20,6 +20,7 @@ GapWise tracks how long it's been since you last did the things that don't run o
 - **Learned rhythm.** After 3 logs it estimates your usual gap (for example, "Usually every 36 days") and when the next one is expected. One-off long gaps, like a trip, are ignored.
 - **Gentle nudges.** A notification arrives around when something is usually due. You can log straight from it, and ignoring it is fine.
 - **Multi-day events.** Periods, trips and sick days have a start tap and an end tap. GapWise shows how long they usually last.
+- **Milestones.** Count up from a fixed date, like a wedding, a birthday or a quit date: "4 years, 2 months, 9 days", the next anniversary, and round numbers like 1,000 days, with an optional notification on the day. Milestones never reset by accident.
 - **Insights.** Each event has a gap chart, a calendar and an editable history with notes. You can log a past day.
 - **Organize.** Categories, pin, hide, pause, search, sorting (due soon, recent, name), and grid or list view.
 - **Log from anywhere.** There's a home-screen widget (tap a row to log it) and launcher shortcuts for your top events.

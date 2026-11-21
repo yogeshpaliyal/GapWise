@@ -25,6 +25,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.Icon
@@ -81,6 +82,10 @@ class EditViewModel(application: Application, handle: SavedStateHandle) : Androi
     var category by mutableStateOf(Categories.HOME)
     var multiDay by mutableStateOf(false)
     var nudges by mutableStateOf(true)
+    /** A fixed date to count from, instead of something you repeat. */
+    var milestone by mutableStateOf(false)
+    var milestoneAt by mutableStateOf<Long?>(null)
+    private var originalMilestoneAt: Long? = null
     var firstLogAt by mutableStateOf<Long?>(null)
     /** For events with a start and an end: when the last one ended. Null means it's still going. */
     var firstEndAt by mutableStateOf<Long?>(null)
@@ -105,39 +110,51 @@ class EditViewModel(application: Application, handle: SavedStateHandle) : Androi
             if (isNew) {
                 color = Palette.forIndex(all.size)
             } else {
-                repo.get(eventId)?.event?.let { e ->
+                repo.get(eventId)?.let { item ->
+                    val e = item.event
                     original = e
                     name = e.name; emoji = e.emoji; color = e.color; category = e.category
                     multiDay = e.isMultiDay; nudges = e.nudgesEnabled
+                    milestone = e.isMilestone
+                    milestoneAt = item.milestoneAt
+                    originalMilestoneAt = item.milestoneAt
                 }
             }
         }
     }
 
+    /** A milestone can't be saved without its date. */
+    val canSave: Boolean get() = name.isNotBlank() && (!milestone || milestoneAt != null)
+
     fun save(onDone: () -> Unit) = viewModelScope.launch {
         val trimmed = name.trim()
-        if (trimmed.isEmpty()) return@launch
+        if (!canSave) return@launch
         val base = original
+        val multi = multiDay && !milestone
         if (base == null) {
             repo.createEvent(
                 EventEntity(
                     name = trimmed, emoji = emoji.trim(), color = color, category = category,
-                    isMultiDay = multiDay, nudgesEnabled = nudges,
+                    isMultiDay = multi, nudgesEnabled = nudges, isMilestone = milestone,
                 ),
-                firstLogAt = firstLogAt,
-                firstEndAt = if (multiDay) firstEndAt else null,
+                firstLogAt = if (milestone) milestoneAt else firstLogAt,
+                firstEndAt = if (multi) firstEndAt else null,
             )
         } else {
             repo.updateEvent(
                 base.copy(
                     name = trimmed, emoji = emoji.trim(), color = color, category = category,
-                    isMultiDay = multiDay, nudgesEnabled = nudges,
+                    isMultiDay = multi, nudgesEnabled = nudges,
                 ),
             )
+            val at = milestoneAt
+            if (base.isMilestone && at != null && at != originalMilestoneAt) repo.setMilestoneDate(base.id, at)
         }
         onDone()
     }
 }
+
+private val milestoneEmojis = listOf("💍", "🎂", "💼", "🏠", "🚭", "🐾", "👶", "🎓", "❤️", "🌱")
 
 private val quickEmojis = listOf(
     "✨", "💇", "🦷", "🪴", "📞", "🛏️", "🚗", "🏍️", "🛢️", "🧽", "💊", "🩺",
@@ -156,7 +173,7 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
                 title = { Text(if (vm.isNew) L10n.s(R.string.new_event) else L10n.s(R.string.edit_event)) },
                 navigationIcon = { IconButton(onClick = onDone) { Icon(Icons.Filled.Close, L10n.s(R.string.cancel)) } },
                 actions = {
-                    TextButton(onClick = { vm.save(onDone) }, enabled = vm.name.isNotBlank()) { Text(if (vm.isNew) L10n.s(R.string.add) else L10n.s(R.string.save)) }
+                    TextButton(onClick = { vm.save(onDone) }, enabled = vm.canSave) { Text(if (vm.isNew) L10n.s(R.string.add) else L10n.s(R.string.save)) }
                 },
             )
         },
@@ -184,8 +201,30 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
                 )
             }
 
+            if (vm.isNew) Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)) {
+                    ToggleButton(
+                        checked = !vm.milestone,
+                        onCheckedChange = { vm.milestone = false },
+                        shapes = ButtonGroupDefaults.connectedLeadingButtonShapes(),
+                        modifier = Modifier.weight(1f),
+                    ) { Text(L10n.s(R.string.kind_repeats)) }
+                    ToggleButton(
+                        checked = vm.milestone,
+                        onCheckedChange = { vm.milestone = true },
+                        shapes = ButtonGroupDefaults.connectedTrailingButtonShapes(),
+                        modifier = Modifier.weight(1f),
+                    ) { Text(L10n.s(R.string.kind_milestone)) }
+                }
+                Text(
+                    if (vm.milestone) L10n.s(R.string.kind_milestone_hint) else L10n.s(R.string.kind_repeats_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                quickEmojis.forEach { e ->
+                (if (vm.milestone) milestoneEmojis + quickEmojis.filterNot { it in milestoneEmojis } else quickEmojis).forEach { e ->
                     Box(
                         Modifier.size(40.dp).clip(CircleShape)
                             .background(if (vm.emoji == e) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
@@ -232,6 +271,30 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
                 ) { Text(L10n.s(R.string.use)) }
             }
 
+            if (vm.milestone) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Label(L10n.s(R.string.ms_date_label))
+                    val at = vm.milestoneAt
+                    if (at == null) {
+                        OutlinedButton(onClick = { picker = "milestoneDate" }) {
+                            Icon(Icons.Outlined.CalendarMonth, null, Modifier.padding(end = 8.dp))
+                            Text(L10n.s(R.string.pick_date))
+                        }
+                    } else {
+                        PickerTile(Icons.Outlined.CalendarMonth, L10n.s(R.string.date), TimeText.date(at), { picker = "milestoneDate" }, Modifier.fillMaxWidth())
+                    }
+                    Text(
+                        L10n.s(R.string.ms_date_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                ToggleRow(
+                    L10n.s(R.string.ms_reminders_toggle),
+                    L10n.s(R.string.ms_reminders_toggle_hint),
+                    vm.nudges,
+                ) { vm.nudges = it }
+            } else {
             ToggleRow(
                 L10n.s(R.string.multi_day),
                 L10n.s(R.string.multi_day_hint),
@@ -242,8 +305,9 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
                 L10n.s(R.string.nudges_toggle_hint),
                 vm.nudges,
             ) { vm.nudges = it }
+            }
 
-            if (vm.isNew) {
+            if (vm.isNew && !vm.milestone) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Label(if (vm.multiDay) L10n.s(R.string.last_time) else L10n.s(R.string.last_time_you))
                     val startAt = vm.firstLogAt
@@ -276,7 +340,7 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
 
             Button(
                 onClick = { vm.save(onDone) },
-                enabled = vm.name.isNotBlank(),
+                enabled = vm.canSave,
                 shapes = ButtonDefaults.shapes(),
                 modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(bottom = 24.dp),
             ) { Text(if (vm.isNew) L10n.s(R.string.add_event) else L10n.s(R.string.save_changes), style = MaterialTheme.typography.titleMedium) }
@@ -297,6 +361,7 @@ fun EditScreen(onDone: () -> Unit, vm: EditViewModel = viewModel()) {
         "startTime" -> TimePickerDialog(vm.firstLogAt ?: now, { picker = null }) { setStart(it) }
         "endDate" -> PastDatePickerDialog(vm.firstEndAt ?: now, { picker = null }) { setEnd(it) }
         "endTime" -> TimePickerDialog(vm.firstEndAt ?: now, { picker = null }) { setEnd(it) }
+        "milestoneDate" -> PastDatePickerDialog(vm.milestoneAt ?: now, { picker = null }) { vm.milestoneAt = it.coerceAtMost(now) }
     }
 }
 

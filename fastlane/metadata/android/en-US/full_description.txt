@@ -6,6 +6,7 @@ Tap once when you do something. GapWise counts the days since, learns how often 
 • One tap to log, with undo
 • Log a past day, add a note, edit any entry
 • Events that last days, like a trip or a sick day, get a start and an end
+• Milestones count up from a date, like a wedding or a birthday, with the next anniversary and round numbers like 1,000 days
 
 <b>Know the next</b>
 • After a few logs, GapWise learns your rhythm, like "usually every 36 days"

@@ -22,6 +22,7 @@ data class BackupEvent(
     val hidden: Boolean = false,
     val paused: Boolean = false,
     val nudgesEnabled: Boolean = true,
+    val isMilestone: Boolean = false,
     val logs: List<BackupLog> = emptyList(),
 )
 
@@ -48,7 +49,7 @@ object BackupCodec {
                 BackupEvent(
                     name = e.name, emoji = e.emoji, color = e.color, category = e.category,
                     isMultiDay = e.isMultiDay, pinned = e.pinned, hidden = e.hidden,
-                    paused = e.paused, nudgesEnabled = e.nudgesEnabled,
+                    paused = e.paused, nudgesEnabled = e.nudgesEnabled, isMilestone = e.isMilestone,
                     logs = item.sortedLogs.map { BackupLog(it.startAt, it.endAt, it.note) },
                 )
             },

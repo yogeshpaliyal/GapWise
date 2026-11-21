@@ -28,7 +28,7 @@ object ShortcutPublisher {
     fun publish(context: Context, items: List<EventWithLogs>) {
         val max = ShortcutManagerCompat.getMaxShortcutCountPerActivity(context).coerceAtMost(4) - 1 // keep room for "New event"
         val chosen = items
-            .filter { !it.event.hidden }
+            .filter { !it.event.hidden && !it.event.isMilestone } // shortcuts log; milestones have nothing to log
             .sortedWith(compareByDescending<EventWithLogs> { it.event.pinned }.thenBy { it.event.sortOrder })
             .take(max.coerceAtLeast(0))
         val shortcuts = chosen.mapIndexed { i, item ->

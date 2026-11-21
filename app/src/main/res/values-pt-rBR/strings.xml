@@ -464,4 +464,78 @@
         <item quantity="many">%d escolhidos</item>
         <item quantity="other">%d escolhidos</item>
     </plurals>
+
+    <!-- Milestones -->
+    <string name="status_milestone">Marco</string>
+    <string name="filter_milestones">Marcos</string>
+    <string name="ms_breakdown">%1$s, %2$s e %3$s</string>
+    <string name="ms_tomorrow">amanhã</string>
+    <string name="ms_today">hoje</string>
+    <string name="ms_days_today">%1$s dias hoje</string>
+    <string name="ms_next_in">%1$s %2$s</string>
+    <string name="ms_since">Desde %1$s</string>
+    <string name="ms_card_total">No total</string>
+    <string name="ms_stat_days">Dias</string>
+    <string name="ms_stat_weeks">Semanas</string>
+    <string name="ms_stat_months">Meses</string>
+    <string name="ms_card_next">Em breve</string>
+    <string name="ms_n_days">%1$s dias</string>
+    <string name="ms_reminders_on">Você vai receber uma notificação no dia.</string>
+    <string name="ms_reminders_off">Os lembretes deste marco estão desativados.</string>
+    <string name="ms_date_label">Quando foi?</string>
+    <string name="ms_date_hint">A data em que tudo começou. Dá para mudar depois.</string>
+    <string name="ms_reminders_toggle">Lembretes de aniversário</string>
+    <string name="ms_reminders_toggle_hint">Uma notificação a cada aniversário e em números redondos como 1.000 dias</string>
+    <string name="kind_repeats">Se repete</string>
+    <string name="kind_milestone">Marco</string>
+    <string name="kind_repeats_hint">Algo que você faz de novo e de novo, como cortar o cabelo.</string>
+    <string name="kind_milestone_hint">Uma data para contar a partir dela, como um casamento ou um aniversário.</string>
+    <string name="ask_milestone_date">Quando foi?</string>
+    <string name="sug_ms_wedding">Casamento</string>
+    <string name="sug_ms_birthday">Meu aniversário</string>
+    <string name="sug_ms_together">Juntos desde</string>
+    <string name="sug_ms_new_job">Comecei no trabalho</string>
+    <string name="sug_ms_moved_in">Mudança</string>
+    <string name="sug_ms_quit_smoking">Parei de fumar</string>
+    <string name="sug_ms_pet">O pet chegou</string>
+    <plurals name="ms_years_unit">
+        <item quantity="one">ano</item>
+        <item quantity="many">anos</item>
+        <item quantity="other">anos</item>
+    </plurals>
+    <plurals name="ms_months_unit">
+        <item quantity="one">mês</item>
+        <item quantity="many">meses</item>
+        <item quantity="other">meses</item>
+    </plurals>
+    <plurals name="ms_days_unit">
+        <item quantity="one">dia</item>
+        <item quantity="many">dias</item>
+        <item quantity="other">dias</item>
+    </plurals>
+    <plurals name="ms_years">
+        <item quantity="one">%d ano</item>
+        <item quantity="many">%d anos</item>
+        <item quantity="other">%d anos</item>
+    </plurals>
+    <plurals name="ms_months">
+        <item quantity="one">%d mês</item>
+        <item quantity="many">%d meses</item>
+        <item quantity="other">%d meses</item>
+    </plurals>
+    <plurals name="ms_days">
+        <item quantity="one">%d dia</item>
+        <item quantity="many">%d dias</item>
+        <item quantity="other">%d dias</item>
+    </plurals>
+    <plurals name="ms_in_days">
+        <item quantity="one">em %s dia</item>
+        <item quantity="many">em %s dias</item>
+        <item quantity="other">em %s dias</item>
+    </plurals>
+    <plurals name="ms_years_today">
+        <item quantity="one">Hoje faz %d ano</item>
+        <item quantity="many">Hoje faz %d anos</item>
+        <item quantity="other">Hoje faz %d anos</item>
+    </plurals>
 </resources>

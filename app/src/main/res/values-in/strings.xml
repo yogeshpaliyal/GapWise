@@ -416,4 +416,62 @@
     <plurals name="cfg_picked">
         <item quantity="other">%d dipilih</item>
     </plurals>
+
+    <!-- Milestones -->
+    <string name="status_milestone">Tonggak</string>
+    <string name="filter_milestones">Tonggak</string>
+    <string name="ms_breakdown">%1$s, %2$s, %3$s</string>
+    <string name="ms_tomorrow">besok</string>
+    <string name="ms_today">hari ini</string>
+    <string name="ms_days_today">%1$s hari hari ini</string>
+    <string name="ms_next_in">%1$s %2$s</string>
+    <string name="ms_since">Sejak %1$s</string>
+    <string name="ms_card_total">Totalnya</string>
+    <string name="ms_stat_days">Hari</string>
+    <string name="ms_stat_weeks">Minggu</string>
+    <string name="ms_stat_months">Bulan</string>
+    <string name="ms_card_next">Berikutnya</string>
+    <string name="ms_n_days">%1$s hari</string>
+    <string name="ms_reminders_on">Kamu akan dapat notifikasi pada harinya.</string>
+    <string name="ms_reminders_off">Pengingat untuk tonggak ini mati.</string>
+    <string name="ms_date_label">Kapan itu?</string>
+    <string name="ms_date_hint">Tanggal semuanya dimulai. Bisa diubah nanti.</string>
+    <string name="ms_reminders_toggle">Pengingat hari jadi</string>
+    <string name="ms_reminders_toggle_hint">Notifikasi di setiap hari jadi dan angka bulat seperti 1.000 hari</string>
+    <string name="kind_repeats">Berulang</string>
+    <string name="kind_milestone">Tonggak</string>
+    <string name="kind_repeats_hint">Sesuatu yang kamu lakukan berulang kali, seperti potong rambut.</string>
+    <string name="kind_milestone_hint">Tanggal untuk mulai menghitung, seperti pernikahan atau ulang tahun.</string>
+    <string name="ask_milestone_date">Kapan itu?</string>
+    <string name="sug_ms_wedding">Pernikahan</string>
+    <string name="sug_ms_birthday">Ulang tahunku</string>
+    <string name="sug_ms_together">Bersama sejak</string>
+    <string name="sug_ms_new_job">Mulai kerja</string>
+    <string name="sug_ms_moved_in">Pindah rumah</string>
+    <string name="sug_ms_quit_smoking">Berhenti merokok</string>
+    <string name="sug_ms_pet">Hewan peliharaan datang</string>
+    <plurals name="ms_years_unit">
+        <item quantity="other">tahun</item>
+    </plurals>
+    <plurals name="ms_months_unit">
+        <item quantity="other">bulan</item>
+    </plurals>
+    <plurals name="ms_days_unit">
+        <item quantity="other">hari</item>
+    </plurals>
+    <plurals name="ms_years">
+        <item quantity="other">%d tahun</item>
+    </plurals>
+    <plurals name="ms_months">
+        <item quantity="other">%d bulan</item>
+    </plurals>
+    <plurals name="ms_days">
+        <item quantity="other">%d hari</item>
+    </plurals>
+    <plurals name="ms_in_days">
+        <item quantity="other">dalam %s hari</item>
+    </plurals>
+    <plurals name="ms_years_today">
+        <item quantity="other">%d tahun hari ini</item>
+    </plurals>
 </resources>

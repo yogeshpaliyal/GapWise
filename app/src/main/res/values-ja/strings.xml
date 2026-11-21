@@ -416,4 +416,62 @@
     <plurals name="cfg_picked">
         <item quantity="other">%d件選択</item>
     </plurals>
+
+    <!-- Milestones -->
+    <string name="status_milestone">記念日</string>
+    <string name="filter_milestones">記念日</string>
+    <string name="ms_breakdown">%1$s%2$s%3$s</string>
+    <string name="ms_tomorrow">明日</string>
+    <string name="ms_today">今日</string>
+    <string name="ms_days_today">今日で%1$s日</string>
+    <string name="ms_next_in">%2$s%1$s</string>
+    <string name="ms_since">%1$sから</string>
+    <string name="ms_card_total">合計</string>
+    <string name="ms_stat_days">日</string>
+    <string name="ms_stat_weeks">週</string>
+    <string name="ms_stat_months">か月</string>
+    <string name="ms_card_next">次の節目</string>
+    <string name="ms_n_days">%1$s日</string>
+    <string name="ms_reminders_on">当日に通知が届きます。</string>
+    <string name="ms_reminders_off">この記念日の通知はオフです。</string>
+    <string name="ms_date_label">いつでしたか？</string>
+    <string name="ms_date_hint">始まった日付です。あとで変更できます。</string>
+    <string name="ms_reminders_toggle">記念日の通知</string>
+    <string name="ms_reminders_toggle_hint">毎年の記念日と、1,000日のような節目の日に通知します</string>
+    <string name="kind_repeats">くり返す</string>
+    <string name="kind_milestone">記念日</string>
+    <string name="kind_repeats_hint">散髪のように、何度もくり返すこと。</string>
+    <string name="kind_milestone_hint">結婚記念日や誕生日など、そこから数える日付。</string>
+    <string name="ask_milestone_date">いつでしたか？</string>
+    <string name="sug_ms_wedding">結婚記念日</string>
+    <string name="sug_ms_birthday">誕生日</string>
+    <string name="sug_ms_together">付き合った日</string>
+    <string name="sug_ms_new_job">入社日</string>
+    <string name="sug_ms_moved_in">引っ越した日</string>
+    <string name="sug_ms_quit_smoking">禁煙</string>
+    <string name="sug_ms_pet">ペットを迎えた日</string>
+    <plurals name="ms_years_unit">
+        <item quantity="other">年</item>
+    </plurals>
+    <plurals name="ms_months_unit">
+        <item quantity="other">か月</item>
+    </plurals>
+    <plurals name="ms_days_unit">
+        <item quantity="other">日</item>
+    </plurals>
+    <plurals name="ms_years">
+        <item quantity="other">%d年</item>
+    </plurals>
+    <plurals name="ms_months">
+        <item quantity="other">%dか月</item>
+    </plurals>
+    <plurals name="ms_days">
+        <item quantity="other">%d日</item>
+    </plurals>
+    <plurals name="ms_in_days">
+        <item quantity="other">あと%s日で</item>
+    </plurals>
+    <plurals name="ms_years_today">
+        <item quantity="other">今日で%d年</item>
+    </plurals>
 </resources>

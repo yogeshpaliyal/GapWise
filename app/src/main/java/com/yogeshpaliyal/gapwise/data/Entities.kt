@@ -1,5 +1,6 @@
 package com.yogeshpaliyal.gapwise.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -25,6 +26,12 @@ data class EventEntity(
     val createdAt: Long = System.currentTimeMillis(),
     /** When we last sent a nudge, so we nudge at most once per cycle. */
     val lastNudgedAt: Long = 0,
+    /**
+     * A fixed date to count from (a wedding, a birthday, a quit date) rather than something you
+     * repeat. It has exactly one log, holding the date, and taps never add another.
+     */
+    @ColumnInfo(defaultValue = "0")
+    val isMilestone: Boolean = false,
 )
 
 @Entity(
@@ -55,6 +62,8 @@ data class EventWithLogs(
 ) {
     val sortedLogs: List<LogEntity> get() = logs.sortedBy { it.startAt }
     val lastLog: LogEntity? get() = logs.maxByOrNull { it.startAt }
+    /** Milestones only: the date it counts from. */
+    val milestoneAt: Long? get() = if (event.isMilestone) logs.minOfOrNull { it.startAt } else null
     val ongoing: LogEntity? get() = if (event.isMultiDay) lastLog?.takeIf { it.endAt == null } else null
 
     /** The last time a tap changed this event: a log, or the end of a multi-day period. */

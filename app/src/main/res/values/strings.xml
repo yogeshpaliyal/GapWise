@@ -447,4 +447,70 @@
         <item quantity="one">%d picked</item>
         <item quantity="other">%d picked</item>
     </plurals>
+
+    <!-- Milestones -->
+    <string name="status_milestone">Milestone</string>
+    <string name="filter_milestones">Milestones</string>
+    <string name="ms_breakdown">%1$s, %2$s, %3$s</string>
+    <string name="ms_tomorrow">tomorrow</string>
+    <string name="ms_today">today</string>
+    <string name="ms_days_today">%1$s days today</string>
+    <string name="ms_next_in">%1$s %2$s</string>
+    <string name="ms_since">Since %1$s</string>
+    <string name="ms_card_total">In total</string>
+    <string name="ms_stat_days">Days</string>
+    <string name="ms_stat_weeks">Weeks</string>
+    <string name="ms_stat_months">Months</string>
+    <string name="ms_card_next">Coming up</string>
+    <string name="ms_n_days">%1$s days</string>
+    <string name="ms_reminders_on">You\'ll get a notification on the day.</string>
+    <string name="ms_reminders_off">Reminders are off for this milestone.</string>
+    <string name="ms_date_label">When was it?</string>
+    <string name="ms_date_hint">The date it all started. You can change it later.</string>
+    <string name="ms_reminders_toggle">Anniversary reminders</string>
+    <string name="ms_reminders_toggle_hint">A notification on each anniversary and on round numbers like 1,000 days</string>
+    <string name="kind_repeats">Repeats</string>
+    <string name="kind_milestone">Milestone</string>
+    <string name="kind_repeats_hint">Something you do again and again, like a haircut.</string>
+    <string name="kind_milestone_hint">A date to count from, like a wedding or a birthday.</string>
+    <string name="ask_milestone_date">When was it?</string>
+    <string name="sug_ms_wedding">Wedding</string>
+    <string name="sug_ms_birthday">My birthday</string>
+    <string name="sug_ms_together">Together since</string>
+    <string name="sug_ms_new_job">Started my job</string>
+    <string name="sug_ms_moved_in">Moved in</string>
+    <string name="sug_ms_quit_smoking">Quit smoking</string>
+    <string name="sug_ms_pet">Pet joined the family</string>
+    <plurals name="ms_years_unit">
+        <item quantity="one">year</item>
+        <item quantity="other">years</item>
+    </plurals>
+    <plurals name="ms_months_unit">
+        <item quantity="one">month</item>
+        <item quantity="other">months</item>
+    </plurals>
+    <plurals name="ms_days_unit">
+        <item quantity="one">day</item>
+        <item quantity="other">days</item>
+    </plurals>
+    <plurals name="ms_years">
+        <item quantity="one">%d year</item>
+        <item quantity="other">%d years</item>
+    </plurals>
+    <plurals name="ms_months">
+        <item quantity="one">%d month</item>
+        <item quantity="other">%d months</item>
+    </plurals>
+    <plurals name="ms_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="ms_in_days">
+        <item quantity="one">in %s day</item>
+        <item quantity="other">in %s days</item>
+    </plurals>
+    <plurals name="ms_years_today">
+        <item quantity="one">%d year today</item>
+        <item quantity="other">%d years today</item>
+    </plurals>
 </resources>

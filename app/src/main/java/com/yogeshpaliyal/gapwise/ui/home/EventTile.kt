@@ -50,6 +50,7 @@ fun tint(color: Color, amount: Float = 0.16f): Color =
     color.copy(alpha = amount).compositeOver(MaterialTheme.colorScheme.surfaceContainerLowest)
 
 fun EventUi.statusLine(now: Long): String = when {
+    isMilestone -> milestone(now)?.let { TimeText.milestoneLine(it) } ?: ""
     event.paused -> L10n.s(R.string.status_paused)
     ongoing -> L10n.s(R.string.tile_day_so_far, (TimeText.daysBetween(rhythm.ongoingSince!!, now) + 1).toInt())
     rhythm.hasRhythm -> TimeText.dueText(rhythm.nextExpectedAt, now) ?: ""
@@ -58,7 +59,8 @@ fun EventUi.statusLine(now: Long): String = when {
 }
 
 fun EventUi.elapsed(now: Long): Pair<String, String> =
-    if (ongoing) TimeText.elapsed(rhythm.ongoingSince, now).let { it.first to L10n.s(R.string.tile_since_started) }
+    if (isMilestone) milestone(now)?.let { TimeText.milestoneElapsed(it) } ?: ("—" to "")
+    else if (ongoing) TimeText.elapsed(rhythm.ongoingSince, now).let { it.first to L10n.s(R.string.tile_since_started) }
     else TimeText.elapsed(rhythm.lastAt, now)
 
 @Composable
@@ -86,11 +88,16 @@ fun EventTile(ui: EventUi, now: Long, onLog: () -> Unit, onOpen: () -> Unit, mod
         modifier = modifier
             .clip(MaterialTheme.shapes.large)
             .combinedClickable(
-                onClickLabel = L10n.s(R.string.a11y_log_event, ui.event.name),
+                onClickLabel = if (ui.isMilestone) L10n.s(R.string.a11y_open_details) else L10n.s(R.string.a11y_log_event, ui.event.name),
                 onLongClickLabel = L10n.s(R.string.a11y_open_details),
                 onClick = {
-                    haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-                    onLog()
+                    // A milestone has nothing to log, so a tap opens it.
+                    if (ui.isMilestone) {
+                        onOpen()
+                    } else {
+                        haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+                        onLog()
+                    }
                 },
                 onLongClick = onOpen,
             ),
@@ -136,11 +143,16 @@ fun EventRow(ui: EventUi, now: Long, onLog: () -> Unit, onOpen: () -> Unit, modi
         modifier = modifier
             .clip(MaterialTheme.shapes.medium)
             .combinedClickable(
-                onClickLabel = L10n.s(R.string.a11y_log_event, ui.event.name),
+                onClickLabel = if (ui.isMilestone) L10n.s(R.string.a11y_open_details) else L10n.s(R.string.a11y_log_event, ui.event.name),
                 onLongClickLabel = L10n.s(R.string.a11y_open_details),
                 onClick = {
-                    haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-                    onLog()
+                    // A milestone has nothing to log, so a tap opens it.
+                    if (ui.isMilestone) {
+                        onOpen()
+                    } else {
+                        haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+                        onLog()
+                    }
                 },
                 onLongClick = onOpen,
             ),

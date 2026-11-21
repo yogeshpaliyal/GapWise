@@ -35,6 +35,8 @@ class GapwiseRepository(
      */
     suspend fun logNow(eventId: Long, at: Long = System.currentTimeMillis(), note: String? = null): LogResult? {
         val item = dao.get(eventId) ?: return null
+        // A milestone counts from one fixed date. Widgets, shortcuts and notifications never add to it.
+        if (item.event.isMilestone) return null
         val open = item.ongoing
         val result = if (open != null) {
             dao.updateLog(open.copy(endAt = at.coerceAtLeast(open.startAt)))
@@ -81,6 +83,15 @@ class GapwiseRepository(
         return id
     }
 
+    /** Moves a milestone to a new date, keeping its single log. */
+    suspend fun setMilestoneDate(eventId: Long, at: Long) {
+        val item = dao.get(eventId) ?: return
+        val log = item.sortedLogs.firstOrNull()
+        if (log == null) dao.insertLog(LogEntity(eventId = eventId, startAt = at))
+        else dao.updateLog(log.copy(startAt = at, endAt = null))
+        changed()
+    }
+
     suspend fun updateEvent(event: EventEntity) {
         dao.updateEvent(event)
         changed()
@@ -115,7 +126,8 @@ class GapwiseRepository(
             val id = dao.insertEvent(
                 EventEntity(
                     name = s.name, emoji = s.emoji, category = s.category,
-                    color = Palette.forIndex(order), isMultiDay = s.multiDay, sortOrder = order,
+                    color = Palette.forIndex(order), isMultiDay = s.multiDay, isMilestone = s.milestone,
+                    sortOrder = order,
                 ),
             )
             if (lastAt != null) {
@@ -147,7 +159,7 @@ class GapwiseRepository(
                     EventEntity(
                         name = b.name, emoji = b.emoji, color = b.color, category = b.category,
                         isMultiDay = b.isMultiDay, pinned = b.pinned, hidden = b.hidden, paused = b.paused,
-                        nudgesEnabled = b.nudgesEnabled, sortOrder = i,
+                        nudgesEnabled = b.nudgesEnabled, isMilestone = b.isMilestone, sortOrder = i,
                     ),
                 )
                 dao.insertLogs(b.logs.map { LogEntity(eventId = id, startAt = it.startAt, endAt = it.endAt, note = it.note) })
@@ -167,7 +179,7 @@ class GapwiseRepository(
                 EventEntity(
                     name = b.name, emoji = b.emoji, color = b.color, category = b.category,
                     isMultiDay = b.isMultiDay, pinned = b.pinned, hidden = b.hidden, paused = b.paused,
-                    nudgesEnabled = b.nudgesEnabled, sortOrder = order,
+                    nudgesEnabled = b.nudgesEnabled, isMilestone = b.isMilestone, sortOrder = order,
                 ),
             )
             dao.insertLogs(b.logs.map { LogEntity(eventId = id, startAt = it.startAt, endAt = it.endAt, note = it.note) })

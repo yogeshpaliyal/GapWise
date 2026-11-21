@@ -10,7 +10,12 @@ data class Suggestion(
     val category: String,
     val typicalDays: Int,
     val multiDay: Boolean = false,
-)
+    /** Counted from one date (a wedding, a birthday) instead of repeated. */
+    val milestone: Boolean = false,
+) {
+    /** Where the welcome tour lists it. */
+    val group: String get() = if (milestone) L10n.s(R.string.filter_milestones) else category
+}
 
 object Categories {
     val HOME: String get() = L10n.s(R.string.cat_home)
@@ -87,6 +92,14 @@ object Suggestions {
         Suggestion(L10n.s(R.string.sug_rebalance_investments), "📈", Categories.MONEY, 180),
         Suggestion(L10n.s(R.string.sug_backup_phone_photos), "🗂️", Categories.OTHER, 30),
         Suggestion(L10n.s(R.string.sug_change_passwords), "🔐", Categories.OTHER, 180),
+        // Milestones
+        Suggestion(L10n.s(R.string.sug_ms_wedding), "💍", Categories.PEOPLE, 0, milestone = true),
+        Suggestion(L10n.s(R.string.sug_ms_birthday), "🎂", Categories.PEOPLE, 0, milestone = true),
+        Suggestion(L10n.s(R.string.sug_ms_together), "❤️", Categories.PEOPLE, 0, milestone = true),
+        Suggestion(L10n.s(R.string.sug_ms_new_job), "💼", Categories.OTHER, 0, milestone = true),
+        Suggestion(L10n.s(R.string.sug_ms_moved_in), "🏠", Categories.HOME, 0, milestone = true),
+        Suggestion(L10n.s(R.string.sug_ms_quit_smoking), "🚭", Categories.HEALTH, 0, milestone = true),
+        Suggestion(L10n.s(R.string.sug_ms_pet), "🐾", Categories.HOME, 0, milestone = true),
     )
 }
 

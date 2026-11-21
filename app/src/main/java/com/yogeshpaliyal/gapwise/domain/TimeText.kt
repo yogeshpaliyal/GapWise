@@ -66,6 +66,41 @@ object TimeText {
         }
     }
 
+    fun milestone(sinceMs: Long, now: Long = System.currentTimeMillis()): MilestoneInfo =
+        Milestones.info(localDate(sinceMs), localDate(now))
+
+    /** Big number + unit for a milestone tile: whole years, else months, else days. */
+    fun milestoneElapsed(m: MilestoneInfo): Pair<String, String> = when {
+        m.years >= 1 -> "${m.years}" to L10n.p(R.plurals.ms_years_unit, m.years)
+        m.years * 12 + m.months >= 1 -> "${m.months}" to L10n.p(R.plurals.ms_months_unit, m.months)
+        else -> "${m.totalDays}" to L10n.p(R.plurals.ms_days_unit, m.totalDays.toInt())
+    }
+
+    /** "4 years, 2 months, 9 days". */
+    fun milestoneBreakdown(m: MilestoneInfo): String = L10n.s(
+        R.string.ms_breakdown,
+        L10n.p(R.plurals.ms_years, m.years),
+        L10n.p(R.plurals.ms_months, m.months),
+        L10n.p(R.plurals.ms_days, m.days),
+    )
+
+    fun count(n: Long): String = java.text.NumberFormat.getIntegerInstance(Locale.getDefault()).format(n)
+
+    /** "in 23 days", "tomorrow", "today". */
+    fun inDays(d: Long): String = when (d) {
+        0L -> L10n.s(R.string.ms_today)
+        1L -> L10n.s(R.string.ms_tomorrow)
+        else -> L10n.p(R.plurals.ms_in_days, d.toInt(), count(d))
+    }
+
+    /** The line under a milestone: a celebration today, else the next anniversary. */
+    fun milestoneLine(m: MilestoneInfo): String = when {
+        m.anniversaryToday -> L10n.p(R.plurals.ms_years_today, m.nextAnniversaryYears)
+        m.roundToday -> L10n.s(R.string.ms_days_today, count(m.nextRoundDays))
+        else -> L10n.s(R.string.ms_next_in, L10n.p(R.plurals.ms_years, m.nextAnniversaryYears), inDays(m.daysToAnniversary))
+    }
+
+    fun date(d: LocalDate): String = dateFmt.format(d)
     fun date(ms: Long): String = dateFmt.format(localDate(ms))
     fun shortDate(ms: Long): String = shortDateFmt.format(localDate(ms))
     fun time(ms: Long): String = timeFmt.format(Instant.ofEpochMilli(ms).atZone(zone))

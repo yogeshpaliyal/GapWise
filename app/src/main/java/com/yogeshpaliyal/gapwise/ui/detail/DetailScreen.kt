@@ -113,10 +113,12 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
                                 text = { Text(if (e?.pinned == true) L10n.s(R.string.unpin) else L10n.s(R.string.pin_to_top)) },
                                 onClick = { vm.togglePin(); menu = false },
                             )
-                            DropdownMenuItem(
-                                text = { Text(if (e?.paused == true) L10n.s(R.string.resume) else L10n.s(R.string.pause_menu)) },
-                                onClick = { vm.togglePaused(); menu = false },
-                            )
+                            if (e?.isMilestone != true) {
+                                DropdownMenuItem(
+                                    text = { Text(if (e?.paused == true) L10n.s(R.string.resume) else L10n.s(R.string.pause_menu)) },
+                                    onClick = { vm.togglePaused(); menu = false },
+                                )
+                            }
                             DropdownMenuItem(
                                 text = { Text(if (e?.hidden == true) L10n.s(R.string.unhide) else L10n.s(R.string.hide_from_home)) },
                                 onClick = { vm.toggleHidden(); menu = false },
@@ -145,6 +147,11 @@ fun DetailScreen(onBack: () -> Unit, onEdit: (Long) -> Unit, vm: DetailViewModel
             return@Scaffold
         }
         val color = eventColor(item.event.color)
+        val milestone = item.milestone(System.currentTimeMillis())
+        if (milestone != null) {
+            MilestoneDetail(item, milestone, color, Modifier.padding(padding))
+            return@Scaffold
+        }
         val logs = item.item.sortedLogs.asReversed()
         LazyColumn(
             Modifier.padding(padding).fillMaxSize(),
@@ -350,7 +357,10 @@ private fun InfoCard(title: String, content: @Composable () -> Unit) {
 
 private fun shareIntent(ui: EventUi): Intent {
     val r = ui.rhythm
-    val text = buildString {
+    val m = ui.milestone(System.currentTimeMillis())
+    val text = if (m != null) {
+        "${ui.event.emoji} ${ui.event.name}: ${TimeText.milestoneBreakdown(m)}\n" + L10n.s(R.string.share_footer)
+    } else buildString {
         append("${ui.event.emoji} ${ui.event.name}: ${TimeText.elapsedInline(r.lastAt)}")
         r.usualDays?.let { append(" · " + TimeText.usualText(it).replaceFirstChar { c -> c.lowercase() }) }
         append("\n" + L10n.s(R.string.share_footer))

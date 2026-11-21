@@ -59,12 +59,52 @@ object Nudges {
     /** True if this event should get a nudge right now. */
     fun isDue(item: EventWithLogs, now: Long): Boolean {
         val e = item.event
-        if (e.paused || !e.nudgesEnabled || e.hidden) return false
+        if (e.isMilestone || e.paused || !e.nudgesEnabled || e.hidden) return false
         val r = RhythmCalculator.compute(item)
         val next = r.nextExpectedAt ?: return false
         val last = r.lastAt ?: return false
         // Once per cycle: only if we haven't nudged since the last log.
         return now >= next && e.lastNudgedAt < last
+    }
+
+    /**
+     * For a milestone, what to celebrate today (an anniversary or a round number of days), or
+     * null. Once a day at most, and not before 9 in the morning.
+     */
+    fun celebration(item: EventWithLogs, now: Long): String? {
+        val e = item.event
+        if (!e.isMilestone || !e.nudgesEnabled || e.hidden) return null
+        val since = item.milestoneAt ?: return null
+        val zone = java.time.ZoneId.systemDefault()
+        val at = java.time.Instant.ofEpochMilli(now).atZone(zone)
+        if (at.hour < 9) return null
+        if (e.lastNudgedAt > 0 && TimeText.localDate(e.lastNudgedAt) == at.toLocalDate()) return null
+        val m = TimeText.milestone(since, now)
+        return if (m.anniversaryToday || m.roundToday) TimeText.milestoneLine(m) else null
+    }
+
+    fun showCelebration(context: Context, item: EventWithLogs, text: String) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) return
+        val e = item.event
+        val id = notificationId(e.id)
+        val open = PendingIntent.getActivity(
+            context, id,
+            Intent(context, MainActivity::class.java)
+                .putExtra(MainActivity.EXTRA_EVENT_ID, e.id)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        val n = NotificationCompat.Builder(context, CHANNEL)
+            .setSmallIcon(R.drawable.ic_stat_gapwise)
+            .setContentTitle(L10n.s(R.string.nudge_title, e.emoji, e.name))
+            .setContentText("🎉 " + text)
+            .setContentIntent(open)
+            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .build()
+        NotificationManagerCompat.from(context).notify(id, n)
     }
 
     fun notificationId(eventId: Long) = (eventId % Int.MAX_VALUE).toInt() + 1000
@@ -117,8 +157,14 @@ class NudgeWorker(context: Context, params: WorkerParameters) : CoroutineWorker(
         if (!ctx.app.prefs.nudgesOn) return Result.success()
         val repo = ctx.app.repository
         val now = System.currentTimeMillis()
-        repo.getAll().filter { Nudges.isDue(it, now) }.forEach { item ->
+        val all = repo.getAll()
+        all.filter { Nudges.isDue(it, now) }.forEach { item ->
             Nudges.show(ctx, item)
+            repo.markNudged(item.event.id, now)
+        }
+        all.forEach { item ->
+            val text = Nudges.celebration(item, now) ?: return@forEach
+            Nudges.showCelebration(ctx, item, text)
             repo.markNudged(item.event.id, now)
         }
         return Result.success()

@@ -11,7 +11,9 @@ import com.yogeshpaliyal.gapwise.data.EventWithLogs
 import com.yogeshpaliyal.gapwise.data.LogResult
 import com.yogeshpaliyal.gapwise.ui.common.RepeatPrompt
 import com.yogeshpaliyal.gapwise.ui.common.repeatPrompt
+import com.yogeshpaliyal.gapwise.domain.MilestoneInfo
 import com.yogeshpaliyal.gapwise.domain.Rhythm
+import com.yogeshpaliyal.gapwise.domain.TimeText
 import com.yogeshpaliyal.gapwise.domain.RhythmCalculator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -42,6 +44,10 @@ enum class SortMode(val key: String, private val labelRes: Int, private val shor
 data class EventUi(val item: EventWithLogs, val rhythm: Rhythm) {
     val event get() = item.event
     val ongoing get() = item.ongoing != null
+    val isMilestone get() = item.event.isMilestone
+
+    /** Milestones only: elapsed time and what's coming up, as of [now]. */
+    fun milestone(now: Long): MilestoneInfo? = item.milestoneAt?.let { TimeText.milestone(it, now) }
 }
 
 data class Filters(
@@ -50,6 +56,8 @@ data class Filters(
     val sort: SortMode = SortMode.DUE,
     val grid: Boolean = true,
     val showHidden: Boolean = false,
+    /** Show only milestones. */
+    val milestones: Boolean = false,
 )
 
 data class HomeState(
@@ -58,6 +66,7 @@ data class HomeState(
     val categories: List<String> = emptyList(),
     val filters: Filters = Filters(),
     val hiddenCount: Int = 0,
+    val milestoneCount: Int = 0,
     val totalCount: Int = 0,
     val now: Long = System.currentTimeMillis(),
 )
@@ -82,16 +91,20 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     val state: StateFlow<HomeState> = combine(repo.observeAll(), filters, ticker) { items, f, now ->
         val all = items.map { EventUi(it, RhythmCalculator.compute(it)) }
         val q = f.query.trim()
+        // If the last milestone goes, the filter goes with it rather than leaving home empty.
+        val onlyMilestones = f.milestones && all.any { it.isMilestone }
         val visible = all
             .filter { f.showHidden || !it.event.hidden }
             .filter { f.category == null || it.event.category == f.category }
+            .filter { !onlyMilestones || it.isMilestone }
             .filter { q.isEmpty() || it.event.name.contains(q, ignoreCase = true) }
         HomeState(
             loading = false,
             events = sort(visible, f.sort, now),
             categories = all.map { it.event.category }.distinct().sorted(),
-            filters = f,
+            filters = f.copy(milestones = onlyMilestones),
             hiddenCount = all.count { it.event.hidden },
+            milestoneCount = all.count { it.isMilestone && (f.showHidden || !it.event.hidden) },
             totalCount = all.size,
             now = now,
         )
@@ -114,7 +127,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setQuery(q: String) = filters.update { it.copy(query = q) }
-    fun setCategory(c: String?) = filters.update { it.copy(category = c) }
+    fun setCategory(c: String?) = filters.update { it.copy(category = c, milestones = false) }
+    fun showMilestones() = filters.update { it.copy(category = null, milestones = !it.milestones) }
     fun toggleHidden() = filters.update { it.copy(showHidden = !it.showHidden) }
 
     fun setSort(s: SortMode) {
@@ -131,6 +145,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     val confirm = MutableStateFlow<RepeatPrompt?>(null)
 
     fun log(ui: EventUi) = viewModelScope.launch {
+        if (ui.isMilestone) return@launch
         // Check fresh data: the list on screen may be a moment old.
         val prompt = repo.get(ui.event.id)?.repeatPrompt()
         if (prompt != null) {

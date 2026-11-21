@@ -49,12 +49,14 @@ enum class GapStatus(@androidx.annotation.StringRes private val labelRes: Int) {
     DUE(R.string.status_due),
     PAST(R.string.status_past),
     ONGOING(R.string.status_ongoing),
-    PAUSED(R.string.status_paused);
+    PAUSED(R.string.status_paused),
+    MILESTONE(R.string.status_milestone);
 
     val label: String get() = L10n.s(labelRes)
 }
 
 fun EventUi.status(now: Long): GapStatus = when {
+    event.isMilestone -> GapStatus.MILESTONE
     event.paused -> GapStatus.PAUSED
     ongoing -> GapStatus.ONGOING
     rhythm.logCount == 0 -> GapStatus.NEW
@@ -80,6 +82,7 @@ fun GapStatus.polygon(): RoundedPolygon = when (this) {
     GapStatus.PAST -> MaterialShapes.SoftBurst
     GapStatus.ONGOING -> MaterialShapes.Pill
     GapStatus.PAUSED -> MaterialShapes.Square
+    GapStatus.MILESTONE -> MaterialShapes.Flower
 }
 
 /** A [Shape] drawn from a [Morph] between two normalised (0..1) polygons. */

@@ -1,6 +1,8 @@
 package com.yogeshpaliyal.gapwise
 
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import org.junit.Assert.assertEquals
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasSetTextAction as setText
 import androidx.compose.ui.test.hasSetTextAction
@@ -102,6 +104,41 @@ class SmokeTest {
             compose.waitUntil(10_000, condition)
         } catch (e: Throwable) {
             throw AssertionError("Timed out waiting for: $what\n" + compose.onRoot().printToString(maxDepth = 30), e)
+        }
+    }
+
+    @Test
+    fun milestoneOpensOnTapAndNeverLogs() {
+        val app = ApplicationProvider.getApplicationContext<GapwiseApp>()
+        val day = 24 * 60 * 60 * 1000L
+        val id = runBlocking {
+            app.repository.createEvent(
+                EventEntity(name = "Wedding", emoji = "💍", color = 0xFFEC4899, category = "People", isMilestone = true),
+                firstLogAt = System.currentTimeMillis() - 1000 * day,
+            )
+        }
+        ActivityScenario.launch(MainActivity::class.java).use {
+            waitOrDump("milestone on home") { compose.onAllNodesWithText("1,000 days today").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithText("Wedding").performClick()
+            waitOrDump("milestone details") { compose.onAllNodesWithText("In total").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithText("Coming up").performScrollTo().assertExists()
+        }
+        runBlocking {
+            // Taps, widgets and shortcuts all go through logNow, which leaves milestones alone.
+            app.repository.logNow(id)
+            assertEquals(1, app.repository.get(id)!!.logs.size)
+        }
+    }
+
+    @Test
+    fun newMilestoneNeedsADate() {
+        ActivityScenario.launch(MainActivity::class.java).use {
+            compose.onNodeWithContentDescription("New event").performClick()
+            compose.waitForIdle()
+            compose.onNodeWithText("Milestone").performClick()
+            compose.onNode(hasSetTextAction() and hasText("What do you want to track?")).performTextInput("Moved in")
+            compose.onNodeWithText("When was it?").performScrollTo().assertExists()
+            compose.onNodeWithText("Add event").performScrollTo().assertIsNotEnabled()
         }
     }
 

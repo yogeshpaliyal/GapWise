@@ -464,4 +464,78 @@
         <item quantity="many">%d elegidos</item>
         <item quantity="other">%d elegidos</item>
     </plurals>
+
+    <!-- Milestones -->
+    <string name="status_milestone">Hito</string>
+    <string name="filter_milestones">Hitos</string>
+    <string name="ms_breakdown">%1$s, %2$s y %3$s</string>
+    <string name="ms_tomorrow">mañana</string>
+    <string name="ms_today">hoy</string>
+    <string name="ms_days_today">%1$s días hoy</string>
+    <string name="ms_next_in">%1$s %2$s</string>
+    <string name="ms_since">Desde el %1$s</string>
+    <string name="ms_card_total">En total</string>
+    <string name="ms_stat_days">Días</string>
+    <string name="ms_stat_weeks">Semanas</string>
+    <string name="ms_stat_months">Meses</string>
+    <string name="ms_card_next">Próximamente</string>
+    <string name="ms_n_days">%1$s días</string>
+    <string name="ms_reminders_on">Te avisaremos ese día.</string>
+    <string name="ms_reminders_off">Los recordatorios de este hito están desactivados.</string>
+    <string name="ms_date_label">¿Cuándo fue?</string>
+    <string name="ms_date_hint">La fecha en que empezó todo. Puedes cambiarla después.</string>
+    <string name="ms_reminders_toggle">Recordatorios de aniversario</string>
+    <string name="ms_reminders_toggle_hint">Un aviso en cada aniversario y en cifras redondas como 1000 días</string>
+    <string name="kind_repeats">Se repite</string>
+    <string name="kind_milestone">Hito</string>
+    <string name="kind_repeats_hint">Algo que haces una y otra vez, como cortarte el pelo.</string>
+    <string name="kind_milestone_hint">Una fecha desde la que contar, como una boda o un cumpleaños.</string>
+    <string name="ask_milestone_date">¿Cuándo fue?</string>
+    <string name="sug_ms_wedding">Boda</string>
+    <string name="sug_ms_birthday">Mi cumpleaños</string>
+    <string name="sug_ms_together">Juntos desde</string>
+    <string name="sug_ms_new_job">Empecé en mi trabajo</string>
+    <string name="sug_ms_moved_in">Mudanza</string>
+    <string name="sug_ms_quit_smoking">Dejé de fumar</string>
+    <string name="sug_ms_pet">Llegó la mascota</string>
+    <plurals name="ms_years_unit">
+        <item quantity="one">año</item>
+        <item quantity="many">años</item>
+        <item quantity="other">años</item>
+    </plurals>
+    <plurals name="ms_months_unit">
+        <item quantity="one">mes</item>
+        <item quantity="many">meses</item>
+        <item quantity="other">meses</item>
+    </plurals>
+    <plurals name="ms_days_unit">
+        <item quantity="one">día</item>
+        <item quantity="many">días</item>
+        <item quantity="other">días</item>
+    </plurals>
+    <plurals name="ms_years">
+        <item quantity="one">%d año</item>
+        <item quantity="many">%d años</item>
+        <item quantity="other">%d años</item>
+    </plurals>
+    <plurals name="ms_months">
+        <item quantity="one">%d mes</item>
+        <item quantity="many">%d meses</item>
+        <item quantity="other">%d meses</item>
+    </plurals>
+    <plurals name="ms_days">
+        <item quantity="one">%d día</item>
+        <item quantity="many">%d días</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+    <plurals name="ms_in_days">
+        <item quantity="one">en %s día</item>
+        <item quantity="many">en %s días</item>
+        <item quantity="other">en %s días</item>
+    </plurals>
+    <plurals name="ms_years_today">
+        <item quantity="one">Hoy cumple %d año</item>
+        <item quantity="many">Hoy cumple %d años</item>
+        <item quantity="other">Hoy cumple %d años</item>
+    </plurals>
 </resources>
