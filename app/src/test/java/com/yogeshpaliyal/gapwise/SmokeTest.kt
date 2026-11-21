@@ -118,7 +118,10 @@ class SmokeTest {
             )
         }
         ActivityScenario.launch(MainActivity::class.java).use {
-            waitOrDump("milestone on home") { compose.onAllNodesWithText("1,000 days today").fetchSemanticsNodes().isNotEmpty() }
+            // Other tests' events share this database, and milestones sort last.
+            waitOrDump("home loaded") { compose.onAllNodes(hasScrollToNodeAction()).fetchSemanticsNodes().isNotEmpty() }
+            compose.onNode(hasScrollToNodeAction()).performScrollToNode(hasText("Wedding"))
+            compose.onNodeWithText("1,000 days today").assertExists()
             compose.onNodeWithText("Wedding").performClick()
             waitOrDump("milestone details") { compose.onAllNodesWithText("In total").fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithText("Coming up").performScrollTo().assertExists()
