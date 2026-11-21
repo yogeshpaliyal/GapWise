@@ -1,18 +1,34 @@
-<img src="docs/logo.png" width="96" alt="GapWise logo">
+<p align="center">
+  <img src="docs/banner.png" alt="GapWise: remember the last time, know the next" width="100%">
+</p>
 
-# GapWise
+<p align="center">
+  <a href="https://github.com/yogeshpaliyal/GapWise/releases/latest"><img src="https://img.shields.io/github/v/release/yogeshpaliyal/GapWise?color=7B2D7F&label=release" alt="Latest release"></a>
+  <a href="https://github.com/yogeshpaliyal/GapWise/releases"><img src="https://img.shields.io/github/downloads/yogeshpaliyal/GapWise/total?color=7B2D7F" alt="Downloads"></a>
+  <img src="https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white" alt="Android 8.0+">
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/yogeshpaliyal/GapWise?color=7B2D7F" alt="GPL-3.0"></a>
+  <img src="https://img.shields.io/badge/F--Droid%20build-reproducible-1976D2?logo=f-droid&logoColor=white" alt="Reproducible F-Droid build">
+</p>
 
-<p>
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.yogeshpaliyal.gapwise"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="80"></a>
+  <a href="https://github.com/yogeshpaliyal/GapWise/releases/latest"><img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt="Get it on GitHub" height="80"></a>
+  <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.yogeshpaliyal.gapwise%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fyogeshpaliyal%2FGapWise%22%2C%22author%22%3A%22yogeshpaliyal%22%2C%22name%22%3A%22GapWise%22%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%20%5C%22-app%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="54"></a>
+</p>
+
+<p align="center">F-Droid and IzzyOnDroid listings are on the way.</p>
+
+**Remember the last time. Know the next.**
+
+GapWise tracks how long it's been since you last did the things that don't run on a fixed schedule: a haircut, an oil change, calling home, washing the bedsheets. It learns your usual rhythm and gives you a gentle nudge around when something is usually due. There are no streaks and no guilt.
+
+<p align="center">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="19%">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="19%">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="19%">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="19%">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="19%">
 </p>
-
-**Remember the last time. Know the next.**
-
-GapWise tracks how long it's been since you last did the things that don't run on a fixed schedule: a haircut, an oil change, calling home, washing the bedsheets. It learns your usual rhythm and gives you a gentle nudge around when something is usually due. There are no streaks and no guilt.
 
 ## Features
 
@@ -56,6 +72,7 @@ The Play listing lives in `fastlane/metadata/android/en-US/` (title, description
 python3 docs/play_screenshots.py docs/screenshots fastlane/metadata/android/en-US/images/phoneScreenshots
 python3 docs/play_assets.py docs/screenshots fastlane/metadata/android/en-US/images
 python3 docs/play_foldable.py docs/screenshots docs/foldable
+python3 docs/readme_banner.py docs/screenshots docs/banner.svg && rsvg-convert docs/banner.svg -o docs/banner.png && rm docs/banner.svg
 for f in fastlane/metadata/android/en-US/images/{,phoneScreenshots/}*.svg; do rsvg-convert "$f" -o "${f%.svg}.png" && rm "$f"; done
 for f in docs/foldable/*.svg; do rsvg-convert "$f" -o "${f%.svg}.png" && rm "$f"; done
 ```
